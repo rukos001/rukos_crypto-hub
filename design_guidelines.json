@@ -1,0 +1,205 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "Creative Designer (Anti-AI)",
+    "mission": "Create a premium, dark-mode crypto dashboard that feels like a high-frequency trading terminal meets a luxury car interface.",
+    "emotional_tone": "Premium, High-Velocity, Trustworthy, Exclusive",
+    "design_principles": [
+      "Fusion: Combine 'Bloomberg Terminal' density with 'Luxury Watch' aesthetics.",
+      "Depth: Use Z-axis layering (shadows, blurs, overlays) to create a 3D feel in a 2D interface.",
+      "Data as Art: Charts and numbers are the heroes. Make them beautiful, not just functional.",
+      "Gold Standard: Use Gold/Orange accents purposefully to guide attention, not just for decoration."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Space Grotesk, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-6xl font-bold tracking-tight",
+      "h2": "text-3xl md:text-4xl font-bold tracking-tight",
+      "h3": "text-2xl font-semibold tracking-tight",
+      "body_lg": "text-lg leading-relaxed",
+      "body_base": "text-base leading-relaxed text-muted-foreground",
+      "caption": "text-sm text-muted-foreground uppercase tracking-widest"
+    },
+    "rules": [
+      "Use 'Space Grotesk' for all metric values (prices, percentages) to give a technical feel.",
+      "Use 'JetBrains Mono' for wallet addresses, transaction hashes, and tabular data.",
+      "Headings should be tight (tracking-tight) and bold."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#050505",
+        "card": "#0A0A0A",
+        "overlay": "#121212"
+      },
+      "primary": {
+        "main": "#F7931A",
+        "light": "#FFAC40",
+        "dark": "#C87208",
+        "gradient": "linear-gradient(135deg, #FFD700 0%, #F7931A 100%)"
+      },
+      "secondary": {
+        "main": "#27272A",
+        "light": "#3F3F46"
+      },
+      "text": {
+        "primary": "#EDEDED",
+        "secondary": "#A1A1AA",
+        "muted": "#52525B",
+        "accent": "#FFD700"
+      },
+      "status": {
+        "success": "#10B981",
+        "error": "#EF4444",
+        "warning": "#F59E0B",
+        "info": "#3B82F6"
+      }
+    },
+    "usage_rules": [
+      "BACKGROUND: Use pure #050505 for the main background to make the Gold pop.",
+      "CARDS: Use #0A0A0A with a 1px border of #FFFFFF at 5% opacity.",
+      "ACCENTS: Use the Gold/Orange gradient for primary CTA buttons and active states.",
+      "TEXT: Never use pure white (#FFFFFF) for body text; use #EDEDED. Use Pure White only for Headings or Active Values.",
+      "GLOW: Add a subtle drop-shadow or glow (box-shadow: 0 0 20px rgba(247, 147, 26, 0.2)) to key metrics."
+    ]
+  },
+  "layout": {
+    "grid_system": "Bento Grid (CSS Grid)",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "spacing": {
+      "section_gap": "py-12 md:py-20",
+      "component_gap": "gap-6 md:gap-8",
+      "internal_padding": "p-6 md:p-8"
+    },
+    "radius": {
+      "default": "rounded-xl",
+      "button": "rounded-lg",
+      "card": "rounded-2xl"
+    },
+    "z_index": {
+      "base": "z-0",
+      "card": "z-10",
+      "sticky": "z-40",
+      "modal": "z-50",
+      "toast": "z-50"
+    }
+  },
+  "components": {
+    "cards": {
+      "style": "glass-morphism",
+      "classes": "bg-card/50 backdrop-blur-md border border-white/5 shadow-2xl hover:border-primary/20 transition-all duration-300",
+      "hover": "hover:-translate-y-1 hover:shadow-[0_0_30px_-10px_rgba(247,147,26,0.3)]"
+    },
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground font-bold hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(247,147,26,0.4)]",
+      "secondary": "bg-secondary text-white hover:bg-secondary/80 border border-white/10",
+      "ghost": "hover:bg-white/5 text-muted-foreground hover:text-white"
+    },
+    "inputs": {
+      "style": "flat-dark",
+      "classes": "bg-secondary/50 border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+    },
+    "charts": {
+      "library": "Recharts (via Shadcn Charts)",
+      "theme": {
+        "grid": "stroke-white/5",
+        "tooltip": "bg-black/90 border-white/10 text-white",
+        "colors": ["#F7931A", "#10B981", "#3B82F6", "#F59E0B"]
+      }
+    }
+  },
+  "visual_enhancers": {
+    "gradients": {
+      "gold_rush": "bg-gradient-to-r from-yellow-500 to-orange-600",
+      "dark_matter": "bg-gradient-to-b from-black via-zinc-900 to-black"
+    },
+    "textures": {
+      "noise": "url('/assets/noise.png') opacity-5",
+      "grid": "bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+    },
+    "effects": {
+      "glass": "backdrop-blur-xl bg-black/40 border border-white/10",
+      "neon_border": "border border-primary/50 shadow-[0_0_10px_rgba(247,147,26,0.3),inset_0_0_10px_rgba(247,147,26,0.1)]"
+    }
+  },
+  "assets": {
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-1.5"
+    },
+    "images": [
+      {
+        "category": "Backgrounds",
+        "url": "https://images.unsplash.com/photo-1759178460799-1ad5a891bf8e?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Abstract gold swirls for hero section background overlay"
+      },
+      {
+        "category": "Backgrounds",
+        "url": "https://images.unsplash.com/photo-1643324896137-f0928e76202a?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Close up gold/black texture for card backgrounds or footer"
+      },
+      {
+        "category": "Crypto Coins",
+        "url": "https://images.pexels.com/photos/7267532/pexels-photo-7267532.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Physical crypto coins for 'About' or 'Invest' section"
+      }
+    ]
+  },
+  "motion": {
+    "library": "framer-motion",
+    "defaults": {
+      "duration": 0.4,
+      "ease": [0.22, 1, 0.36, 1]
+    },
+    "types": {
+      "fade_up": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 }
+      },
+      "scale_in": {
+        "initial": { "opacity": 0, "scale": 0.95 },
+        "animate": { "opacity": 1, "scale": 1 }
+      },
+      "hover_card": {
+        "whileHover": { "y": -5, "scale": 1.01 }
+      }
+    }
+  },
+  "accessibility": {
+    "rules": [
+      "Ensure text contrast ratio of 4.5:1 against the dark background.",
+      "Do not rely on color alone for status (use icons + color).",
+      "Focus states must be visible (ring-2 ring-primary)."
+    ]
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement the 'Dark Mode' by default. The user requested it explicitly.",
+      "Use the 'Bento Grid' layout for the Dashboard to manage the density of information (Whales, Prices, ETFs).",
+      "Integrate the 'Space Grotesk' font for headings. You may need to import it from Google Fonts.",
+      "For the 'AI Assistant', use a floating modal or a dedicated sidebar that is always accessible.",
+      "The 'Orange/Gold' accent is your primary brand color. Use it for the most important actions (Buy, Sell, Subscribe)."
+    ],
+    "dashboard_specifics": [
+      "Whale Activity: Use a list view with high contrast for large amounts.",
+      "Liquidations: Use a bar chart (red for shorts, green for longs).",
+      "ETF Flows: Use a composed line chart."
+    ],
+    "auth": "Style the JWT Login/Register pages with a 'Glass' card centered on the 'Gold Swirls' background."
+  },
+  "UNIVERSAL_GUIDELINES": [
+    "Do not use generic centered layouts. Use asymmetry.",
+    "Dark colors look good when used independently. Avoid muddy gradients.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Never use AI assistant emoji characters.",
+    "Use 'sonner' for toasts."
+  ]
+}
