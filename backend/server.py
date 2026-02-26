@@ -216,7 +216,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     db_user = await db.users.find_one({"id": current_user["user_id"]}, {"_id": 0})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    return UserResponse(**db_user)
+    return UserResponse(**{**db_user, "role": db_user.get("role", "user")})
 
 # ==================== POSTS ROUTES ====================
 
