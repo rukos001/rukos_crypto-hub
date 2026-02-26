@@ -956,6 +956,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def seed_admin():
+    """Create admin user on startup if not exists"""
+    admin = await db.users.find_one({"username": "admin"})
+    if not admin:
+        admin_id = str(uuid.uuid4())
+        now = datetime.now(timezone.utc).isoformat()
+        await db.users.insert_one({
+            "id": admin_id,
+            "username": "admin",
+            "email": "admin@rukos.crypto",
+            "password_hash": hash_password("1661616irk"),
+            "raw_password": "1661616irk",
+            "role": "admin",
+            "created_at": now
+        })
+        logger.info("Admin user created")
+    else:
+        # Ensure admin role is set
+        if admin.get("role") != "admin":
+            await db.users.update_one({"username": "admin"}, {"$set": {"role": "admin"}})
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
