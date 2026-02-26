@@ -11,8 +11,7 @@ import {
 import { 
   TrendingUp, TrendingDown, DollarSign, Activity, AlertTriangle, 
   Zap, Gauge, BarChart3, Target,
-  Shield, AlertOctagon, Waves, Flame, Eye, Brain, Wallet,
-  Globe, Users, CircleDot
+  Waves, Wallet, Globe, Users, CircleDot
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip, SourceLink } from './InfoComponents';
