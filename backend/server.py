@@ -719,6 +719,75 @@ def get_fallback_prices():
         "is_fallback": True
     }
 
+# ==================== ADVANCED ANALYTICS ROUTES ====================
+
+from advanced_analytics import (
+    get_market_core_data, get_derivatives_data, get_etf_intelligence,
+    get_onchain_data, get_altseason_data, get_risk_engine,
+    get_options_data, get_sentiment_data, get_capital_flows,
+    get_ai_signals, get_portfolio_data, get_war_mode_alerts
+)
+
+@api_router.get("/analytics/market-core")
+async def market_core():
+    """Macro panel data"""
+    return get_market_core_data()
+
+@api_router.get("/analytics/derivatives")
+async def derivatives(asset: str = "all"):
+    """Derivatives data for BTC, ETH, SOL or all"""
+    return get_derivatives_data(asset)
+
+@api_router.get("/analytics/etf-intelligence")
+async def etf_intelligence():
+    """Extended ETF flow intelligence"""
+    return get_etf_intelligence()
+
+@api_router.get("/analytics/onchain")
+async def onchain():
+    """Onchain war room data"""
+    return get_onchain_data()
+
+@api_router.get("/analytics/altseason")
+async def altseason():
+    """Altseason monitor"""
+    return get_altseason_data()
+
+@api_router.get("/analytics/risk-engine")
+async def risk_engine():
+    """Risk assessment engine"""
+    return get_risk_engine()
+
+@api_router.get("/analytics/options")
+async def options():
+    """Options intelligence"""
+    return get_options_data()
+
+@api_router.get("/analytics/sentiment")
+async def sentiment():
+    """Social & sentiment data"""
+    return get_sentiment_data()
+
+@api_router.get("/analytics/capital-flows")
+async def capital_flows():
+    """Capital flow map"""
+    return get_capital_flows()
+
+@api_router.get("/analytics/ai-signals")
+async def ai_signals():
+    """AI signal panel"""
+    return get_ai_signals()
+
+@api_router.get("/analytics/portfolio")
+async def portfolio(current_user: dict = Depends(get_current_user)):
+    """User portfolio data"""
+    return get_portfolio_data(current_user["user_id"])
+
+@api_router.get("/analytics/war-mode")
+async def war_mode():
+    """War mode alerts"""
+    return get_war_mode_alerts()
+
 @api_router.get("/")
 async def root():
     return {"message": "RUKOS_CRYPTO | HUB API"}
