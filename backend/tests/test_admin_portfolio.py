@@ -147,17 +147,37 @@ class TestAdminUsers:
         assert delete_response.status_code == 400
         assert "Cannot delete admin" in delete_response.json()["detail"]
     
-    def test_non_admin_cannot_delete_user(self, user_client, admin_client):
+    def test_non_admin_cannot_delete_user(self, api_client):
         """Regular user should get 403 when trying to delete users"""
+        # Get admin token to list users
+        admin_response = api_client.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@rukos.crypto",
+            "password": "1661616irk"
+        })
+        admin_token = admin_response.json()["access_token"]
+        
         # Get a user id
-        users_response = admin_client.get(f"{BASE_URL}/api/admin/users")
+        users_response = api_client.get(f"{BASE_URL}/api/admin/users", 
+                                         headers={"Authorization": f"Bearer {admin_token}"})
         non_admin_users = [u for u in users_response.json() if u["role"] != "admin"]
         if len(non_admin_users) == 0:
             pytest.skip("No non-admin users to test with")
         user_id = non_admin_users[0]["id"]
         
-        # Try to delete as non-admin
-        delete_response = user_client.delete(f"{BASE_URL}/api/admin/users/{user_id}")
+        # Get user token
+        user_response = api_client.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "test@test.com",
+            "password": "password123"
+        })
+        user_token = user_response.json()["access_token"]
+        
+        # Try to delete as non-admin (fresh session)
+        fresh_client = requests.Session()
+        fresh_client.headers.update({
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {user_token}"
+        })
+        delete_response = fresh_client.delete(f"{BASE_URL}/api/admin/users/{user_id}")
         assert delete_response.status_code == 403
 
 # ==================== ADMIN STATS ENDPOINT TESTS ====================
@@ -204,8 +224,15 @@ class TestAdminChatMessages:
             assert "author_username" in msg
             assert "created_at" in msg
     
-    def test_admin_can_delete_chat_message(self, admin_client, user_client, api_client, user_token):
+    def test_admin_can_delete_chat_message(self, api_client):
         """Admin should be able to delete any chat message"""
+        # Get user token
+        user_response = api_client.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "test@test.com",
+            "password": "password123"
+        })
+        user_token = user_response.json()["access_token"]
+        
         # Create a message as regular user
         msg_client = requests.Session()
         msg_client.headers.update({
@@ -218,13 +245,25 @@ class TestAdminChatMessages:
         assert msg_response.status_code == 200
         msg_id = msg_response.json()["id"]
         
-        # Delete as admin
-        delete_response = admin_client.delete(f"{BASE_URL}/api/admin/chat-messages/{msg_id}")
+        # Get admin token
+        admin_response = api_client.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@rukos.crypto",
+            "password": "1661616irk"
+        })
+        admin_token = admin_response.json()["access_token"]
+        
+        # Delete as admin (fresh session)
+        admin_del_client = requests.Session()
+        admin_del_client.headers.update({
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {admin_token}"
+        })
+        delete_response = admin_del_client.delete(f"{BASE_URL}/api/admin/chat-messages/{msg_id}")
         assert delete_response.status_code == 200
         assert delete_response.json()["status"] == "deleted"
         
         # Verify deletion
-        messages = admin_client.get(f"{BASE_URL}/api/admin/chat-messages").json()
+        messages = admin_del_client.get(f"{BASE_URL}/api/admin/chat-messages").json()
         msg_ids = [m["id"] for m in messages]
         assert msg_id not in msg_ids
     
