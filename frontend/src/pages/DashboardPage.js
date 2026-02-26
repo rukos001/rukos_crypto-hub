@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { ScrollArea, ScrollBar } from '../components/ui/scroll-area';
 import { RefreshCw, AlertOctagon, Globe, BarChart3, Activity, 
-  Wallet, Shield, Brain, Flame, Target } from 'lucide-react';
+  Wallet, Shield, Brain, Flame } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../context/LanguageContext';
 
