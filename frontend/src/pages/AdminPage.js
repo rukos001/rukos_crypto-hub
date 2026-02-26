@@ -59,17 +59,21 @@ const PortfolioEditor = () => {
   };
 
   const saveGroup = async () => {
-    if (!selectedUser || !editGroup) return;
+    if ((!selectedUser && !applyToAll) || !editGroup) return;
     setSaving(true);
     try {
       await axios.put(`${API}/admin/portfolio`, {
-        user_id: selectedUser,
+        user_id: applyToAll ? 'ALL' : selectedUser,
         group: editGroup,
         positions: positions.filter(p => p.asset.trim()),
         description: portfolio?.groups?.[editGroup]?.description || ''
       });
-      toast.success(`${editGroup} saved`);
-      await loadPortfolio(selectedUser);
+      if (applyToAll) {
+        toast.success(`${editGroup} applied to ALL users`);
+      } else {
+        toast.success(`${editGroup} saved`);
+        await loadPortfolio(selectedUser);
+      }
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to save');
     } finally {
