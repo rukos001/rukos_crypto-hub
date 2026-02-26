@@ -519,8 +519,20 @@ class RukosCryptoAPITester:
         self.test_crypto_fear_greed()
         self.test_crypto_price_history()
 
+        # Test NEW Dashboard Analytics Endpoints
+        print("\n📊 Testing Dashboard Analytics Endpoints...")
+        self.test_analytics_market_core()
+        self.test_analytics_derivatives()
+        self.test_analytics_etf_intelligence()
+        self.test_analytics_onchain()
+        self.test_analytics_altseason()
+        self.test_analytics_risk_engine()
+        self.test_analytics_ai_signals()
+        self.test_analytics_war_mode()
+
         # Test authenticated endpoints
         if self.token:
+            print("\n🔐 Testing Authenticated Endpoints...")
             self.test_posts_create()
             self.test_posts_get()
             if hasattr(self, 'created_post_id'):
@@ -531,6 +543,9 @@ class RukosCryptoAPITester:
             
             self.test_chat_create()
             self.test_chat_get()
+            
+            # Test portfolio (requires auth)
+            self.test_analytics_portfolio()
             
             # AI Assistant test (might fail if key is invalid)
             self.test_ai_assistant()
