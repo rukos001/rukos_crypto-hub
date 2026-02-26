@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Card, CardContent, CardHeader } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { Progress } from '../components/ui/progress';
+import React from 'react';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Badge } from './ui/badge';
+import { ScrollArea } from './ui/scroll-area';
+import { Progress } from './ui/progress';
 import { 
   LineChart, Line, BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
