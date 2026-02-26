@@ -41,15 +41,15 @@ test.describe('Landing Page Branding', () => {
 
   test('Landing page has new animated SVG logo', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // Check for the new RukosAnimatedLogo component
-    const animatedLogo = page.getByTestId('rukos-animated-logo');
-    await expect(animatedLogo).toBeVisible();
+    // Check for the new RukosAnimatedLogo component - there are 2 on the page (hero + CTA section)
+    const animatedLogos = page.getByTestId('rukos-animated-logo');
+    await expect(animatedLogos.first()).toBeVisible();
     // The logo should contain an SVG with golden cubes and text
-    const svg = animatedLogo.locator('svg');
+    const svg = animatedLogos.first().locator('svg');
     await expect(svg).toBeVisible();
     // Check that the SVG contains the brand text
-    await expect(animatedLogo).toContainText('RUKOS_CRYPTO');
-    await expect(animatedLogo).toContainText('HUB');
+    await expect(animatedLogos.first()).toContainText('RUKOS_CRYPTO');
+    await expect(animatedLogos.first()).toContainText('HUB');
   });
 
   test('Landing page has no watermarks', async ({ page }) => {
