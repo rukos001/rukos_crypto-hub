@@ -108,6 +108,29 @@ export const Sidebar = ({ onOpenAI }) => {
                 {!isCollapsed && <span>{item.label}</span>}
               </NavLink>
             ))}
+
+            {/* Admin Link - only visible to admins */}
+            {isAdmin && (
+              <>
+                <div className="border-t border-white/10 my-3" />
+                <NavLink
+                  to="/admin"
+                  onClick={() => setIsMobileOpen(false)}
+                  className={({ isActive }) => `
+                    flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                    ${isActive 
+                      ? 'bg-[#EF4444]/20 text-[#EF4444] font-medium' 
+                      : 'text-[#EF4444]/70 hover:bg-[#EF4444]/10 hover:text-[#EF4444]'
+                    }
+                    ${isCollapsed ? 'justify-center' : ''}
+                  `}
+                  data-testid="nav-admin"
+                >
+                  <Shield className="w-5 h-5 flex-shrink-0" />
+                  {!isCollapsed && <span>Admin</span>}
+                </NavLink>
+              </>
+            )}
           </nav>
 
           {/* Language Switcher */}
