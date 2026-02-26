@@ -75,6 +75,12 @@ export const KnowledgePage = () => {
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
+    if (urlCategory && CATEGORIES.find(c => c.key === urlCategory)) {
+      setActiveCategory(urlCategory);
+    }
+  }, [urlCategory]);
+
+  useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
