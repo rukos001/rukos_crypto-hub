@@ -21,26 +21,28 @@ import './index.css';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          
-          {/* Protected routes */}
-          <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/posts" element={<PostsPage />} />
-            <Route path="/ideas" element={<IdeasPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
+      <LanguageProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Protected routes */}
+            <Route element={<MainLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/posts" element={<PostsPage />} />
+              <Route path="/ideas" element={<IdeasPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" richColors />
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" richColors />
+      </LanguageProvider>
     </AuthProvider>
   );
 }
