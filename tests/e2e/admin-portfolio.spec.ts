@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Admin Panel and Portfolio Tests - Consolidated Spec
- * Tests for admin features and portfolio page
+ * Tests for admin features, portfolio page, landing page branding
  */
 
 // Helper function for admin login
@@ -24,6 +24,54 @@ async function loginAsUser(page, email = 'test@test.com', password = 'password12
   await page.getByTestId('login-submit-btn').click();
   await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 15000 });
 }
+
+// ==================== LANDING PAGE BRANDING TESTS ====================
+
+test.describe('Landing Page Branding', () => {
+  test('Landing page has hero video element', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const heroVideo = page.getByTestId('hero-video');
+    await expect(heroVideo).toBeVisible();
+    // Check video source is hero-video.mp4
+    const source = heroVideo.locator('source');
+    await expect(source).toHaveAttribute('src', '/hero-video.mp4');
+    await expect(source).toHaveAttribute('type', 'video/mp4');
+  });
+
+  test('Landing page has logo image in hero', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const heroLogoImg = page.getByTestId('hero-logo-img');
+    await expect(heroLogoImg).toBeVisible();
+    await expect(heroLogoImg).toHaveAttribute('src', '/logo.jpg');
+    await expect(heroLogoImg).toHaveAttribute('alt', 'RUKOS CRYPTO');
+  });
+
+  test('Landing page has RukosWatermark component', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    // Check for at least one watermark on landing page
+    const watermarks = page.locator('[data-testid="rukos-watermark"]');
+    const count = await watermarks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Landing page buttons visible and clickable', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByTestId('get-started-btn')).toBeVisible();
+    await expect(page.getByTestId('login-btn')).toBeVisible();
+  });
+});
+
+// ==================== SIDEBAR BRANDING TESTS ====================
+
+test.describe('Sidebar Logo', () => {
+  test('Sidebar shows logo image when expanded', async ({ page }) => {
+    await loginAsUser(page);
+    await expect(page.getByTestId('sidebar')).toBeVisible();
+    const sidebarLogo = page.getByTestId('sidebar-logo');
+    await expect(sidebarLogo).toBeVisible();
+    await expect(sidebarLogo).toHaveAttribute('src', '/logo.jpg');
+  });
+});
 
 test.describe('Admin Panel Features', () => {
   test('Admin login shows admin link in sidebar', async ({ page }) => {
