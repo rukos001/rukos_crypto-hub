@@ -941,6 +941,148 @@ async def get_portfolio_groups(current_user: dict = Depends(get_current_user)):
         "total_pnl_pct": (total_pnl / (total_value - total_pnl) * 100) if (total_value - total_pnl) > 0 else 0
     }
 
+# ==================== ADMIN PORTFOLIO MANAGEMENT ====================
+
+class PortfolioPositionCreate(BaseModel):
+    asset: str
+    size: float
+    entry: float
+    current: float
+    notes: str = ""
+
+class AdminPortfolioUpdate(BaseModel):
+    user_id: str
+    group: str  # HOLD, ALTs, HI_RISK
+    positions: List[PortfolioPositionCreate]
+    description: str = ""
+
+@api_router.get("/admin/portfolio/{user_id}")
+async def admin_get_user_portfolio(user_id: str, admin: dict = Depends(get_admin_user)):
+    """Get specific user's portfolio (admin)"""
+    portfolio = await db.portfolios.find_one({"user_id": user_id}, {"_id": 0})
+    if not portfolio:
+        return {"user_id": user_id, "groups": {
+            "HOLD": {"description": "Long-term core positions", "positions": []},
+            "ALTs": {"description": "Altcoin swing positions", "positions": []},
+            "HI_RISK": {"description": "High risk / high reward bets", "positions": []}
+        }}
+    return portfolio
+
+@api_router.put("/admin/portfolio")
+async def admin_update_portfolio(body: AdminPortfolioUpdate, admin: dict = Depends(get_admin_user)):
+    """Update a user's portfolio group (admin)"""
+    user_id = body.user_id
+    group = body.group
+    
+    if group not in ["HOLD", "ALTs", "HI_RISK"]:
+        raise HTTPException(status_code=400, detail="Invalid group. Must be HOLD, ALTs, or HI_RISK")
+    
+    portfolio = await db.portfolios.find_one({"user_id": user_id}, {"_id": 0})
+    if not portfolio:
+        portfolio = {
+            "user_id": user_id,
+            "groups": {
+                "HOLD": {"description": "Long-term core positions", "positions": []},
+                "ALTs": {"description": "Altcoin swing positions", "positions": []},
+                "HI_RISK": {"description": "High risk / high reward bets", "positions": []}
+            }
+        }
+    
+    positions = [p.model_dump() for p in body.positions]
+    portfolio["groups"][group]["positions"] = positions
+    if body.description:
+        portfolio["groups"][group]["description"] = body.description
+    
+    await db.portfolios.update_one(
+        {"user_id": user_id},
+        {"$set": portfolio},
+        upsert=True
+    )
+    return {"status": "updated", "user_id": user_id, "group": group, "positions_count": len(positions)}
+
+@api_router.get("/admin/portfolios")
+async def admin_list_portfolios(admin: dict = Depends(get_admin_user)):
+    """List all users for portfolio management"""
+    users = await db.users.find({}, {"_id": 0, "id": 1, "username": 1, "email": 1}).to_list(1000)
+    result = []
+    for u in users:
+        portfolio = await db.portfolios.find_one({"user_id": u["id"]}, {"_id": 0})
+        pos_count = 0
+        if portfolio:
+            for g in portfolio.get("groups", {}).values():
+                pos_count += len(g.get("positions", []))
+        result.append({
+            "user_id": u["id"],
+            "username": u["username"],
+            "email": u["email"],
+            "positions_count": pos_count,
+            "has_custom_portfolio": portfolio is not None
+        })
+    return result
+
+# ==================== KNOWLEDGE BASE ====================
+
+class KnowledgeArticle(BaseModel):
+    title: str
+    content: str
+    category: str  # defi, perp, options, macro
+    tags: List[str] = []
+
+@api_router.get("/knowledge")
+async def get_knowledge_articles(category: Optional[str] = None):
+    """Get knowledge base articles"""
+    query = {}
+    if category:
+        query["category"] = category
+    articles = await db.knowledge.find(query, {"_id": 0}).sort("created_at", -1).to_list(200)
+    if not articles:
+        # Seed default articles
+        defaults = get_default_knowledge()
+        if category:
+            return [a for a in defaults if a["category"] == category]
+        return defaults
+    return articles
+
+@api_router.post("/admin/knowledge")
+async def admin_create_article(article: KnowledgeArticle, admin: dict = Depends(get_admin_user)):
+    """Create knowledge article (admin)"""
+    doc = {
+        "id": str(uuid.uuid4()),
+        "title": article.title,
+        "content": article.content,
+        "category": article.category,
+        "tags": article.tags,
+        "author": admin["username"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.knowledge.insert_one(doc)
+    return {k: v for k, v in doc.items() if k != "_id"}
+
+@api_router.delete("/admin/knowledge/{article_id}")
+async def admin_delete_article(article_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete knowledge article (admin)"""
+    result = await db.knowledge.delete_one({"id": article_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return {"status": "deleted", "article_id": article_id}
+
+def get_default_knowledge():
+    """Default knowledge base articles"""
+    return [
+        {"id": "d1", "title": "What is DeFi?", "content": "Decentralized Finance (DeFi) refers to financial services built on blockchain technology that operate without traditional intermediaries like banks. Key concepts include:\n\n**Liquidity Pools** - Users deposit tokens into smart contracts to enable trading.\n\n**Yield Farming** - Earning rewards by providing liquidity to DeFi protocols.\n\n**Impermanent Loss** - Temporary loss when providing liquidity due to price divergence.\n\n**TVL (Total Value Locked)** - The total amount of assets deposited in DeFi protocols.", "category": "defi", "tags": ["basics", "liquidity", "yield"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "d2", "title": "AMM vs Order Book", "content": "**Automated Market Makers (AMMs)** use mathematical formulas (x*y=k) to determine prices, while **Order Books** match buy and sell orders directly.\n\nAMMs: Uniswap, Curve, Balancer\nOrder Books: dYdX, Serum\n\nAMMs offer simplicity but can suffer from impermanent loss. Order books offer better price discovery for large trades.", "category": "defi", "tags": ["amm", "trading", "dex"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "d3", "title": "DeFi Risk Management", "content": "Key risks in DeFi:\n\n1. **Smart Contract Risk** - Bugs or exploits in protocol code\n2. **Oracle Risk** - Price feed manipulation\n3. **Liquidation Risk** - Undercollateralized positions\n4. **Regulatory Risk** - Changing legal landscape\n\nBest practices: diversify across protocols, use audited contracts, monitor positions regularly.", "category": "defi", "tags": ["risk", "security"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "p1", "title": "Perpetual Futures Basics", "content": "Perpetual futures (perps) are derivative contracts with no expiration date. They track the underlying asset price through a **funding rate** mechanism.\n\n**Funding Rate** - Periodic payments between longs and shorts to keep the contract price close to spot.\n\n**Open Interest** - Total value of outstanding contracts.\n\n**Leverage** - Amplifies both gains and losses. Common: 1x-125x.", "category": "perp", "tags": ["basics", "futures", "leverage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "p2", "title": "Funding Rate Strategy", "content": "**Positive Funding** = Longs pay shorts (bullish sentiment)\n**Negative Funding** = Shorts pay longs (bearish sentiment)\n\nStrategies:\n- **Cash & Carry**: Hold spot + short perp to collect funding\n- **Funding Rate Arbitrage**: Exploit rate differences between exchanges\n- **Extreme readings** often precede reversals (>0.1% = crowded trade)", "category": "perp", "tags": ["funding", "strategy", "arbitrage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "p3", "title": "Liquidation Mechanics", "content": "Liquidation occurs when your margin balance falls below the maintenance margin.\n\n**Liquidation Price** = Entry Price * (1 - 1/Leverage) for longs\n\nTips:\n- Use isolated margin for risk containment\n- Set stop losses BEFORE liquidation price\n- Monitor funding rates for position cost\n- Never use max leverage", "category": "perp", "tags": ["liquidation", "risk", "leverage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "o1", "title": "Options Fundamentals", "content": "Options give the right (not obligation) to buy/sell at a specific price.\n\n**Call** = Right to buy (bullish)\n**Put** = Right to sell (bearish)\n\n**Key Greeks:**\n- Delta: Price sensitivity to underlying\n- Gamma: Rate of delta change\n- Theta: Time decay\n- Vega: Sensitivity to volatility\n- IV (Implied Volatility): Market's expectation of future volatility", "category": "options", "tags": ["basics", "greeks", "calls", "puts"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "o2", "title": "Options Strategies for Crypto", "content": "Popular strategies:\n\n**Covered Call** - Hold spot + sell call = income generation\n**Protective Put** - Hold spot + buy put = downside protection\n**Straddle** - Buy call + put at same strike = profit from big moves\n**Iron Condor** - Sell OTM call + put, buy further OTM = range-bound profit\n\nDeribit is the primary crypto options exchange (~90% volume).", "category": "options", "tags": ["strategy", "deribit", "income"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "o3", "title": "Max Pain & Gamma Exposure", "content": "**Max Pain** - The price at which the most options expire worthless. Market makers often push price toward max pain near expiry.\n\n**Gamma Exposure (GEX)** - Measures how much dealers need to hedge. Positive GEX = price suppression (dealers sell rallies, buy dips). Negative GEX = amplified moves.\n\n**Gamma Flip** - Price level where GEX switches from positive to negative.", "category": "options", "tags": ["max-pain", "gamma", "market-makers"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "m1", "title": "Macro Indicators for Crypto", "content": "Key macro indicators:\n\n**DXY (Dollar Index)** - Strong dollar = bearish crypto. Inverse correlation.\n**US10Y (Treasury Yield)** - Rising yields = tighter conditions = risk-off\n**M2 Money Supply** - Expanding M2 historically correlates with BTC rallies (87-day lag)\n**Fed Funds Rate** - Lower rates = more risk appetite\n**CPI / PCE** - Inflation data drives Fed policy expectations", "category": "macro", "tags": ["dxy", "rates", "m2", "fed"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "m2", "title": "Global Liquidity & Bitcoin", "content": "Bitcoin closely tracks global M2 money supply with a ~87-day lag.\n\n**When M2 expands**: Capital flows into risk assets including crypto\n**When M2 contracts**: Liquidity drain leads to sell-offs\n\nWatch: Fed balance sheet, ECB TLTRO, BOJ yield curve control, PBOC RRR cuts.\n\nGlobal liquidity is the #1 macro driver of crypto prices.", "category": "macro", "tags": ["liquidity", "m2", "bitcoin", "correlation"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        {"id": "m3", "title": "Risk-On vs Risk-Off", "content": "**Risk-On** environment:\n- Stocks rising, VIX low\n- Dollar weakening, yields falling\n- Credit spreads tightening\n- Crypto and alts outperforming\n\n**Risk-Off** environment:\n- Flight to safety (bonds, gold, USD)\n- VIX spiking, equities falling\n- BTC dominance rising\n- Altcoins underperforming\n\nKey signal: watch SPX + DXY correlation with BTC.", "category": "macro", "tags": ["risk", "sentiment", "vix"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+    ]
+
 @api_router.get("/")
 async def root():
     return {"message": "RUKOS_CRYPTO | HUB API"}
