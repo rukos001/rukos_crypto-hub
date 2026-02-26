@@ -26,6 +26,10 @@ const translations = {
     tab_portfolio: 'Портфель',
     tab_war: 'War Mode',
     
+    // Sidebar
+    portfolio: 'Портфель',
+    admin_panel: 'Админ-панель',
+    
     // Market Core
     market_core_title: 'Market Core',
     market_core_desc: 'Макроэкономические показатели и общее состояние крипторынка. Отслеживайте капитализацию, доминирование BTC/ETH, корреляцию с традиционными рынками.',
