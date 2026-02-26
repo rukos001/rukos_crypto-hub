@@ -1,56 +1,88 @@
 # RUKOS_CRYPTO | HUB - Product Requirements Document
 
-## Original Problem Statement
-Профессиональный криптовалютный хаб с продвинутой аналитикой для трейдеров.
+## Overview
+Professional crypto trading dashboard with multi-source data aggregation, real-time analytics, and AI assistant.
 
-## What's Been Implemented (Feb 2026)
+## Core Requirements
+- Dashboard with 9 analytical tabs
+- Russian/English localization
+- JWT authentication
+- Data from CoinMarketCap, SoSoValue, Arkham, CoinGlass, Glassnode
+- Telegram integration
+- AI assistant
+- Posts, Ideas, Chat sections
 
-### Phase 1 - MVP ✅
-- Базовый Dashboard с крипто данными
-- Посты, Идеи, Чат
-- AI Ассистент (GPT-5.2)
-- JWT авторизация
+## Architecture
+- **Frontend**: React + Tailwind + Shadcn/UI + Recharts
+- **Backend**: FastAPI + MongoDB (Motor) + JWT
+- **Data**: Mock data in advanced_analytics.py (to be replaced with real APIs)
 
-### Phase 2 - API & Charts ✅
-- CoinGecko API интеграция
-- Fear & Greed Index (реальный)
-- Recharts графики
+## What's Implemented
 
-### Phase 3 - Professional Dashboard ✅ (Current)
-9 профессиональных вкладок аналитики:
+### Authentication
+- JWT-based registration and login
+- Protected routes
 
-| Tab | Features |
-|-----|----------|
-| **Market Core** | Total MCap, BTC/ETH Dominance, TOTAL3, Stablecoins, DXY, US10Y, SPX, NQ, M2 Global, Risk-on/Risk-off |
-| **Derivatives** | OI по BTC/ETH/SOL, Funding History chart, Long/Short Ratio, Basis, Top Traders, Gamma Exposure, Liquidation Clusters |
-| **ETF Intelligence** | AUM, Daily Flows, Cumulative, % of Spot, Premium/Discount, Flow-Price Correlation, ETF Absorption Signal, Miner Metrics |
-| **Onchain** | SOPR, NUPL, MVRV, CDD, Exchange Flows, Whale Accumulation Zones, Notable Wallets (MicroStrategy, US Gov, El Salvador...) |
-| **Altseason** | Probability Score, TOTAL2/TOTAL3, Dominance Pie Chart, Sector Performance, Top50 vs BTC, Narrative Heatmap, DeFi TVL |
-| **Risk Engine** | Risk Score 1-10, Radar Chart факторов, DVOL, Market Regime, Leverage Crowding, Stablecoin Flows, Overheat Alerts |
-| **AI Signals** | Composite Signal (Onchain+Derivatives+ETF+Macro+Sentiment), Squeeze Probabilities, Liquidity Zones, Weekly Range |
-| **Portfolio** | Positions, PnL, Leverage Exposure, Risk per Trade, Liquidation Distance, Risk of Ruin %, Concentration Warning |
-| **War Mode** | Stress Score 0-100, Active Alerts (Funding/OI/ETF/Whale/Liquidation/Stablecoin Spikes), Quick Actions |
+### Dashboard Tabs (9 total)
+1. **Market Core**: BTC/ETH/SOL prices, Fear & Greed Index, Gold, Traditional Markets (DXY, US10Y, SPX, NQ), Stablecoins, Global M2 Liquidity
+2. **Derivatives**: OI, Funding Rate, Long/Short Ratio, Liquidation Clusters, Gamma Exposure
+3. **ETF Intelligence**: All/BTC/ETH fund filter, 20 total ETFs, AUM, daily flows, ETF Absorption signal
+4. **Onchain**: BTC/ETH/SOL chain selector, SOPR, NUPL, MVRV, CDD, Exchange Flows, Whale Zones, Notable Wallets, Staking (ETH/SOL)
+5. **Altseason Monitor**: Altseason probability, Dominance breakdown, Sector performance, DeFi TVL
+6. **Risk Engine**: Risk score radar, Overheat alerts, Volatility, Leverage crowding
+7. **AI Signals**: Composite signal, Squeeze probability, Weekly range, Liquidity zones, Key levels
+8. **Portfolio**: Positions, PnL, Risk metrics
+9. **War Mode**: Stress level, Active alerts, Quick actions
+
+### Localization (RU/EN)
+- Language switcher in sidebar
+- All tab names, section headers, descriptions localized
+- Language persists in localStorage
+
+### UI Enhancements
+- Info tooltips (i) on all key metrics with explanations
+- Source links to data portals (CoinGecko, Glassnode, SoSoValue, CoinGlass, Arkham, TradingView, etc.)
+- Dark theme with orange/gold accents
+
+### Other Pages
+- Landing page
+- Posts page (CRUD)
+- Ideas page (CRUD)
+- Chat page (basic)
+- Settings page
+
+## Data Status
+- **MOCK**: All analytics endpoints return simulated data from advanced_analytics.py
+- **Partial Real**: Some CoinGecko data (rate-limited)
+
+## Testing Status
+- Backend: 20/20 tests passing
+- Frontend: 27/27 Playwright specs passing
+- Test reports: /app/test_reports/iteration_4.json
 
 ## Tech Stack
-- Backend: FastAPI, MongoDB, httpx
-- Frontend: React, Tailwind, Shadcn/UI, Recharts
-- AI: OpenAI GPT-5.2 via Emergent LLM Key
+- React 18, Tailwind CSS, Shadcn/UI, Recharts, Axios
+- FastAPI, Motor (MongoDB), Pydantic, JWT
+- CoinGecko (pycoingecko) for partial real data
 
-## Test Results
-- Backend: 96% (25/26 endpoints)
-- Frontend: 100% (9/9 tabs)
-- Overall: 98%
+## Known Issues
+- CoinGecko API rate limiting (falls back to mock data)
+- Portfolio endpoint requires auth token
 
-## Prioritized Backlog
-### P0 (Done) ✅
-- Advanced Dashboard with 9 tabs
-
-### P1 (Next)
-- Telegram Bot integration
-- Real API connections (Coinglass, Arkham, SoSoValue paid APIs)
+## Backlog (Priority Order)
+### P1 - Next Up
+- Replace mock data with real API integrations (CoinGlass, SoSoValue, Arkham)
+- CoinGecko caching to fix rate limiting
 - WebSocket for real-time updates
 
-### P2 (Later)
-- Options Intelligence tab expansion
-- Social & Sentiment tab
+### P2 - Future
+- AI Assistant (GPT-5.2 via Emergent LLM Key)
+- Telegram bot integration
+- Enhanced Posts/Ideas/Chat functionality
+- Custom Block from Rukos (user portfolio data)
+
+### P3 - Backlog
+- User-specific custom block
+- Advanced charting
 - Capital Flow Map visualization
+- Social & Sentiment tab
