@@ -181,6 +181,37 @@ class RukosCryptoAPITester:
             self.log_test("Liquidations", False, f"Liquidations failed: {response}")
             return False
 
+    def test_crypto_fear_greed(self):
+        """Test Fear & Greed Index endpoint"""
+        success, response = self.make_request("GET", "crypto/fear-greed")
+        
+        if success and isinstance(response, dict) and 'current' in response:
+            current = response['current']
+            if 'value' in current and 'classification' in current:
+                self.log_test("Fear & Greed Index", True, f"Current index: {current['value']} ({current['classification']})")
+                return True
+            else:
+                self.log_test("Fear & Greed Index", False, "Missing current index data")
+                return False
+        else:
+            self.log_test("Fear & Greed Index", False, f"Fear & Greed failed: {response}")
+            return False
+
+    def test_crypto_price_history(self):
+        """Test price history endpoint"""
+        success, response = self.make_request("GET", "crypto/price-history/btc?days=7")
+        
+        if success and isinstance(response, dict) and 'prices' in response:
+            if len(response['prices']) > 0:
+                self.log_test("Price History", True, f"Got {len(response['prices'])} price points for BTC")
+                return True
+            else:
+                self.log_test("Price History", False, "No price history data")
+                return False
+        else:
+            self.log_test("Price History", False, f"Price history failed: {response}")
+            return False
+
     def test_posts_create(self):
         """Test creating a post"""
         if not self.token:
