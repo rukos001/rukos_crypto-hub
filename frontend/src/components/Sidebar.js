@@ -90,16 +90,15 @@ export const Sidebar = ({ onOpenAI }) => {
         <div className="flex flex-col h-full p-4">
           {/* Logo */}
           <div className={`flex items-center gap-3 mb-8 ${isCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F7931A] to-[#FFD700] flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-black" />
-            </div>
-            {!isCollapsed && (
-              <div className="overflow-hidden">
-                <h1 className="text-lg font-bold tracking-tight whitespace-nowrap">
-                  <span className="gold-gradient">RUKOS</span>
-                  <span className="text-muted-foreground">_CRYPTO</span>
-                </h1>
-              </div>
+            {isCollapsed ? (
+              <RukosIcon size={32} className="text-[#F7931A]" />
+            ) : (
+              <img 
+                src="/logo.jpg" 
+                alt="RUKOS CRYPTO" 
+                className="h-10 object-contain"
+                data-testid="sidebar-logo"
+              />
             )}
           </div>
 
