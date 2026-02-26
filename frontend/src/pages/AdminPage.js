@@ -151,15 +151,21 @@ const PortfolioEditor = () => {
         </Card>
       ) : (
         <>
-          {/* Selected User Header */}
+          {/* Selected User or All Users Header */}
           <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
             <div className="flex items-center gap-2">
               <Wallet className="w-4 h-4 text-[#F7931A]" />
-              <span className="font-semibold">{selectedUsername}</span>
+              <span className="font-semibold">
+                {applyToAll ? (
+                  <span className="text-[#F7931A]">ALL USERS ({usersList.length})</span>
+                ) : selectedUsername}
+              </span>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => { setSelectedUser(null); setPortfolio(null); setEditGroup(null); }} className="text-muted-foreground">
-              <X className="w-4 h-4 mr-1" /> Back
-            </Button>
+            {!applyToAll && (
+              <Button variant="ghost" size="sm" onClick={() => { setSelectedUser(null); setPortfolio(null); setEditGroup(null); }} className="text-muted-foreground">
+                <X className="w-4 h-4 mr-1" /> Back
+              </Button>
+            )}
           </div>
 
           {/* Group Selector */}
