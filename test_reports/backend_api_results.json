@@ -1,112 +1,166 @@
 {
   "summary": {
-    "total_tests": 17,
-    "passed_tests": 17,
-    "success_rate": "100.0%",
-    "timestamp": "2026-02-26T12:37:54.899346"
+    "total_tests": 26,
+    "passed_tests": 25,
+    "success_rate": "96.2%",
+    "timestamp": "2026-02-26T13:29:38.982123"
   },
   "detailed_results": [
     {
       "test": "Auth Register",
       "status": "PASS",
-      "details": "User registered: testuser_123747",
-      "timestamp": "2026-02-26T12:37:48.326356"
+      "details": "User registered: testuser_132928",
+      "timestamp": "2026-02-26T13:29:28.889334"
     },
     {
       "test": "Auth Login",
       "status": "PASS",
       "details": "Login successful",
-      "timestamp": "2026-02-26T12:37:48.719388"
+      "timestamp": "2026-02-26T13:29:29.237961"
     },
     {
       "test": "Auth Me",
       "status": "PASS",
-      "details": "User info retrieved: testuser_123747",
-      "timestamp": "2026-02-26T12:37:48.821266"
+      "details": "User info retrieved: testuser_132928",
+      "timestamp": "2026-02-26T13:29:29.375224"
     },
     {
       "test": "Crypto Prices",
       "status": "PASS",
       "details": "Got prices for: BTC, ETH, SOL",
-      "timestamp": "2026-02-26T12:37:48.954726"
+      "timestamp": "2026-02-26T13:29:29.639897"
     },
     {
       "test": "ETF Flows",
       "status": "PASS",
       "details": "Got ETF flows data: 8 records",
-      "timestamp": "2026-02-26T12:37:49.071706"
+      "timestamp": "2026-02-26T13:29:29.791085"
     },
     {
       "test": "Whale Activity",
       "status": "PASS",
       "details": "Got whale alerts: 8 alerts",
-      "timestamp": "2026-02-26T12:37:49.225026"
+      "timestamp": "2026-02-26T13:29:30.002840"
     },
     {
       "test": "Liquidations",
       "status": "PASS",
-      "details": "Got liquidations data: $378,269,341",
-      "timestamp": "2026-02-26T12:37:49.335405"
+      "details": "Got liquidations data: $385,440,363",
+      "timestamp": "2026-02-26T13:29:30.120639"
     },
     {
       "test": "Fear & Greed Index",
       "status": "PASS",
       "details": "Current index: 11 (Extreme Fear)",
-      "timestamp": "2026-02-26T12:37:49.469838"
+      "timestamp": "2026-02-26T13:29:30.416835"
     },
     {
       "test": "Price History",
+      "status": "FAIL",
+      "details": "Price history failed: Expected 200, got 503: {\"detail\":\"Price history unavailable\"}",
+      "timestamp": "2026-02-26T13:29:30.642883"
+    },
+    {
+      "test": "Analytics Market Core",
       "status": "PASS",
-      "details": "Got 169 price points for BTC",
-      "timestamp": "2026-02-26T12:37:49.673242"
+      "details": "Market regime: risk-off, BTC Dom: 56.04%",
+      "timestamp": "2026-02-26T13:29:30.756930"
+    },
+    {
+      "test": "Analytics Derivatives",
+      "status": "PASS",
+      "details": "OI: $44,643,461,235, Assets: ['BTC', 'ETH', 'SOL']",
+      "timestamp": "2026-02-26T13:29:30.858176"
+    },
+    {
+      "test": "Analytics ETF Intelligence",
+      "status": "PASS",
+      "details": "BTC AUM: $98,500,000,000, ETH AUM: $10,400,000,000",
+      "timestamp": "2026-02-26T13:29:30.998025"
+    },
+    {
+      "test": "Analytics Onchain",
+      "status": "PASS",
+      "details": "SOPR: 1.039, MVRV: 3.09",
+      "timestamp": "2026-02-26T13:29:31.198529"
+    },
+    {
+      "test": "Analytics Altseason",
+      "status": "PASS",
+      "details": "Probability: 53.1%, Status: WARMING UP",
+      "timestamp": "2026-02-26T13:29:31.308051"
+    },
+    {
+      "test": "Analytics Risk Engine",
+      "status": "PASS",
+      "details": "Risk Level: MEDIUM, Regime: TREND",
+      "timestamp": "2026-02-26T13:29:31.434766"
+    },
+    {
+      "test": "Analytics AI Signals",
+      "status": "PASS",
+      "details": "Signal: NEUTRAL, Strength: 16.2%",
+      "timestamp": "2026-02-26T13:29:31.541941"
+    },
+    {
+      "test": "Analytics War Mode",
+      "status": "PASS",
+      "details": "Stress: 30/100 (NORMAL), War Mode: False",
+      "timestamp": "2026-02-26T13:29:31.659763"
     },
     {
       "test": "Posts Create",
       "status": "PASS",
-      "details": "Post created with ID: 3713be1c-cfdc-474c-9f78-20ae3b8ed589",
-      "timestamp": "2026-02-26T12:37:49.808583"
+      "details": "Post created with ID: 59c24a3e-3c8e-42eb-8209-2750fc7ef04c",
+      "timestamp": "2026-02-26T13:29:31.800256"
     },
     {
       "test": "Posts Get",
       "status": "PASS",
-      "details": "Retrieved 3 posts",
-      "timestamp": "2026-02-26T12:37:49.963091"
+      "details": "Retrieved 4 posts",
+      "timestamp": "2026-02-26T13:29:31.901202"
     },
     {
       "test": "Posts Like",
       "status": "PASS",
       "details": "Post liked, total likes: 1",
-      "timestamp": "2026-02-26T12:37:50.058791"
+      "timestamp": "2026-02-26T13:29:32.012990"
     },
     {
       "test": "Ideas Create",
       "status": "PASS",
-      "details": "Idea created with ID: c1ddcdbd-cddd-4642-ad00-15f13bffe0aa",
-      "timestamp": "2026-02-26T12:37:50.166540"
+      "details": "Idea created with ID: d4ad498e-0da4-4f54-bfb4-6fb4663fa055",
+      "timestamp": "2026-02-26T13:29:32.133071"
     },
     {
       "test": "Ideas Get",
       "status": "PASS",
-      "details": "Retrieved 3 ideas",
-      "timestamp": "2026-02-26T12:37:50.264673"
+      "details": "Retrieved 4 ideas",
+      "timestamp": "2026-02-26T13:29:32.231994"
     },
     {
       "test": "Chat Create",
       "status": "PASS",
-      "details": "Message sent with ID: e34a1130-c6dd-4c09-a8b5-85c1c9c7c8b4",
-      "timestamp": "2026-02-26T12:37:50.368564"
+      "details": "Message sent with ID: 33ed34b5-1d28-4357-9e23-252ba70074ea",
+      "timestamp": "2026-02-26T13:29:32.358126"
     },
     {
       "test": "Chat Get",
       "status": "PASS",
-      "details": "Retrieved 7 messages",
-      "timestamp": "2026-02-26T12:37:50.470089"
+      "details": "Retrieved 8 messages",
+      "timestamp": "2026-02-26T13:29:32.464030"
+    },
+    {
+      "test": "Analytics Portfolio",
+      "status": "PASS",
+      "details": "Total Value: $268,943.02, PnL: $11,887.57",
+      "timestamp": "2026-02-26T13:29:32.562624"
     },
     {
       "test": "AI Assistant",
       "status": "PASS",
       "details": "AI responded: \u0411\u0438\u0442\u043a\u043e\u0438\u043d (Bitcoin, BTC) \u2014 \u043f\u0435\u0440\u0432\u0430\u044f \u0438 \u0441\u0430\u043c\u0430\u044f \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f ...",
-      "timestamp": "2026-02-26T12:37:54.899170"
+      "timestamp": "2026-02-26T13:29:38.981828"
     }
   ]
 }
