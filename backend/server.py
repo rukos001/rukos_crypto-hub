@@ -744,9 +744,9 @@ async def etf_intelligence():
     return get_etf_intelligence()
 
 @api_router.get("/analytics/onchain")
-async def onchain():
-    """Onchain war room data"""
-    return get_onchain_data()
+async def onchain(chain: str = "btc"):
+    """Onchain war room data for BTC, ETH, or SOL"""
+    return get_onchain_data(chain)
 
 @api_router.get("/analytics/altseason")
 async def altseason():
