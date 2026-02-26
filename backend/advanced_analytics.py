@@ -303,7 +303,7 @@ def get_derivatives_data(asset: str = "all") -> Dict:
 # ==================== ETF FLOW INTELLIGENCE ====================
 
 def get_etf_intelligence() -> Dict:
-    """Extended ETF flow data"""
+    """Extended ETF flow data with all existing crypto ETFs"""
     cache_key = "etf_intelligence"
     cached = get_cached(cache_key, 300)
     if cached:
@@ -311,29 +311,43 @@ def get_etf_intelligence() -> Dict:
     
     random.seed(get_seed())
     
-    # ETF Funds data
+    # All BTC ETF Funds (comprehensive list)
     btc_funds = [
-        {"name": "IBIT", "issuer": "BlackRock", "aum": 52.3e9, "daily_flow": random.uniform(-200e6, 500e6)},
-        {"name": "FBTC", "issuer": "Fidelity", "aum": 18.7e9, "daily_flow": random.uniform(-100e6, 200e6)},
-        {"name": "ARKB", "issuer": "ARK/21Shares", "aum": 4.2e9, "daily_flow": random.uniform(-50e6, 100e6)},
-        {"name": "BITB", "issuer": "Bitwise", "aum": 3.8e9, "daily_flow": random.uniform(-30e6, 80e6)},
-        {"name": "GBTC", "issuer": "Grayscale", "aum": 19.5e9, "daily_flow": random.uniform(-150e6, 50e6)},
+        {"ticker": "IBIT", "name": "iShares Bitcoin Trust", "issuer": "BlackRock", "aum": 52.3e9 + random.uniform(-1e9, 2e9), "daily_flow": random.uniform(-200e6, 500e6), "expense_ratio": 0.25, "launch_date": "2024-01-11"},
+        {"ticker": "FBTC", "name": "Fidelity Wise Origin Bitcoin Fund", "issuer": "Fidelity", "aum": 18.7e9 + random.uniform(-0.5e9, 1e9), "daily_flow": random.uniform(-100e6, 200e6), "expense_ratio": 0.25, "launch_date": "2024-01-11"},
+        {"ticker": "GBTC", "name": "Grayscale Bitcoin Trust", "issuer": "Grayscale", "aum": 19.5e9 + random.uniform(-1e9, 0.5e9), "daily_flow": random.uniform(-150e6, 50e6), "expense_ratio": 1.50, "launch_date": "2013-09-25"},
+        {"ticker": "ARKB", "name": "ARK 21Shares Bitcoin ETF", "issuer": "ARK/21Shares", "aum": 4.2e9 + random.uniform(-0.2e9, 0.5e9), "daily_flow": random.uniform(-50e6, 100e6), "expense_ratio": 0.21, "launch_date": "2024-01-11"},
+        {"ticker": "BITB", "name": "Bitwise Bitcoin ETF", "issuer": "Bitwise", "aum": 3.8e9 + random.uniform(-0.2e9, 0.4e9), "daily_flow": random.uniform(-30e6, 80e6), "expense_ratio": 0.20, "launch_date": "2024-01-11"},
+        {"ticker": "HODL", "name": "VanEck Bitcoin Trust", "issuer": "VanEck", "aum": 1.2e9 + random.uniform(-0.1e9, 0.2e9), "daily_flow": random.uniform(-20e6, 50e6), "expense_ratio": 0.20, "launch_date": "2024-01-11"},
+        {"ticker": "BRRR", "name": "Valkyrie Bitcoin Fund", "issuer": "Valkyrie", "aum": 0.8e9 + random.uniform(-0.05e9, 0.1e9), "daily_flow": random.uniform(-15e6, 30e6), "expense_ratio": 0.25, "launch_date": "2024-01-11"},
+        {"ticker": "BTCO", "name": "Invesco Galaxy Bitcoin ETF", "issuer": "Invesco", "aum": 0.5e9 + random.uniform(-0.03e9, 0.08e9), "daily_flow": random.uniform(-10e6, 25e6), "expense_ratio": 0.25, "launch_date": "2024-01-11"},
+        {"ticker": "EZBC", "name": "Franklin Bitcoin ETF", "issuer": "Franklin Templeton", "aum": 0.4e9 + random.uniform(-0.02e9, 0.05e9), "daily_flow": random.uniform(-8e6, 20e6), "expense_ratio": 0.19, "launch_date": "2024-01-11"},
+        {"ticker": "BTCW", "name": "WisdomTree Bitcoin Fund", "issuer": "WisdomTree", "aum": 0.3e9 + random.uniform(-0.02e9, 0.04e9), "daily_flow": random.uniform(-5e6, 15e6), "expense_ratio": 0.25, "launch_date": "2024-01-11"},
+        {"ticker": "BTC", "name": "Grayscale Bitcoin Mini Trust", "issuer": "Grayscale", "aum": 1.5e9 + random.uniform(-0.1e9, 0.2e9), "daily_flow": random.uniform(-20e6, 40e6), "expense_ratio": 0.15, "launch_date": "2024-07-31"},
     ]
     
+    # All ETH ETF Funds
     eth_funds = [
-        {"name": "ETHA", "issuer": "BlackRock", "aum": 4.1e9, "daily_flow": random.uniform(-50e6, 100e6)},
-        {"name": "FETH", "issuer": "Fidelity", "aum": 1.8e9, "daily_flow": random.uniform(-20e6, 50e6)},
-        {"name": "ETHE", "issuer": "Grayscale", "aum": 4.5e9, "daily_flow": random.uniform(-80e6, 30e6)},
+        {"ticker": "ETHA", "name": "iShares Ethereum Trust", "issuer": "BlackRock", "aum": 4.1e9 + random.uniform(-0.2e9, 0.4e9), "daily_flow": random.uniform(-50e6, 100e6), "expense_ratio": 0.25, "launch_date": "2024-07-23"},
+        {"ticker": "FETH", "name": "Fidelity Ethereum Fund", "issuer": "Fidelity", "aum": 1.8e9 + random.uniform(-0.1e9, 0.2e9), "daily_flow": random.uniform(-20e6, 50e6), "expense_ratio": 0.25, "launch_date": "2024-07-23"},
+        {"ticker": "ETHE", "name": "Grayscale Ethereum Trust", "issuer": "Grayscale", "aum": 4.5e9 + random.uniform(-0.3e9, 0.2e9), "daily_flow": random.uniform(-80e6, 30e6), "expense_ratio": 2.50, "launch_date": "2017-12-14"},
+        {"ticker": "ETH", "name": "Grayscale Ethereum Mini Trust", "issuer": "Grayscale", "aum": 1.2e9 + random.uniform(-0.1e9, 0.15e9), "daily_flow": random.uniform(-15e6, 35e6), "expense_ratio": 0.15, "launch_date": "2024-07-23"},
+        {"ticker": "ETHW", "name": "Bitwise Ethereum ETF", "issuer": "Bitwise", "aum": 0.6e9 + random.uniform(-0.03e9, 0.08e9), "daily_flow": random.uniform(-10e6, 25e6), "expense_ratio": 0.20, "launch_date": "2024-07-23"},
+        {"ticker": "CETH", "name": "21Shares Core Ethereum ETF", "issuer": "21Shares", "aum": 0.4e9 + random.uniform(-0.02e9, 0.05e9), "daily_flow": random.uniform(-8e6, 20e6), "expense_ratio": 0.21, "launch_date": "2024-07-23"},
+        {"ticker": "QETH", "name": "Invesco Galaxy Ethereum ETF", "issuer": "Invesco", "aum": 0.3e9 + random.uniform(-0.02e9, 0.04e9), "daily_flow": random.uniform(-5e6, 15e6), "expense_ratio": 0.25, "launch_date": "2024-07-23"},
+        {"ticker": "ETHV", "name": "VanEck Ethereum ETF", "issuer": "VanEck", "aum": 0.25e9 + random.uniform(-0.01e9, 0.03e9), "daily_flow": random.uniform(-5e6, 12e6), "expense_ratio": 0.20, "launch_date": "2024-07-23"},
+        {"ticker": "EZET", "name": "Franklin Ethereum ETF", "issuer": "Franklin Templeton", "aum": 0.15e9 + random.uniform(-0.01e9, 0.02e9), "daily_flow": random.uniform(-3e6, 8e6), "expense_ratio": 0.19, "launch_date": "2024-07-23"},
     ]
     
+    # Calculate totals
     total_btc_aum = sum(f["aum"] for f in btc_funds)
     total_eth_aum = sum(f["aum"] for f in eth_funds)
     daily_btc_flow = sum(f["daily_flow"] for f in btc_funds)
     daily_eth_flow = sum(f["daily_flow"] for f in eth_funds)
     
-    # Cumulative since launch (Jan 2024 for BTC, Jul 2024 for ETH)
-    cumulative_btc = 35.5e9 + random.uniform(-1e9, 2e9)
-    cumulative_eth = 2.8e9 + random.uniform(-0.5e9, 0.5e9)
+    # Cumulative flows
+    cumulative_btc = 38.5e9 + random.uniform(-1e9, 2e9)
+    cumulative_eth = 3.2e9 + random.uniform(-0.5e9, 0.5e9)
     
     # % of spot volume
     btc_spot_volume = 45e9
@@ -342,21 +356,19 @@ def get_etf_intelligence() -> Dict:
     eth_pct_spot = (abs(daily_eth_flow) / eth_spot_volume) * 100
     
     # Premium/Discount
-    btc_nav = 97500
     btc_premium = random.uniform(-0.5, 0.8)
-    eth_nav = 3450
     eth_premium = random.uniform(-0.8, 0.5)
     
-    # Flow vs Price correlation (30 day)
+    # Flow vs Price correlation
     flow_price_corr_btc = random.uniform(0.3, 0.85)
     flow_price_corr_eth = random.uniform(0.2, 0.75)
     
-    # Miner selling (BTC only) - daily
-    miner_daily_sell = random.uniform(300, 600)  # BTC
-    miner_sell_usd = miner_daily_sell * btc_nav
+    # Miner metrics
+    miner_daily_sell = random.uniform(300, 600)
+    miner_sell_usd = miner_daily_sell * 97500
     
-    # ETF absorption signal
-    etf_btc_bought = daily_btc_flow / btc_nav if daily_btc_flow > 0 else 0
+    # ETF absorption
+    etf_btc_bought = daily_btc_flow / 97500 if daily_btc_flow > 0 else 0
     etf_absorption = etf_btc_bought > miner_daily_sell
     absorption_ratio = etf_btc_bought / miner_daily_sell if miner_daily_sell > 0 else 0
     
@@ -373,7 +385,17 @@ def get_etf_intelligence() -> Dict:
             "eth_price": 3450 + random.uniform(-200, 200)
         })
     
+    # All funds combined (for "all ETFs" view)
+    all_funds = []
+    for f in btc_funds:
+        all_funds.append({**f, "asset": "BTC"})
+    for f in eth_funds:
+        all_funds.append({**f, "asset": "ETH"})
+    all_funds.sort(key=lambda x: x["aum"], reverse=True)
+    
     data = {
+        "total_aum": total_btc_aum + total_eth_aum,
+        "total_daily_flow": daily_btc_flow + daily_eth_flow,
         "btc_etf": {
             "total_aum": total_btc_aum,
             "daily_net_flow": daily_btc_flow,
@@ -381,7 +403,8 @@ def get_etf_intelligence() -> Dict:
             "pct_of_spot_volume": round(btc_pct_spot, 2),
             "premium_discount": round(btc_premium, 3),
             "flow_price_correlation": round(flow_price_corr_btc, 2),
-            "funds": btc_funds
+            "funds": btc_funds,
+            "fund_count": len(btc_funds)
         },
         "eth_etf": {
             "total_aum": total_eth_aum,
@@ -390,14 +413,22 @@ def get_etf_intelligence() -> Dict:
             "pct_of_spot_volume": round(eth_pct_spot, 2),
             "premium_discount": round(eth_premium, 3),
             "flow_price_correlation": round(flow_price_corr_eth, 2),
-            "funds": eth_funds
+            "funds": eth_funds,
+            "fund_count": len(eth_funds)
         },
+        "all_funds": all_funds,
         "miner_metrics": {
             "daily_sell_btc": round(miner_daily_sell, 1),
             "daily_sell_usd": miner_sell_usd
         },
         "etf_absorption": {
             "signal": etf_absorption,
+            "ratio": round(absorption_ratio, 2),
+            "status": "ABSORBING" if etf_absorption else "NOT ABSORBING"
+        },
+        "flow_history": flow_history,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
             "ratio": round(absorption_ratio, 2),
             "status": "ABSORBING" if etf_absorption else "NOT ABSORBING"
         },
