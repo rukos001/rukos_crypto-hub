@@ -187,10 +187,10 @@ async def register(user: UserCreate):
     }
     await db.users.insert_one(user_doc)
     
-    token = create_token(user_id, user.username)
+    token = create_token(user_id, user.username, "user")
     return TokenResponse(
         access_token=token,
-        user=UserResponse(id=user_id, username=user.username, email=user.email, created_at=now)
+        user=UserResponse(id=user_id, username=user.username, email=user.email, role="user", created_at=now)
     )
 
 @api_router.post("/auth/login", response_model=TokenResponse)
