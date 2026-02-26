@@ -87,8 +87,36 @@ const PortfolioEditor = () => {
 
   return (
     <div className="space-y-4">
-      {/* User Selector */}
-      {!selectedUser ? (
+      {/* Apply to All Users Toggle */}
+      <div className="flex items-center justify-between p-4 rounded-xl bg-[#F7931A]/10 border border-[#F7931A]/30">
+        <div className="flex items-center gap-3">
+          <Users className="w-5 h-5 text-[#F7931A]" />
+          <div>
+            <p className="font-semibold text-sm">Apply to All Users</p>
+            <p className="text-xs text-muted-foreground">Changes will be applied to every registered user</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setApplyToAll(!applyToAll);
+            if (!applyToAll) {
+              setSelectedUser(null);
+              setPortfolio({ groups: { HOLD: { description: '', positions: [] }, ALTs: { description: '', positions: [] }, HI_RISK: { description: '', positions: [] } } });
+              setEditGroup(null);
+            } else {
+              setPortfolio(null);
+              setEditGroup(null);
+            }
+          }}
+          className={`w-12 h-6 rounded-full transition-colors ${applyToAll ? 'bg-[#F7931A]' : 'bg-white/10'}`}
+          data-testid="apply-to-all-toggle"
+        >
+          <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${applyToAll ? 'translate-x-6' : 'translate-x-0.5'}`} />
+        </button>
+      </div>
+
+      {/* User Selector (when not applying to all) */}
+      {!applyToAll && !selectedUser ? (
         <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Select User</CardTitle>
