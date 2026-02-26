@@ -429,12 +429,6 @@ def get_etf_intelligence() -> Dict:
         "flow_history": flow_history,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
-            "ratio": round(absorption_ratio, 2),
-            "status": "ABSORBING" if etf_absorption else "NOT ABSORBING"
-        },
-        "flow_history": flow_history,
-        "updated_at": datetime.now(timezone.utc).isoformat()
-    }
     
     set_cached(cache_key, data, 300)
     return data
