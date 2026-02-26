@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * Admin Panel and Portfolio Tests - Consolidated Spec
  * Tests for admin features, portfolio page, landing page branding
+ * Updated for new SVG logo branding (watermarks removed, logo.jpg replaced with SVG)
  */
 
 // Helper function for admin login
@@ -38,20 +39,25 @@ test.describe('Landing Page Branding', () => {
     await expect(source).toHaveAttribute('type', 'video/mp4');
   });
 
-  test('Landing page has logo image in hero', async ({ page }) => {
+  test('Landing page has new animated SVG logo', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const heroLogoImg = page.getByTestId('hero-logo-img');
-    await expect(heroLogoImg).toBeVisible();
-    await expect(heroLogoImg).toHaveAttribute('src', '/logo.jpg');
-    await expect(heroLogoImg).toHaveAttribute('alt', 'RUKOS CRYPTO');
+    // Check for the new RukosAnimatedLogo component
+    const animatedLogo = page.getByTestId('rukos-animated-logo');
+    await expect(animatedLogo).toBeVisible();
+    // The logo should contain an SVG with golden cubes and text
+    const svg = animatedLogo.locator('svg');
+    await expect(svg).toBeVisible();
+    // Check that the SVG contains the brand text
+    await expect(animatedLogo).toContainText('RUKOS_CRYPTO');
+    await expect(animatedLogo).toContainText('HUB');
   });
 
-  test('Landing page has RukosWatermark component', async ({ page }) => {
+  test('Landing page has no watermarks', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // Check for at least one watermark on landing page
+    // Watermarks should NOT exist anymore
     const watermarks = page.locator('[data-testid="rukos-watermark"]');
     const count = await watermarks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect(count).toBe(0);
   });
 
   test('Landing page buttons visible and clickable', async ({ page }) => {
@@ -59,17 +65,52 @@ test.describe('Landing Page Branding', () => {
     await expect(page.getByTestId('get-started-btn')).toBeVisible();
     await expect(page.getByTestId('login-btn')).toBeVisible();
   });
+
+  test('Login button has transparent background', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const loginBtn = page.getByTestId('login-btn');
+    await expect(loginBtn).toBeVisible();
+    // Check for bg-transparent class
+    await expect(loginBtn).toHaveClass(/bg-transparent/);
+  });
 });
 
 // ==================== SIDEBAR BRANDING TESTS ====================
 
-test.describe('Sidebar Logo', () => {
-  test('Sidebar shows logo image when expanded', async ({ page }) => {
+test.describe('Sidebar Logo and Branding', () => {
+  test('Sidebar shows new SVG logo with text when expanded', async ({ page }) => {
     await loginAsUser(page);
     await expect(page.getByTestId('sidebar')).toBeVisible();
-    const sidebarLogo = page.getByTestId('sidebar-logo');
+    // Check for RukosSidebarLogo component
+    const sidebarLogo = page.getByTestId('rukos-sidebar-logo');
     await expect(sidebarLogo).toBeVisible();
-    await expect(sidebarLogo).toHaveAttribute('src', '/logo.jpg');
+    // Should also have the cube icon
+    await expect(page.getByTestId('rukos-cube-icon')).toBeVisible();
+  });
+
+  test('Sidebar shows cube icon only when collapsed', async ({ page }) => {
+    await loginAsUser(page);
+    await expect(page.getByTestId('sidebar')).toBeVisible();
+    
+    // Click collapse button
+    const collapseBtn = page.getByTestId('collapse-sidebar-btn');
+    await expect(collapseBtn).toBeVisible();
+    await collapseBtn.click();
+    
+    // After collapse, sidebar-logo should NOT be visible (only cube icon)
+    await expect(page.getByTestId('rukos-sidebar-logo')).not.toBeVisible();
+    // But cube icon should still be visible
+    await expect(page.getByTestId('rukos-cube-icon')).toBeVisible();
+  });
+
+  test('Collapse button has transparent background', async ({ page }) => {
+    await loginAsUser(page);
+    await expect(page.getByTestId('sidebar')).toBeVisible();
+    
+    const collapseBtn = page.getByTestId('collapse-sidebar-btn');
+    await expect(collapseBtn).toBeVisible();
+    // Check for bg-transparent class
+    await expect(collapseBtn).toHaveClass(/bg-transparent/);
   });
 });
 
@@ -164,9 +205,6 @@ test.describe('Portfolio Page Features', () => {
     await expect(page.getByTestId('portfolio-group-HOLD')).toBeVisible();
     await expect(page.getByTestId('portfolio-group-ALTs')).not.toBeVisible();
     await expect(page.getByTestId('portfolio-group-HI_RISK')).not.toBeVisible();
-    // HOLD group is visible - positions may or may not exist depending on admin data
-    const holdGroup = page.getByTestId('portfolio-group-HOLD');
-    await expect(holdGroup).toBeVisible();
   });
 
   test('Portfolio HI RISK filter shows only HI_RISK positions', async ({ page }) => {
@@ -177,9 +215,6 @@ test.describe('Portfolio Page Features', () => {
     await expect(page.getByTestId('portfolio-group-HI_RISK')).toBeVisible();
     await expect(page.getByTestId('portfolio-group-HOLD')).not.toBeVisible();
     await expect(page.getByTestId('portfolio-group-ALTs')).not.toBeVisible();
-    // HI_RISK group is visible - positions may or may not exist depending on admin data
-    const hiRiskGroup = page.getByTestId('portfolio-group-HI_RISK');
-    await expect(hiRiskGroup).toBeVisible();
   });
 });
 
@@ -242,32 +277,42 @@ test.describe('Admin Portfolio - Apply to All Users', () => {
   });
 });
 
-// ==================== WATERMARK TESTS ====================
+// ==================== NO WATERMARKS VERIFICATION ====================
 
-test.describe('RukosWatermark Components', () => {
-  test('Dashboard page has watermarks', async ({ page }) => {
+test.describe('No Watermarks on App Pages', () => {
+  test('Dashboard page has no watermarks', async ({ page }) => {
     await loginAsUser(page);
     await expect(page.getByTestId('dashboard-page')).toBeVisible();
     const watermarks = page.locator('[data-testid="rukos-watermark"]');
     const count = await watermarks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect(count).toBe(0);
   });
 
-  test('Portfolio page has watermarks', async ({ page }) => {
+  test('Portfolio page has no watermarks', async ({ page }) => {
     await loginAsUser(page);
     await page.getByTestId('nav-portfolio').click();
     await expect(page.getByTestId('portfolio-page')).toBeVisible();
     const watermarks = page.locator('[data-testid="rukos-watermark"]');
     const count = await watermarks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect(count).toBe(0);
   });
 
-  test('Admin page has watermarks', async ({ page }) => {
+  test('Admin page has no watermarks', async ({ page }) => {
     await loginAsAdmin(page);
     await page.getByTestId('nav-admin').click();
     await expect(page.getByTestId('admin-page')).toBeVisible();
     const watermarks = page.locator('[data-testid="rukos-watermark"]');
     const count = await watermarks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect(count).toBe(0);
+  });
+
+  test('Knowledge page has no watermarks', async ({ page }) => {
+    await loginAsUser(page);
+    await page.getByTestId('nav-knowledge-toggle').click();
+    await page.getByTestId('nav-knowledge-defi').click();
+    await expect(page.getByTestId('knowledge-page')).toBeVisible();
+    const watermarks = page.locator('[data-testid="rukos-watermark"]');
+    const count = await watermarks.count();
+    expect(count).toBe(0);
   });
 });
