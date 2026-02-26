@@ -231,7 +231,7 @@ const MarketCoreTab = ({ data, loading }) => {
           title={t('btc_dominance')} 
           value={`${data.btc_dominance}%`} 
           change={data.btc_dominance_change_24h}
-          icon={PieIcon}
+          icon={CircleDot}
           testId="metric-btc-dom"
         />
         <MetricCard 
