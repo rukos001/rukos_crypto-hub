@@ -126,7 +126,7 @@ export const Sidebar = ({ onOpenAI }) => {
             data-testid="open-ai-btn"
           >
             <Sparkles className="w-5 h-5" />
-            {!isCollapsed && <span className="ml-2">AI Ассистент</span>}
+            {!isCollapsed && <span className="ml-2">{t('ai_assistant')}</span>}
           </Button>
 
           {/* User info */}
@@ -155,7 +155,7 @@ export const Sidebar = ({ onOpenAI }) => {
             data-testid="collapse-sidebar-btn"
           >
             <Menu className="w-4 h-4" />
-            {!isCollapsed && <span className="ml-2">Свернуть</span>}
+            {!isCollapsed && <span className="ml-2">{t('collapse')}</span>}
           </Button>
         </div>
       </aside>
