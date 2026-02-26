@@ -188,22 +188,16 @@ const MarketCoreTab = ({ data, loading }) => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-8">
-            <div className="relative w-32 h-32">
-              <svg viewBox="0 0 120 120" className="w-full h-full">
-                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
-                <circle
-                  cx="60" cy="60" r="50"
-                  fill="none"
-                  stroke={fgColor}
-                  strokeWidth="10"
-                  strokeDasharray={`${(fg?.value || 0) * 3.14} 314`}
-                  strokeLinecap="round"
-                  transform="rotate(-90 60 60)"
-                  className="transition-all duration-500"
-                />
-                <text x="60" y="55" textAnchor="middle" className="fill-white text-2xl font-bold font-mono" style={{fontSize: '28px'}}>{fg?.value}</text>
-                <text x="60" y="75" textAnchor="middle" className="fill-gray-400" style={{fontSize: '10px'}}>{fg?.classification}</text>
-              </svg>
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div 
+                className="absolute inset-0 rounded-full border-8 transition-all duration-500"
+                style={{ borderColor: fgColor, borderRightColor: 'transparent', borderBottomColor: 'transparent', transform: `rotate(${(fg?.value || 0) * 3.6}deg)` }}
+              />
+              <div className="absolute inset-2 rounded-full bg-[#0a0a1a]" />
+              <div className="relative text-center">
+                <p className="text-3xl font-bold font-mono" style={{ color: fgColor }}>{fg?.value}</p>
+                <p className="text-xs text-muted-foreground">{fg?.classification}</p>
+              </div>
             </div>
             <div className="flex-1 space-y-2">
               <div className="flex justify-between text-sm">
