@@ -45,7 +45,7 @@ export const LandingPage = () => {
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
           {/* Animated SVG Logo */}
           <div className="flex items-center justify-center mb-8 animate-fade-in">
-            <RukosAnimatedLogo size={140} animate={true} />
+            <RukosAnimatedLogo width={480} animate={true} />
           </div>
           
           <p className="text-lg md:text-xl text-white/70 mb-10 animate-fade-in max-w-2xl mx-auto" style={{ animationDelay: '0.2s' }}>
@@ -138,7 +138,7 @@ export const LandingPage = () => {
       <section className="relative py-20 border-t border-white/5 bg-[#050505]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="glass-card p-12 rounded-3xl relative overflow-hidden">
-            <RukosAnimatedLogo size={80} animate={false} className="mx-auto mb-6" />
+            <RukosAnimatedLogo width={240} animate={false} className="mx-auto mb-6" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Готовы начать?
             </h2>
