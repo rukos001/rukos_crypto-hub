@@ -48,7 +48,9 @@ export const DashboardPage = () => {
     setLoading(prev => ({ ...prev, [tabId]: true }));
     
     try {
-      const response = await axios.get(`${API}${tab.endpoint}`);
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.get(`${API}${tab.endpoint}`, { headers });
       setData(prev => ({ ...prev, [tabId]: response.data }));
       
       if (tabId === 'war') {
