@@ -111,8 +111,6 @@ export const DashboardPage = () => {
         return <RiskEngineTab data={tabData} loading={isLoading} />;
       case 'ai':
         return <AISignalsTab data={tabData} loading={isLoading} />;
-      case 'portfolio':
-        return <PortfolioTab data={tabData} loading={isLoading} />;
       case 'war':
         return <WarModeTab data={tabData} loading={isLoading} />;
       default:
