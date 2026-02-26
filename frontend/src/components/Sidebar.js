@@ -17,19 +17,20 @@ import {
   Globe
 } from 'lucide-react';
 
-const navItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
-  { path: '/posts', icon: FileText, label: 'Посты' },
-  { path: '/ideas', icon: Lightbulb, label: 'Идеи' },
-  { path: '/chat', icon: MessageCircle, label: 'Чат' },
-  { path: '/settings', icon: Settings, label: 'Настройки' },
-];
-
 export const Sidebar = ({ onOpenAI }) => {
   const { user, logout } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const navItems = [
+    { path: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+    { path: '/posts', icon: FileText, label: t('posts') },
+    { path: '/ideas', icon: Lightbulb, label: t('ideas') },
+    { path: '/chat', icon: MessageCircle, label: t('chat') },
+    { path: '/settings', icon: Settings, label: t('settings') },
+  ];
 
   const handleLogout = () => {
     logout();
