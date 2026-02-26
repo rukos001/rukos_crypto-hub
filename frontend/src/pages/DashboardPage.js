@@ -34,7 +34,6 @@ export const DashboardPage = () => {
     { id: 'altseason', labelKey: 'tab_altseason', icon: Flame, endpoint: '/analytics/altseason' },
     { id: 'risk', labelKey: 'tab_risk', icon: Shield, endpoint: '/analytics/risk-engine' },
     { id: 'ai', labelKey: 'tab_ai', icon: Brain, endpoint: '/analytics/ai-signals' },
-    { id: 'portfolio', labelKey: 'tab_portfolio', icon: Target, endpoint: '/analytics/portfolio' },
     { id: 'war', labelKey: 'tab_war', icon: AlertOctagon, endpoint: '/analytics/war-mode' },
   ];
 
