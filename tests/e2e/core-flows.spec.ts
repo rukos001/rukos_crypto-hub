@@ -79,9 +79,9 @@ test.describe('Market Core Tab', () => {
     
     // Check BTC, ETH, SOL are displayed within the crypto prices card
     const cryptoCard = page.getByTestId('crypto-prices-card');
-    await expect(cryptoCard.getByText('BTC')).toBeVisible();
-    await expect(cryptoCard.getByText('ETH')).toBeVisible();
-    await expect(cryptoCard.getByText('SOL')).toBeVisible();
+    await expect(cryptoCard.getByText('BTC', { exact: true })).toBeVisible();
+    await expect(cryptoCard.getByText('ETH', { exact: true })).toBeVisible();
+    await expect(cryptoCard.getByText('SOL', { exact: true })).toBeVisible();
   });
   
   test('displays Fear & Greed Index', async ({ page }) => {
