@@ -137,7 +137,9 @@ export const PortfolioPage = () => {
     : groupEntries.filter(([k]) => k === activeGroup);
 
   return (
-    <div className="space-y-6 animate-fade-in" data-testid="portfolio-page">
+    <div className="space-y-6 animate-fade-in relative" data-testid="portfolio-page">
+      <RukosWatermark position="bottom-right" size={50} />
+      <RukosWatermark position="top-left" size={35} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
