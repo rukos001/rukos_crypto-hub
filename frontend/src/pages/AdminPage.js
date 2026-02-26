@@ -306,7 +306,9 @@ export const AdminPage = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in" data-testid="admin-page">
+    <div className="space-y-6 animate-fade-in relative" data-testid="admin-page">
+      <RukosWatermark position="bottom-right" size={60} />
+      <RukosWatermark position="top-right" size={35} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
