@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e8]:
+        - img [ref=e11]
+        - heading "RUKOS_CRYPTO | HUB" [level=1] [ref=e14]
+        - paragraph [ref=e15]:
+          - text: Все данные крипторынка в одном месте.
+          - text: Цены, ETF, киты, ликвидации и AI-помощник.
+        - generic [ref=e17]:
+          - button "Начать бесплатно" [ref=e18] [cursor=pointer]:
+            - text: Начать бесплатно
+            - img
+          - button "Войти" [ref=e19] [cursor=pointer]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - heading "Всё что нужно трейдеру" [level=2] [ref=e23]
+          - paragraph [ref=e24]: Собрали ключевые данные с CoinMarketCap, SoSoValue, Arkham и Coinglass в одном месте
+        - generic [ref=e26]:
+          - generic [ref=e28]:
+            - img [ref=e30]
+            - heading "Криптовалютные данные" [level=3] [ref=e32]
+            - paragraph [ref=e33]: Цены BTC, ETH, SOL, капитализация рынка и ETF потоки в реальном времени
+          - generic [ref=e35]:
+            - img [ref=e37]
+            - heading "Whale Activity" [level=3] [ref=e39]
+            - paragraph [ref=e40]: Отслеживайте крупные транзакции и движения китов от Arkham
+          - generic [ref=e42]:
+            - img [ref=e44]
+            - heading "Ликвидации" [level=3] [ref=e47]
+            - paragraph [ref=e48]: Данные о ликвидациях от Coinglass с предупреждениями о рекордах
+          - generic [ref=e50]:
+            - img [ref=e52]
+            - heading "Торговые идеи" [level=3] [ref=e54]
+            - paragraph [ref=e55]: Делитесь и обсуждайте торговые идеи с сообществом
+          - generic [ref=e57]:
+            - img [ref=e59]
+            - heading "Общий чат" [level=3] [ref=e61]
+            - paragraph [ref=e62]: Общайтесь с другими трейдерами в реальном времени
+          - generic [ref=e64]:
+            - img [ref=e66]
+            - heading "AI Ассистент" [level=3] [ref=e69]
+            - paragraph [ref=e70]: Персональный криптовалютный помощник на базе GPT-5.2
+      - generic [ref=e73]:
+        - img [ref=e74]
+        - heading "Готовы начать?" [level=2] [ref=e76]
+        - paragraph [ref=e77]: Присоединяйтесь к сообществу криптотрейдеров
+        - button "Создать аккаунт" [ref=e79] [cursor=pointer]
+      - contentinfo [ref=e80]:
+        - paragraph [ref=e82]: 2025 RUKOS_CRYPTO | HUB. Все права защищены.
+    - region "Notifications alt+T"
+  - link "Made with Emergent" [ref=e83] [cursor=pointer]:
+    - /url: https://app.emergent.sh/?utm_source=emergent-badge
+    - img [ref=e84]
+    - paragraph [ref=e87]: Made with Emergent
+```
