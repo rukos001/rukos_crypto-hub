@@ -13,41 +13,7 @@ import {
   Waves, Wallet, Globe, Users, CircleDot
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { dataSourceLinks } from '../context/LanguageContext';
-import { Info, ExternalLink } from 'lucide-react';
-
-// === Inline InfoTooltip ===
-const InfoTooltip = ({ text }) => {
-  const [hovered, setHovered] = React.useState(false);
-  return (
-    <span className="relative inline-flex items-center ml-1.5">
-      <span
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="w-4 h-4 rounded-full bg-white/10 hover:bg-[#F7931A]/30 flex items-center justify-center cursor-help"
-      >
-        <Info className="w-3 h-3 text-muted-foreground" />
-      </span>
-      {hovered && (
-        <span className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-lg bg-[#1a1a2e] border border-white/10 text-xs text-gray-300 shadow-xl leading-relaxed pointer-events-none">
-          {text}
-        </span>
-      )}
-    </span>
-  );
-};
-
-// === Inline SourceLink ===
-const SourceLink = ({ source, label }) => {
-  const url = dataSourceLinks[source] || source;
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer"
-       className="inline-flex items-center gap-1 text-xs text-[#F7931A]/70 hover:text-[#F7931A] transition-colors mt-1">
-      <ExternalLink className="w-3 h-3" />
-      <span>{label || source}</span>
-    </a>
-  );
-};
+import { InfoTooltip, SourceLink } from './InfoComponents';
 
 // Utility functions
 const formatNumber = (num, decimals = 2) => {
