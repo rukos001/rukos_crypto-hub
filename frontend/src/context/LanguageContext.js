@@ -223,6 +223,10 @@ const translations = {
     tab_portfolio: 'Portfolio',
     tab_war: 'War Mode',
     
+    // Sidebar
+    portfolio: 'Portfolio',
+    admin_panel: 'Admin Panel',
+    
     // Market Core
     market_core_title: 'Market Core',
     market_core_desc: 'Macroeconomic indicators and overall crypto market state. Track market cap, BTC/ETH dominance, correlation with traditional markets.',
