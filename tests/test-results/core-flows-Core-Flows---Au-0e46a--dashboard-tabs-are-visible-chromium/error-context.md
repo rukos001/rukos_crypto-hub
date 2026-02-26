@@ -1,0 +1,271 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - complementary [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - img [ref=e8]
+            - heading "RUKOS_CRYPTO" [level=1] [ref=e13]
+          - navigation [ref=e14]:
+            - generic [ref=e15]:
+              - link "Дашборд" [ref=e16] [cursor=pointer]:
+                - /url: /dashboard
+                - img [ref=e17]
+                - generic [ref=e22]: Дашборд
+              - link "Портфель" [ref=e23] [cursor=pointer]:
+                - /url: /portfolio
+                - img [ref=e24]
+                - generic [ref=e27]: Портфель
+              - link "Посты" [ref=e28] [cursor=pointer]:
+                - /url: /posts
+                - img [ref=e29]
+                - generic [ref=e32]: Посты
+              - link "Идеи" [ref=e33] [cursor=pointer]:
+                - /url: /ideas
+                - img [ref=e34]
+                - generic [ref=e36]: Идеи
+              - link "Чат" [ref=e37] [cursor=pointer]:
+                - /url: /chat
+                - img [ref=e38]
+                - generic [ref=e40]: Чат
+              - link "Настройки" [ref=e41] [cursor=pointer]:
+                - /url: /settings
+                - img [ref=e42]
+                - generic [ref=e45]: Настройки
+          - button "RU" [ref=e46] [cursor=pointer]:
+            - img
+            - generic [ref=e47]: RU
+          - button "AI Ассистент" [ref=e48] [cursor=pointer]:
+            - img
+            - generic [ref=e49]: AI Ассистент
+          - generic [ref=e52]:
+            - generic [ref=e53]: T
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: testuser
+              - paragraph [ref=e57]: test@test.com
+          - button "Свернуть" [ref=e58] [cursor=pointer]:
+            - img
+            - generic [ref=e59]: Свернуть
+      - main [ref=e60]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - heading "Дашборд" [level=1] [ref=e65]
+              - paragraph [ref=e66]: Профессиональная крипто-аналитика
+            - button "Обновить" [ref=e67] [cursor=pointer]:
+              - img
+              - text: Обновить
+          - generic [ref=e68]:
+            - tablist [ref=e73]:
+              - tab "Market Core" [selected] [ref=e74] [cursor=pointer]:
+                - img [ref=e75]
+                - generic [ref=e78]: Market Core
+              - tab "Деривативы" [ref=e79] [cursor=pointer]:
+                - img [ref=e80]
+                - generic [ref=e82]: Деривативы
+              - tab "ETF Intelligence" [ref=e83] [cursor=pointer]:
+                - img [ref=e84]
+                - generic [ref=e86]: ETF Intelligence
+              - tab "Onchain" [ref=e87] [cursor=pointer]:
+                - img [ref=e88]
+                - generic [ref=e91]: Onchain
+              - tab "Altseason" [ref=e92] [cursor=pointer]:
+                - img [ref=e93]
+                - generic [ref=e95]: Altseason
+              - tab "Risk Engine" [ref=e96] [cursor=pointer]:
+                - img [ref=e97]
+                - generic [ref=e99]: Risk Engine
+              - tab "AI Сигналы" [ref=e100] [cursor=pointer]:
+                - img [ref=e101]
+                - generic [ref=e111]: AI Сигналы
+              - tab "War Mode" [ref=e112] [cursor=pointer]:
+                - img [ref=e113]
+                - generic [ref=e115]: War Mode
+            - tabpanel "Market Core" [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]:
+                  - paragraph [ref=e121]: Макроэкономические показатели и общее состояние крипторынка. Отслеживайте капитализацию, доминирование BTC/ETH, корреляцию с традиционными рынками.
+                  - link "CoinMarketCap" [ref=e122] [cursor=pointer]:
+                    - /url: https://coinmarketcap.com
+                    - img [ref=e123]
+                    - generic [ref=e127]: CoinMarketCap
+                - generic [ref=e129]:
+                  - generic [ref=e132]:
+                    - text: Risk-On
+                    - button [ref=e134]:
+                      - img [ref=e135]
+                  - generic [ref=e137]:
+                    - paragraph [ref=e138]: Risk Score
+                    - paragraph [ref=e139]: "57.2"
+                - generic [ref=e140]:
+                  - generic [ref=e143]:
+                    - heading "Цены криптовалют" [level=3] [ref=e144]:
+                      - img [ref=e146]
+                      - text: Цены криптовалют
+                      - button [ref=e150]:
+                        - img [ref=e151]
+                    - link "CoinGecko" [ref=e154] [cursor=pointer]:
+                      - /url: https://www.coingecko.com
+                      - img [ref=e155]
+                      - generic [ref=e159]: CoinGecko
+                  - generic [ref=e162]:
+                    - generic [ref=e163]:
+                      - generic [ref=e164]:
+                        - generic [ref=e165]: BTC
+                        - generic [ref=e166]: Bitcoin
+                      - paragraph [ref=e167]: $ 96,052.71
+                      - generic [ref=e168]:
+                        - generic [ref=e169]: "24h:"
+                        - generic [ref=e170]: + 4.76 %
+                        - generic [ref=e171]: "7d:"
+                        - generic [ref=e172]: "-7.85 %"
+                      - paragraph [ref=e173]: "MCap: $1.87T"
+                    - generic [ref=e174]:
+                      - generic [ref=e175]:
+                        - generic [ref=e176]: ETH
+                        - generic [ref=e177]: Ethereum
+                      - paragraph [ref=e178]: $ 3,580.61
+                      - generic [ref=e179]:
+                        - generic [ref=e180]: "24h:"
+                        - generic [ref=e181]: "-2.28 %"
+                        - generic [ref=e182]: "7d:"
+                        - generic [ref=e183]: + 6.99 %
+                      - paragraph [ref=e184]: "MCap: $429.67B"
+                    - generic [ref=e185]:
+                      - generic [ref=e186]:
+                        - generic [ref=e187]: SOL
+                        - generic [ref=e188]: Solana
+                      - paragraph [ref=e189]: $ 185.47
+                      - generic [ref=e190]:
+                        - generic [ref=e191]: "24h:"
+                        - generic [ref=e192]: "-4.09 %"
+                        - generic [ref=e193]: "7d:"
+                        - generic [ref=e194]: "-8.56 %"
+                      - paragraph [ref=e195]: "MCap: $79.75B"
+                - generic [ref=e196]:
+                  - generic [ref=e199]:
+                    - heading "Индекс страха и жадности" [level=3] [ref=e200]:
+                      - img [ref=e202]
+                      - text: Индекс страха и жадности
+                      - button [ref=e207]:
+                        - img [ref=e208]
+                    - link "Alternative.me" [ref=e211] [cursor=pointer]:
+                      - /url: https://alternative.me/crypto/fear-and-greed-index
+                      - img [ref=e212]
+                      - generic [ref=e216]: Alternative.me
+                  - generic [ref=e218]:
+                    - generic [ref=e222]:
+                      - paragraph [ref=e223]: "52"
+                      - paragraph [ref=e224]: Neutral
+                    - generic [ref=e225]:
+                      - generic [ref=e226]:
+                        - generic [ref=e227]: Previous Day
+                        - generic [ref=e228]: "35"
+                      - generic [ref=e229]:
+                        - generic [ref=e230]: Previous Week
+                        - generic [ref=e231]: "18"
+                      - generic [ref=e233]:
+                        - generic [ref=e234]: Extreme Fear
+                        - generic [ref=e235]: Extreme Greed
+                - generic [ref=e236]:
+                  - generic [ref=e237]:
+                    - generic [ref=e238]:
+                      - generic [ref=e239]: Общая капитализация
+                      - img [ref=e241]
+                    - paragraph [ref=e244]: $3.44T
+                    - generic [ref=e246]: + 3.10 %
+                  - generic [ref=e247]:
+                    - generic [ref=e248]:
+                      - generic [ref=e249]: Доминирование BTC
+                      - img [ref=e251]
+                    - paragraph [ref=e254]: 54.45%
+                    - generic [ref=e256]: + 0.06 %
+                  - generic [ref=e257]:
+                    - generic [ref=e259]: Доминирование ETH
+                    - paragraph [ref=e260]: 12.49%
+                    - generic [ref=e262]: "-0.20 %"
+                  - generic [ref=e263]:
+                    - generic [ref=e265]:
+                      - text: TOTAL3 (Альты)
+                      - button [ref=e268]:
+                        - img [ref=e269]
+                    - paragraph [ref=e271]: $1.14T
+                    - generic [ref=e273]: + 1.63 %
+                - generic [ref=e274]:
+                  - generic [ref=e275]:
+                    - generic [ref=e278]:
+                      - heading "Стейблкоины" [level=3] [ref=e279]:
+                        - img [ref=e281]
+                        - text: Стейблкоины
+                        - button [ref=e285]:
+                          - img [ref=e286]
+                      - link "CoinMarketCap" [ref=e289] [cursor=pointer]:
+                        - /url: https://coinmarketcap.com
+                        - img [ref=e290]
+                        - generic [ref=e294]: CoinMarketCap
+                    - generic [ref=e295]:
+                      - generic [ref=e296]:
+                        - generic [ref=e297]: Total Stablecoin MCap
+                        - generic [ref=e298]: $186.08B
+                      - generic [ref=e299]:
+                        - generic [ref=e300]: USDT
+                        - generic [ref=e301]: $140.55B
+                      - generic [ref=e302]:
+                        - generic [ref=e303]: USDC
+                        - generic [ref=e304]: $45.52B
+                      - generic [ref=e305]: + 0.25 %
+                  - generic [ref=e306]:
+                    - generic [ref=e309]:
+                      - heading "Традиционные рынки" [level=3] [ref=e310]:
+                        - img [ref=e312]
+                        - text: Традиционные рынки
+                        - button [ref=e316]:
+                          - img [ref=e317]
+                      - link "TradingView" [ref=e320] [cursor=pointer]:
+                        - /url: https://www.tradingview.com
+                        - img [ref=e321]
+                        - generic [ref=e325]: TradingView
+                    - generic [ref=e326]:
+                      - generic [ref=e327]:
+                        - generic [ref=e328]: DXY
+                        - generic [ref=e329]:
+                          - generic [ref=e330]: "103.63"
+                          - generic [ref=e331]: + 0.21
+                      - generic [ref=e332]:
+                        - generic [ref=e333]: US10Y
+                        - generic [ref=e335]: 4.269 %
+                      - generic [ref=e336]:
+                        - generic [ref=e337]: SPX
+                        - generic [ref=e338]:
+                          - generic [ref=e339]: 6,026.74
+                          - generic [ref=e340]: + 0.94 %
+                      - generic [ref=e341]:
+                        - generic [ref=e342]: NQ
+                        - generic [ref=e343]:
+                          - generic [ref=e344]: 21,355.55
+                          - generic [ref=e345]: + 1.69 %
+                      - generic [ref=e346]:
+                        - generic [ref=e347]: Золото (XAU)
+                        - generic [ref=e348]:
+                          - generic [ref=e349]: $ 2,626.29
+                          - generic [ref=e351]: + 0.56 %
+                - generic [ref=e352]:
+                  - heading "Глобальная ликвидность" [level=3] [ref=e356]:
+                    - img [ref=e358]
+                    - text: Глобальная ликвидность
+                    - button [ref=e364]:
+                      - img [ref=e365]
+                  - generic [ref=e368]:
+                    - generic [ref=e369]:
+                      - paragraph [ref=e370]: $ 108.52 T
+                      - paragraph [ref=e371]: Global M2 Money Supply
+                    - generic [ref=e373]: + 1.20 % MoM
+    - region "Notifications alt+T"
+  - link "Made with Emergent" [ref=e374] [cursor=pointer]:
+    - /url: https://app.emergent.sh/?utm_source=emergent-badge
+    - img [ref=e375]
+    - paragraph [ref=e378]: Made with Emergent
+```
