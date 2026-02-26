@@ -14,6 +14,7 @@ import { ChatPage } from './pages/ChatPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AdminPage } from './pages/AdminPage';
 import { PortfolioPage } from './pages/PortfolioPage';
+import { KnowledgePage } from './pages/KnowledgePage';
 
 // Layout
 import { MainLayout } from './layouts/MainLayout';
