@@ -14,7 +14,9 @@ import {
   TrendingUp,
   Sparkles,
   LogOut,
-  Globe
+  Globe,
+  Wallet,
+  Shield
 } from 'lucide-react';
 
 export const Sidebar = ({ onOpenAI }) => {
