@@ -977,6 +977,31 @@ async def admin_update_portfolio(body: AdminPortfolioUpdate, admin: dict = Depen
     if group not in ["HOLD", "ALTs", "HI_RISK"]:
         raise HTTPException(status_code=400, detail="Invalid group. Must be HOLD, ALTs, or HI_RISK")
     
+    positions = [p.model_dump() for p in body.positions]
+    
+    # If user_id is "ALL", apply to all users
+    if user_id == "ALL":
+        all_users = await db.users.find({}, {"_id": 0, "id": 1}).to_list(1000)
+        count = 0
+        for u in all_users:
+            uid = u["id"]
+            portfolio = await db.portfolios.find_one({"user_id": uid}, {"_id": 0})
+            if not portfolio:
+                portfolio = {
+                    "user_id": uid,
+                    "groups": {
+                        "HOLD": {"description": "Long-term core positions", "positions": []},
+                        "ALTs": {"description": "Altcoin swing positions", "positions": []},
+                        "HI_RISK": {"description": "High risk / high reward bets", "positions": []}
+                    }
+                }
+            portfolio["groups"][group]["positions"] = positions
+            if body.description:
+                portfolio["groups"][group]["description"] = body.description
+            await db.portfolios.update_one({"user_id": uid}, {"$set": portfolio}, upsert=True)
+            count += 1
+        return {"status": "updated_all", "users_count": count, "group": group, "positions_count": len(positions)}
+    
     portfolio = await db.portfolios.find_one({"user_id": user_id}, {"_id": 0})
     if not portfolio:
         portfolio = {
@@ -988,7 +1013,6 @@ async def admin_update_portfolio(body: AdminPortfolioUpdate, admin: dict = Depen
             }
         }
     
-    positions = [p.model_dump() for p in body.positions]
     portfolio["groups"][group]["positions"] = positions
     if body.description:
         portfolio["groups"][group]["description"] = body.description
