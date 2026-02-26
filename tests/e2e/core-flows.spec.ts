@@ -45,11 +45,15 @@ test.describe('Core Flows - Auth and Navigation', () => {
   test('all dashboard tabs are visible', async ({ page }) => {
     await login(page);
     
-    const tabs = ['market', 'derivatives', 'etf', 'onchain', 'altseason', 'risk', 'ai', 'portfolio', 'war'];
+    // Portfolio was moved to sidebar, so it's no longer a dashboard tab
+    const tabs = ['market', 'derivatives', 'etf', 'onchain', 'altseason', 'risk', 'ai', 'war'];
     for (const tabId of tabs) {
       const tab = page.getByTestId(`tab-${tabId}`);
       await expect(tab).toBeVisible();
     }
+    
+    // Verify portfolio is now in sidebar
+    await expect(page.getByTestId('nav-portfolio')).toBeVisible();
   });
   
   test('sidebar navigation works', async ({ page }) => {
