@@ -358,6 +358,8 @@ class RukosCryptoAPITester:
         self.test_crypto_etf_flows()
         self.test_crypto_whale_activity()
         self.test_crypto_liquidations()
+        self.test_crypto_fear_greed()
+        self.test_crypto_price_history()
 
         # Test authenticated endpoints
         if self.token:
