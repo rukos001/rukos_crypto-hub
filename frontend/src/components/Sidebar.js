@@ -105,6 +105,18 @@ export const Sidebar = ({ onOpenAI }) => {
             ))}
           </nav>
 
+          {/* Language Switcher */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLanguage}
+            className={`mb-2 border-white/10 hover:bg-[#F7931A]/10 hover:border-[#F7931A]/30 transition-all ${isCollapsed ? 'w-full px-0' : ''}`}
+            data-testid="language-switcher"
+          >
+            <Globe className="w-4 h-4" />
+            {!isCollapsed && <span className="ml-2 font-mono text-xs">{language === 'ru' ? 'RU' : 'EN'}</span>}
+          </Button>
+
           {/* AI Assistant Button */}
           <Button
             onClick={onOpenAI}
