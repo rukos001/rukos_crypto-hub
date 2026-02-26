@@ -16,7 +16,14 @@ import {
   LogOut,
   Globe,
   Wallet,
-  Shield
+  Shield,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Layers,
+  BarChart3,
+  Target,
+  Globe2
 } from 'lucide-react';
 
 export const Sidebar = ({ onOpenAI }) => {
