@@ -4,9 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { ScrollArea, ScrollBar } from '../components/ui/scroll-area';
-import { RefreshCw, AlertOctagon, TrendingUp, BarChart3, Activity, 
-  Wallet, Shield, Brain, Users, ArrowRightLeft, Flame, Target, Globe } from 'lucide-react';
+import { RefreshCw, AlertOctagon, Globe, BarChart3, Activity, 
+  Wallet, Shield, Brain, Flame, Target } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage } from '../context/LanguageContext';
 
 // Import all tab components
 import { MarketCoreTab, DerivativesTab } from '../components/DashboardTabs';
@@ -16,25 +17,26 @@ import { PortfolioTab, WarModeTab } from '../components/DashboardTabs4';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// Tab configuration
-const TABS = [
-  { id: 'market', label: 'Market Core', icon: Globe, endpoint: '/analytics/market-core' },
-  { id: 'derivatives', label: 'Derivatives', icon: BarChart3, endpoint: '/analytics/derivatives' },
-  { id: 'etf', label: 'ETF Intelligence', icon: Activity, endpoint: '/analytics/etf-intelligence' },
-  { id: 'onchain', label: 'Onchain', icon: Wallet, endpoint: '/analytics/onchain' },
-  { id: 'altseason', label: 'Altseason', icon: Flame, endpoint: '/analytics/altseason' },
-  { id: 'risk', label: 'Risk Engine', icon: Shield, endpoint: '/analytics/risk-engine' },
-  { id: 'ai', label: 'AI Signals', icon: Brain, endpoint: '/analytics/ai-signals' },
-  { id: 'portfolio', label: 'Portfolio', icon: Target, endpoint: '/analytics/portfolio' },
-  { id: 'war', label: 'War Mode', icon: AlertOctagon, endpoint: '/analytics/war-mode' },
-];
-
 export const DashboardPage = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('market');
   const [data, setData] = useState({});
   const [loading, setLoading] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const [warModeActive, setWarModeActive] = useState(false);
+
+  // Tab configuration with translation keys
+  const TABS = [
+    { id: 'market', labelKey: 'tab_market', icon: Globe, endpoint: '/analytics/market-core' },
+    { id: 'derivatives', labelKey: 'tab_derivatives', icon: BarChart3, endpoint: '/analytics/derivatives' },
+    { id: 'etf', labelKey: 'tab_etf', icon: Activity, endpoint: '/analytics/etf-intelligence' },
+    { id: 'onchain', labelKey: 'tab_onchain', icon: Wallet, endpoint: '/analytics/onchain' },
+    { id: 'altseason', labelKey: 'tab_altseason', icon: Flame, endpoint: '/analytics/altseason' },
+    { id: 'risk', labelKey: 'tab_risk', icon: Shield, endpoint: '/analytics/risk-engine' },
+    { id: 'ai', labelKey: 'tab_ai', icon: Brain, endpoint: '/analytics/ai-signals' },
+    { id: 'portfolio', labelKey: 'tab_portfolio', icon: Target, endpoint: '/analytics/portfolio' },
+    { id: 'war', labelKey: 'tab_war', icon: AlertOctagon, endpoint: '/analytics/war-mode' },
+  ];
 
   // Fetch data for a specific tab
   const fetchTabData = useCallback(async (tabId, force = false) => {
@@ -49,48 +51,46 @@ export const DashboardPage = () => {
       const response = await axios.get(`${API}${tab.endpoint}`);
       setData(prev => ({ ...prev, [tabId]: response.data }));
       
-      // Check war mode status
       if (tabId === 'war') {
         setWarModeActive(response.data?.war_mode_active || false);
       }
     } catch (error) {
       console.error(`Error fetching ${tabId}:`, error);
-      toast.error(`Ошибка загрузки ${tab.label}`);
+      toast.error(`${t('loading')} ${t(`tab_${tabId === 'market' ? 'market' : tabId}`)}`);
     } finally {
       setLoading(prev => ({ ...prev, [tabId]: false }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  // Fetch active tab data on mount and tab change
   useEffect(() => {
     fetchTabData(activeTab);
-  }, [activeTab, fetchTabData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
-  // Initial load of war mode to check status
   useEffect(() => {
     fetchTabData('war');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refresh all data
   const handleRefresh = async () => {
     setRefreshing(true);
     setData({});
     await fetchTabData(activeTab, true);
     await fetchTabData('war', true);
     setRefreshing(false);
-    toast.success('Данные обновлены');
+    toast.success(t('updated'));
   };
 
-  // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       fetchTabData(activeTab, true);
       fetchTabData('war', true);
     }, 30000);
     return () => clearInterval(interval);
-  }, [activeTab, fetchTabData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
-  // Render tab content
   const renderTabContent = (tabId) => {
     const tabData = data[tabId];
     const isLoading = loading[tabId];
@@ -125,7 +125,7 @@ export const DashboardPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
-            Dashboard
+            {t('dashboard')}
             {warModeActive && (
               <Badge className="bg-[#EF4444]/20 text-[#EF4444] animate-pulse">
                 <AlertOctagon className="w-4 h-4 mr-1" />
@@ -133,7 +133,7 @@ export const DashboardPage = () => {
               </Badge>
             )}
           </h1>
-          <p className="text-muted-foreground text-sm">Professional crypto analytics</p>
+          <p className="text-muted-foreground text-sm">{t('professional_analytics')}</p>
         </div>
         <Button 
           variant="outline" 
@@ -144,13 +144,12 @@ export const DashboardPage = () => {
           data-testid="refresh-btn"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          Обновить
+          {t('refresh')}
         </Button>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Tab Navigation - Horizontal Scrollable */}
         <div className="relative">
           <ScrollArea className="w-full whitespace-nowrap pb-3">
             <TabsList className="inline-flex h-auto p-1 bg-secondary/30 rounded-xl gap-1">
@@ -171,7 +170,7 @@ export const DashboardPage = () => {
                     `}
                   >
                     <Icon className={`w-4 h-4 mr-2 ${isWar && warModeActive ? 'text-[#EF4444]' : ''}`} />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="hidden sm:inline">{t(tab.labelKey)}</span>
                   </TabsTrigger>
                 );
               })}
@@ -180,7 +179,6 @@ export const DashboardPage = () => {
           </ScrollArea>
         </div>
 
-        {/* Tab Content */}
         <div className="mt-6">
           {TABS.map(tab => (
             <TabsContent key={tab.id} value={tab.id} className="mt-0">
