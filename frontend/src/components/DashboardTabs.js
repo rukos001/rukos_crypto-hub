@@ -5,10 +5,8 @@ import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { Skeleton } from './ui/skeleton';
 import { 
-  LineChart, Line, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  Legend, PieChart, Pie, Cell, RadarChart,
-  PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, DollarSign, Activity, AlertTriangle, 
