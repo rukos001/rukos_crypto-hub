@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { Progress } from '../components/ui/progress';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { Skeleton } from '../components/ui/skeleton';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Progress } from './ui/progress';
+import { Skeleton } from './ui/skeleton';
 import { 
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -19,8 +16,6 @@ import {
   Shield, AlertOctagon, Waves, Flame, Eye, Brain, Wallet,
   Globe, Users, MessageCircle, ArrowRightLeft, Sparkles
 } from 'lucide-react';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // Utility functions
 const formatNumber = (num, decimals = 2) => {
