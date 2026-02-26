@@ -142,10 +142,11 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
-def create_token(user_id: str, username: str) -> str:
+def create_token(user_id: str, username: str, role: str = "user") -> str:
     payload = {
         "user_id": user_id,
         "username": username,
+        "role": role,
         "exp": datetime.now(timezone.utc).timestamp() + 86400 * 7
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
@@ -153,11 +154,16 @@ def create_token(user_id: str, username: str) -> str:
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return {"user_id": payload["user_id"], "username": payload["username"]}
+        return {"user_id": payload["user_id"], "username": payload["username"], "role": payload.get("role", "user")}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_admin_user(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
 
 # ==================== AUTH ROUTES ====================
 
