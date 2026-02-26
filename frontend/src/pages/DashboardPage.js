@@ -120,7 +120,9 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in" data-testid="dashboard-page">
+    <div className="space-y-6 animate-fade-in relative" data-testid="dashboard-page">
+      <RukosWatermark position="bottom-right" size={60} />
+      <RukosWatermark position="top-right" size={40} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
