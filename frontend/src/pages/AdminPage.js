@@ -16,9 +16,10 @@ import { RukosWatermark } from '../components/RukosLogo';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // === Portfolio Editor Component ===
-const PortfolioEditor = ({ onClose }) => {
+const PortfolioEditor = () => {
   const [usersList, setUsersList] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [applyToAll, setApplyToAll] = useState(false);
   const [portfolio, setPortfolio] = useState(null);
   const [editGroup, setEditGroup] = useState(null);
   const [positions, setPositions] = useState([]);
