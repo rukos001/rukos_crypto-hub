@@ -33,10 +33,12 @@ function App() {
             {/* Protected routes */}
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/posts" element={<PostsPage />} />
               <Route path="/ideas" element={<IdeasPage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
             </Route>
 
             {/* Catch all */}
