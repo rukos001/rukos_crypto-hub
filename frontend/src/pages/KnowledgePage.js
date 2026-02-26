@@ -68,7 +68,8 @@ const ArticleCard = ({ article, isExpanded, onToggle }) => {
 
 export const KnowledgePage = () => {
   const { language } = useLanguage();
-  const [activeCategory, setActiveCategory] = useState('defi');
+  const { category: urlCategory } = useParams();
+  const [activeCategory, setActiveCategory] = useState(urlCategory || 'defi');
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
