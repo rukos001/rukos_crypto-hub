@@ -11,6 +11,7 @@ import {
   Users, MessageCircle, FileText, Lightbulb, Trash2, Shield, 
   Eye, EyeOff, BarChart3, RefreshCw, Wallet, Plus, Save, X, Pencil
 } from 'lucide-react';
+import { RukosWatermark } from '../components/RukosLogo';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
