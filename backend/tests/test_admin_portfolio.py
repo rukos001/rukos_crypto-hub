@@ -347,5 +347,127 @@ class TestPortfolioGroups:
         assert "PEPE" in hirisk_assets
 
 
+# ==================== ADMIN PORTFOLIO EDITOR TESTS (NEW) ====================
+
+class TestAdminPortfolioEditor:
+    """Test admin portfolio management endpoints including Apply to All"""
+    
+    def test_admin_can_list_portfolios(self, admin_client):
+        """Admin should be able to list all users for portfolio management"""
+        response = admin_client.get(f"{BASE_URL}/api/admin/portfolios")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        if len(data) > 0:
+            user = data[0]
+            assert "user_id" in user
+            assert "username" in user
+            assert "email" in user
+            assert "positions_count" in user
+    
+    def test_admin_can_get_user_portfolio(self, admin_client):
+        """Admin should be able to get a specific user's portfolio"""
+        # Get list of users first
+        users_response = admin_client.get(f"{BASE_URL}/api/admin/portfolios")
+        assert users_response.status_code == 200
+        users = users_response.json()
+        assert len(users) > 0
+        user_id = users[0]["user_id"]
+        
+        # Get portfolio for user
+        response = admin_client.get(f"{BASE_URL}/api/admin/portfolio/{user_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert "user_id" in data
+        assert "groups" in data
+        assert "HOLD" in data["groups"]
+        assert "ALTs" in data["groups"]
+        assert "HI_RISK" in data["groups"]
+    
+    def test_admin_can_update_user_portfolio(self, admin_client):
+        """Admin should be able to update a specific user's portfolio"""
+        # Get list of users first
+        users_response = admin_client.get(f"{BASE_URL}/api/admin/portfolios")
+        users = users_response.json()
+        assert len(users) > 0
+        user_id = users[0]["user_id"]
+        
+        # Update portfolio with test position
+        unique_asset = f"TEST_{uuid.uuid4().hex[:6].upper()}"
+        update_response = admin_client.put(f"{BASE_URL}/api/admin/portfolio", json={
+            "user_id": user_id,
+            "group": "HOLD",
+            "positions": [
+                {"asset": unique_asset, "size": 100, "entry": 50000, "current": 55000, "notes": "Test position"}
+            ],
+            "description": "Test HOLD group"
+        })
+        assert update_response.status_code == 200
+        data = update_response.json()
+        assert data["status"] == "updated"
+        assert data["user_id"] == user_id
+        assert data["group"] == "HOLD"
+        
+        # Verify the update
+        portfolio = admin_client.get(f"{BASE_URL}/api/admin/portfolio/{user_id}").json()
+        hold_positions = portfolio["groups"]["HOLD"]["positions"]
+        assets = [p["asset"] for p in hold_positions]
+        assert unique_asset in assets
+    
+    def test_admin_apply_to_all_users(self, admin_client):
+        """Admin should be able to apply portfolio changes to ALL users"""
+        # Get total user count
+        users_response = admin_client.get(f"{BASE_URL}/api/admin/portfolios")
+        users = users_response.json()
+        user_count = len(users)
+        assert user_count > 0, "Need at least 1 user to test Apply to All"
+        
+        # Apply position to ALL users
+        unique_asset = f"ALL_TEST_{uuid.uuid4().hex[:6].upper()}"
+        update_response = admin_client.put(f"{BASE_URL}/api/admin/portfolio", json={
+            "user_id": "ALL",  # KEY: user_id = "ALL" applies to everyone
+            "group": "ALTs",
+            "positions": [
+                {"asset": unique_asset, "size": 500, "entry": 100, "current": 120, "notes": "Applied to all"}
+            ],
+            "description": "ALTs applied to all users"
+        })
+        assert update_response.status_code == 200
+        data = update_response.json()
+        assert data["status"] == "updated_all"
+        assert data["users_count"] == user_count
+        assert data["group"] == "ALTs"
+        
+        # Verify at least one user got the update
+        if user_count > 0:
+            test_user_id = users[0]["user_id"]
+            portfolio = admin_client.get(f"{BASE_URL}/api/admin/portfolio/{test_user_id}").json()
+            alts_positions = portfolio["groups"]["ALTs"]["positions"]
+            assets = [p["asset"] for p in alts_positions]
+            assert unique_asset in assets, f"Asset {unique_asset} not found in user {test_user_id}'s ALTs"
+    
+    def test_admin_portfolio_invalid_group_fails(self, admin_client):
+        """Admin should get error for invalid portfolio group"""
+        users_response = admin_client.get(f"{BASE_URL}/api/admin/portfolios")
+        users = users_response.json()
+        if len(users) == 0:
+            pytest.skip("No users to test with")
+        user_id = users[0]["user_id"]
+        
+        update_response = admin_client.put(f"{BASE_URL}/api/admin/portfolio", json={
+            "user_id": user_id,
+            "group": "INVALID_GROUP",
+            "positions": [],
+            "description": ""
+        })
+        assert update_response.status_code == 400
+        assert "Invalid group" in update_response.json()["detail"]
+    
+    def test_non_admin_cannot_access_portfolio_admin(self, user_client):
+        """Regular user should get 403 on admin portfolio endpoints"""
+        response = user_client.get(f"{BASE_URL}/api/admin/portfolios")
+        assert response.status_code == 403
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
