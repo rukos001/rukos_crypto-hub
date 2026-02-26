@@ -32,6 +32,7 @@ export const Sidebar = ({ onOpenAI }) => {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [knowledgeOpen, setKnowledgeOpen] = useState(false);
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
@@ -40,6 +41,13 @@ export const Sidebar = ({ onOpenAI }) => {
     { path: '/ideas', icon: Lightbulb, label: t('ideas') },
     { path: '/chat', icon: MessageCircle, label: t('chat') },
     { path: '/settings', icon: Settings, label: t('settings') },
+  ];
+
+  const knowledgeSubitems = [
+    { key: 'defi', icon: Layers, label: 'DeFi', color: '#3B82F6' },
+    { key: 'perp', icon: BarChart3, label: 'PERP', color: '#F7931A' },
+    { key: 'options', icon: Target, label: 'OPTIONS', color: '#10B981' },
+    { key: 'macro', icon: Globe2, label: 'MACRO', color: '#F59E0B' },
   ];
 
   const isAdmin = user?.role === 'admin';
