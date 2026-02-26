@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
 import { 
   LayoutDashboard, 
@@ -12,7 +13,8 @@ import {
   X,
   TrendingUp,
   Sparkles,
-  LogOut
+  LogOut,
+  Globe
 } from 'lucide-react';
 
 const navItems = [
