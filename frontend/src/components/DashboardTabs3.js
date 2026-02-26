@@ -1,10 +1,9 @@
 import React from 'react';
-import axios from 'axios';
-import { Card, CardContent, CardHeader } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { Progress } from '../components/ui/progress';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { ScrollArea } from './ui/scroll-area';
+import { Progress } from './ui/progress';
 import { 
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
