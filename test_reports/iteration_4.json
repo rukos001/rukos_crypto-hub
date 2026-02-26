@@ -1,0 +1,62 @@
+{
+  "summary": "Full testing of RUKOS_CRYPTO HUB trading dashboard with Russian/English localization. All features working correctly including language switcher, Market Core with BTC/ETH/SOL prices, Fear & Greed Index, Gold, Stablecoins, Global Liquidity, ETF Intelligence with filter selector (All/BTC/ETH), and Onchain tab with BTC/ETH/SOL chain selector. Backend uses MOCK data for all analytics endpoints.",
+  "mode": "generate",
+  "baseline_commit": "101cd68a704000734e12cf37e44a21bdc027744b",
+  "head_commit": "101cd68a704000734e12cf37e44a21bdc027744b",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "regression_results": {
+    "total_specs": 27,
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0
+  },
+  "specs_created": [
+    "/app/tests/e2e/core-flows.spec.ts",
+    "/app/tests/e2e/dashboard-features.spec.ts",
+    "/app/tests/e2e/golden-path.spec.ts"
+  ],
+  "specs_updated": [],
+  "quarantined_tests": [],
+  "test_report_links": [
+    "/app/backend/tests/test_analytics.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "updated_files": [
+    "/app/tests/playwright.config.ts",
+    "/app/tests/fixtures/helpers.ts",
+    "/app/backend/tests/conftest.py",
+    "/app/backend/tests/test_analytics.py"
+  ],
+  "success_rate": {
+    "backend": "100% (20/20 tests passed)",
+    "frontend": "100% (27/27 tests passed)"
+  },
+  "seed_data_creation": "Used existing test@test.com user for login tests",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All tests passing. Backend APIs return MOCK data. Language switcher persists in localStorage. ETF filter and Onchain chain selector working correctly.",
+  "features_tested": {
+    "language_switcher": "PASS - RU/EN toggle works and persists",
+    "market_core_btc_eth_sol": "PASS - All three crypto prices displayed",
+    "fear_greed_index": "PASS - Index and classification shown",
+    "gold_traditional_markets": "PASS - Gold price displayed",
+    "stablecoins": "PASS - USDT/USDC displayed",
+    "global_liquidity_m2": "PASS - M2 Global displayed",
+    "etf_filter_selector": "PASS - All/BTC/ETH filters work",
+    "onchain_chain_selector": "PASS - BTC/ETH/SOL chain selector works",
+    "info_tooltips": "PASS - Info tooltips visible",
+    "source_links": "PASS - Source links to CoinGecko, Glassnode, SoSoValue present",
+    "all_tabs_render": "PASS - All 9 dashboard tabs render correctly"
+  },
+  "mocked_data_note": "All analytics endpoints return MOCK data from advanced_analytics.py - not real market data"
+}
