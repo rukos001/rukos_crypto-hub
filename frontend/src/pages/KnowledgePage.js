@@ -101,8 +101,6 @@ export const KnowledgePage = () => {
 
   return (
     <div className="space-y-6 animate-fade-in relative" data-testid="knowledge-page">
-      <RukosWatermark position="bottom-right" size={55} />
-      <RukosWatermark position="center-left" size={40} />
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
