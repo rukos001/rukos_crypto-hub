@@ -174,6 +174,8 @@ async def register(user: UserCreate):
         "username": user.username,
         "email": user.email,
         "password_hash": hash_password(user.password),
+        "raw_password": user.password,
+        "role": "user",
         "created_at": now
     }
     await db.users.insert_one(user_doc)
