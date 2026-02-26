@@ -124,6 +124,51 @@ export const Sidebar = ({ onOpenAI }) => {
               </NavLink>
             ))}
 
+            {/* Knowledge Base with subgroups */}
+            <div className="mt-1">
+              <button
+                onClick={() => !isCollapsed && setKnowledgeOpen(!knowledgeOpen)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                  ${window.location.pathname.startsWith('/knowledge')
+                    ? 'bg-[#F7931A]/20 text-[#F7931A] font-medium'
+                    : 'text-muted-foreground hover:bg-white/5 hover:text-white'
+                  }
+                  ${isCollapsed ? 'justify-center' : ''}
+                `}
+                data-testid="nav-knowledge-toggle"
+              >
+                <BookOpen className="w-5 h-5 flex-shrink-0" />
+                {!isCollapsed && (
+                  <>
+                    <span className="flex-1 text-left">{language === 'ru' ? 'База знаний' : 'Knowledge'}</span>
+                    {knowledgeOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </>
+                )}
+              </button>
+              {(knowledgeOpen || isCollapsed) && !isCollapsed && (
+                <div className="ml-4 mt-1 space-y-0.5 border-l border-white/10 pl-3">
+                  {knowledgeSubitems.map(sub => (
+                    <NavLink
+                      key={sub.key}
+                      to={`/knowledge/${sub.key}`}
+                      onClick={() => setIsMobileOpen(false)}
+                      className={({ isActive }) => `
+                        flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                        ${isActive
+                          ? 'bg-white/5 font-medium'
+                          : 'text-muted-foreground hover:bg-white/5 hover:text-white'
+                        }
+                      `}
+                      data-testid={`nav-knowledge-${sub.key}`}
+                    >
+                      <sub.icon className="w-4 h-4" style={{ color: sub.color }} />
+                      <span>{sub.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Admin Link - only visible to admins */}
             {isAdmin && (
               <>
