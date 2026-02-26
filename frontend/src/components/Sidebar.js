@@ -28,11 +28,14 @@ export const Sidebar = ({ onOpenAI }) => {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+    { path: '/portfolio', icon: Wallet, label: t('portfolio') },
     { path: '/posts', icon: FileText, label: t('posts') },
     { path: '/ideas', icon: Lightbulb, label: t('ideas') },
     { path: '/chat', icon: MessageCircle, label: t('chat') },
     { path: '/settings', icon: Settings, label: t('settings') },
   ];
+
+  const isAdmin = user?.role === 'admin';
 
   const handleLogout = () => {
     logout();
