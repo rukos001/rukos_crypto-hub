@@ -212,8 +212,8 @@ test.describe('Admin Portfolio - Apply to All Users', () => {
     // Click to enable Apply to All
     await applyToggle.click();
     
-    // When Apply to All is active, should see "ALL USERS" text
-    await expect(page.locator('text=ALL USERS')).toBeVisible({ timeout: 5000 });
+    // When Apply to All is active, should see "ALL USERS (N)" header with user count
+    await expect(page.locator('span.text-\\[\\#F7931A\\]').filter({ hasText: /ALL USERS/ })).toBeVisible({ timeout: 5000 });
   });
 
   test('Admin can select group when Apply to All is enabled', async ({ page }) => {
@@ -225,7 +225,8 @@ test.describe('Admin Portfolio - Apply to All Users', () => {
     
     // Enable Apply to All
     await page.getByTestId('apply-to-all-toggle').click();
-    await expect(page.locator('text=ALL USERS')).toBeVisible();
+    // Check for the "ALL USERS (N)" header
+    await expect(page.locator('span.text-\\[\\#F7931A\\]').filter({ hasText: /ALL USERS/ })).toBeVisible();
     
     // Group buttons should be visible
     await expect(page.getByTestId('admin-portfolio-group-HOLD')).toBeVisible();
