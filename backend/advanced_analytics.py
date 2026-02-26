@@ -441,99 +441,161 @@ def get_etf_intelligence() -> Dict:
 
 # ==================== ONCHAIN WAR ROOM ====================
 
-def get_onchain_data() -> Dict:
-    """Smart Money / Onchain metrics"""
-    cache_key = "onchain_warroom"
+def get_onchain_data(chain: str = "btc") -> Dict:
+    """Smart Money / Onchain metrics for BTC, ETH, or SOL"""
+    cache_key = f"onchain_{chain}"
     cached = get_cached(cache_key, 120)
     if cached:
         return cached
     
     random.seed(get_seed())
+    chain = chain.upper()
     
-    # Top 100 addresses balance changes
-    top_wallets = {
+    # Chain-specific configurations
+    chain_configs = {
         "BTC": {
-            "total_balance": 2.1e6,  # BTC held by top 100
-            "change_7d": random.uniform(-15000, 25000),
-            "change_30d": random.uniform(-50000, 80000)
+            "price": 97500 + random.uniform(-2000, 2000),
+            "supply": 19.5e6,
+            "top100_balance": 2.1e6,
+            "exchange_reserve": 2.3e6,
+            "realized_cap": 650e9,
+            "notable_wallets": [
+                {"name": "MicroStrategy", "balance": 252220, "change_30d": random.randint(0, 5000)},
+                {"name": "US Government", "balance": 198109, "change_30d": random.randint(-1000, 0)},
+                {"name": "Block.one", "balance": 164000, "change_30d": 0},
+                {"name": "Tether Treasury", "balance": 82454, "change_30d": random.randint(-500, 2000)},
+                {"name": "Marathon Digital", "balance": 44893, "change_30d": random.randint(500, 2000)},
+                {"name": "Riot Platforms", "balance": 17722, "change_30d": random.randint(200, 800)},
+                {"name": "Galaxy Digital", "balance": 15449, "change_30d": random.randint(-500, 500)},
+                {"name": "Tesla", "balance": 9720, "change_30d": 0},
+                {"name": "El Salvador", "balance": 5955, "change_30d": random.randint(0, 100)},
+                {"name": "Coinbase Treasury", "balance": 9000, "change_30d": random.randint(-200, 200)},
+            ]
         },
         "ETH": {
-            "total_balance": 28.5e6,
-            "change_7d": random.uniform(-200000, 400000),
-            "change_30d": random.uniform(-800000, 1200000)
+            "price": 3450 + random.uniform(-150, 150),
+            "supply": 120e6,
+            "top100_balance": 28.5e6,
+            "exchange_reserve": 15.2e6,
+            "realized_cap": 280e9,
+            "notable_wallets": [
+                {"name": "Ethereum Foundation", "balance": 273000, "change_30d": random.randint(-5000, 1000)},
+                {"name": "Vitalik Buterin", "balance": 240000, "change_30d": random.randint(-2000, 500)},
+                {"name": "Wrapped ETH Contract", "balance": 3200000, "change_30d": random.randint(-50000, 100000)},
+                {"name": "Lido Staking", "balance": 9800000, "change_30d": random.randint(50000, 200000)},
+                {"name": "Beacon Chain Deposit", "balance": 34000000, "change_30d": random.randint(100000, 500000)},
+                {"name": "Kraken", "balance": 1500000, "change_30d": random.randint(-30000, 50000)},
+                {"name": "Binance", "balance": 4200000, "change_30d": random.randint(-100000, 150000)},
+                {"name": "Coinbase", "balance": 2100000, "change_30d": random.randint(-50000, 80000)},
+                {"name": "Arbitrum Bridge", "balance": 850000, "change_30d": random.randint(10000, 50000)},
+                {"name": "Optimism Bridge", "balance": 450000, "change_30d": random.randint(5000, 25000)},
+            ]
         },
         "SOL": {
-            "total_balance": 180e6,
-            "change_7d": random.uniform(-2e6, 5e6),
-            "change_30d": random.uniform(-10e6, 15e6)
+            "price": 185 + random.uniform(-10, 10),
+            "supply": 430e6,
+            "top100_balance": 180e6,
+            "exchange_reserve": 45e6,
+            "realized_cap": 45e9,
+            "notable_wallets": [
+                {"name": "Solana Foundation", "balance": 50000000, "change_30d": random.randint(-500000, 200000)},
+                {"name": "Alameda Remnant", "balance": 8500000, "change_30d": random.randint(-200000, 0)},
+                {"name": "Jump Trading", "balance": 12000000, "change_30d": random.randint(-100000, 500000)},
+                {"name": "Binance", "balance": 25000000, "change_30d": random.randint(-500000, 1000000)},
+                {"name": "Coinbase", "balance": 8000000, "change_30d": random.randint(-200000, 400000)},
+                {"name": "Kraken", "balance": 5500000, "change_30d": random.randint(-100000, 200000)},
+                {"name": "Marinade Finance", "balance": 8200000, "change_30d": random.randint(100000, 500000)},
+                {"name": "Jito Stake Pool", "balance": 12500000, "change_30d": random.randint(200000, 800000)},
+                {"name": "Multicoin Capital", "balance": 3500000, "change_30d": random.randint(-50000, 100000)},
+                {"name": "Polychain Capital", "balance": 2800000, "change_30d": random.randint(-30000, 80000)},
+            ]
         }
+    }
+    
+    config = chain_configs.get(chain, chain_configs["BTC"])
+    price = config["price"]
+    
+    # Top wallets
+    top_wallets = {
+        "total_balance": config["top100_balance"] + random.uniform(-config["top100_balance"]*0.01, config["top100_balance"]*0.02),
+        "change_7d": random.uniform(-config["top100_balance"]*0.005, config["top100_balance"]*0.01),
+        "change_30d": random.uniform(-config["top100_balance"]*0.02, config["top100_balance"]*0.03)
     }
     
     # Exchange flows
+    base_flow = config["exchange_reserve"] * 0.005
     exchange_flows = {
-        "BTC": {
-            "inflow_24h": random.uniform(5000, 15000),
-            "outflow_24h": random.uniform(8000, 20000),
-            "netflow_24h": 0,  # calculated
-            "exchange_reserve": 2.3e6 + random.uniform(-50000, 50000)
-        },
-        "ETH": {
-            "inflow_24h": random.uniform(80000, 200000),
-            "outflow_24h": random.uniform(100000, 250000),
-            "netflow_24h": 0,
-            "exchange_reserve": 15.2e6 + random.uniform(-500000, 500000)
-        },
-        "stablecoins": {
-            "inflow_24h": random.uniform(200e6, 800e6),
-            "outflow_24h": random.uniform(150e6, 600e6),
-            "exchange_reserve": 25.5e9 + random.uniform(-1e9, 1e9)
-        }
+        "inflow_24h": random.uniform(base_flow * 0.5, base_flow * 1.5),
+        "outflow_24h": random.uniform(base_flow * 0.6, base_flow * 1.8),
+        "exchange_reserve": config["exchange_reserve"] + random.uniform(-config["exchange_reserve"]*0.02, config["exchange_reserve"]*0.02)
     }
+    exchange_flows["netflow_24h"] = exchange_flows["outflow_24h"] - exchange_flows["inflow_24h"]
+    exchange_flows["netflow_signal"] = "ACCUMULATION" if exchange_flows["netflow_24h"] > 0 else "DISTRIBUTION"
     
-    for asset in ["BTC", "ETH"]:
-        exchange_flows[asset]["netflow_24h"] = exchange_flows[asset]["outflow_24h"] - exchange_flows[asset]["inflow_24h"]
+    # Onchain metrics (varies by chain)
+    if chain == "BTC":
+        sopr = 1 + random.uniform(-0.05, 0.08)
+        nupl = random.uniform(0.3, 0.65)
+        mvrv = random.uniform(1.5, 3.2)
+        cdd_7d = random.uniform(5e6, 25e6)
+        cdd_status = "elevated" if cdd_7d > 15e6 else "normal"
+    elif chain == "ETH":
+        sopr = 1 + random.uniform(-0.03, 0.06)
+        nupl = random.uniform(0.25, 0.55)
+        mvrv = random.uniform(1.3, 2.8)
+        cdd_7d = random.uniform(10e6, 80e6)
+        cdd_status = "elevated" if cdd_7d > 50e6 else "normal"
+    else:  # SOL
+        sopr = 1 + random.uniform(-0.08, 0.12)
+        nupl = random.uniform(0.2, 0.6)
+        mvrv = random.uniform(1.2, 3.5)
+        cdd_7d = random.uniform(50e6, 300e6)
+        cdd_status = "elevated" if cdd_7d > 200e6 else "normal"
     
-    # Onchain metrics
-    sopr = 1 + random.uniform(-0.05, 0.08)  # Spent Output Profit Ratio
-    nupl = random.uniform(0.3, 0.65)  # Net Unrealized Profit/Loss
-    mvrv = random.uniform(1.5, 3.2)  # Market Value to Realized Value
-    
-    btc_realized_cap = 650e9 + random.uniform(-20e9, 30e9)
-    btc_market_cap = 97500 * 19.5e6
-    
-    # Coin Days Destroyed (7d avg)
-    cdd_7d = random.uniform(5e6, 25e6)
-    cdd_status = "elevated" if cdd_7d > 15e6 else "normal"
-    
-    # Miner reserves
-    miner_reserves = {
-        "btc_balance": 1.82e6 + random.uniform(-10000, 10000),
-        "change_30d": random.uniform(-5000, 3000),
-        "reserve_status": "stable"
-    }
+    market_cap = price * config["supply"]
+    realized_cap = config["realized_cap"] + random.uniform(-config["realized_cap"]*0.02, config["realized_cap"]*0.03)
     
     # Whale accumulation zones
-    btc_price = 97500
     accumulation_zones = [
-        {"range": f"${int(btc_price*0.85):,} - ${int(btc_price*0.9):,}", "strength": random.uniform(60, 90)},
-        {"range": f"${int(btc_price*0.9):,} - ${int(btc_price*0.95):,}", "strength": random.uniform(70, 95)},
-        {"range": f"${int(btc_price*0.95):,} - ${int(btc_price):,}", "strength": random.uniform(50, 80)},
+        {"range": f"${int(price*0.85):,} - ${int(price*0.9):,}", "strength": random.uniform(60, 90), "pct": "-15% to -10%"},
+        {"range": f"${int(price*0.9):,} - ${int(price*0.95):,}", "strength": random.uniform(70, 95), "pct": "-10% to -5%"},
+        {"range": f"${int(price*0.95):,} - ${int(price):,}", "strength": random.uniform(50, 80), "pct": "-5% to current"},
     ]
     
-    # Notable wallets
-    notable_wallets = [
-        {"name": "MicroStrategy", "btc": 252220, "value_usd": 252220 * btc_price, "change_30d": random.randint(0, 5000)},
-        {"name": "Tesla", "btc": 9720, "value_usd": 9720 * btc_price, "change_30d": 0},
-        {"name": "US Government", "btc": 198109, "value_usd": 198109 * btc_price, "change_30d": random.randint(-1000, 0)},
-        {"name": "El Salvador", "btc": 5955, "value_usd": 5955 * btc_price, "change_30d": random.randint(0, 100)},
-        {"name": "Tether Treasury", "btc": 82454, "value_usd": 82454 * btc_price, "change_30d": random.randint(-500, 2000)},
-        {"name": "Block.one", "btc": 164000, "value_usd": 164000 * btc_price, "change_30d": 0},
-        {"name": "Marathon Digital", "btc": 44893, "value_usd": 44893 * btc_price, "change_30d": random.randint(500, 2000)},
-        {"name": "Galaxy Digital", "btc": 15449, "value_usd": 15449 * btc_price, "change_30d": random.randint(-500, 500)},
-    ]
-    notable_wallets.sort(key=lambda x: x["btc"], reverse=True)
+    # Notable wallets with USD values
+    notable_wallets = []
+    for w in config["notable_wallets"]:
+        notable_wallets.append({
+            "name": w["name"],
+            "balance": w["balance"],
+            "value_usd": w["balance"] * price,
+            "change_30d": w["change_30d"],
+            "change_30d_usd": w["change_30d"] * price
+        })
+    notable_wallets.sort(key=lambda x: x["balance"], reverse=True)
+    
+    # Staking data (ETH and SOL specific)
+    staking_data = None
+    if chain == "ETH":
+        staking_data = {
+            "total_staked": 34000000 + random.uniform(-500000, 1000000),
+            "staking_ratio": round(28.3 + random.uniform(-0.5, 0.5), 1),
+            "validators": 1050000 + random.randint(-5000, 10000),
+            "avg_apy": round(3.8 + random.uniform(-0.3, 0.3), 2),
+            "pending_withdrawals": random.uniform(50000, 200000)
+        }
+    elif chain == "SOL":
+        staking_data = {
+            "total_staked": 380000000 + random.uniform(-5000000, 10000000),
+            "staking_ratio": round(65.5 + random.uniform(-1, 1), 1),
+            "validators": 1900 + random.randint(-50, 100),
+            "avg_apy": round(7.2 + random.uniform(-0.5, 0.5), 2),
+            "delinquent_stake": random.uniform(1, 3)
+        }
     
     data = {
+        "chain": chain,
+        "price": price,
         "top_wallets": top_wallets,
         "exchange_flows": exchange_flows,
         "metrics": {
@@ -543,16 +605,24 @@ def get_onchain_data() -> Dict:
             "nupl_zone": "belief" if nupl > 0.5 else "optimism" if nupl > 0.25 else "hope",
             "mvrv": round(mvrv, 2),
             "mvrv_signal": "overvalued" if mvrv > 2.5 else "fair" if mvrv > 1.5 else "undervalued",
-            "realized_cap": btc_realized_cap,
-            "market_cap": btc_market_cap,
+            "realized_cap": realized_cap,
+            "market_cap": market_cap,
             "cdd_7d_avg": cdd_7d,
             "cdd_status": cdd_status
         },
-        "miner_reserves": miner_reserves,
         "accumulation_zones": accumulation_zones,
         "notable_wallets": notable_wallets,
+        "staking": staking_data,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
+    
+    # BTC specific: miner reserves
+    if chain == "BTC":
+        data["miner_reserves"] = {
+            "btc_balance": 1.82e6 + random.uniform(-10000, 10000),
+            "change_30d": random.uniform(-5000, 3000),
+            "reserve_status": "stable"
+        }
     
     set_cached(cache_key, data, 120)
     return data
