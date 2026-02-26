@@ -7,15 +7,17 @@ import { Skeleton } from './ui/skeleton';
 import { 
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  Legend, ComposedChart, PieChart, Pie, Cell, RadarChart,
+  Legend, PieChart, Pie, Cell, RadarChart,
   PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, DollarSign, Activity, AlertTriangle, 
-  Zap, Gauge, RefreshCw, BarChart3, PieChart as PieIcon, Target,
+  Zap, Gauge, BarChart3, PieChart as PieIcon, Target,
   Shield, AlertOctagon, Waves, Flame, Eye, Brain, Wallet,
-  Globe, Users, MessageCircle, ArrowRightLeft, Sparkles
+  Globe, Users
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { InfoTooltip, SourceLink } from './InfoComponents';
 
 // Utility functions
 const formatNumber = (num, decimals = 2) => {
@@ -50,10 +52,16 @@ const ValueChange = ({ value, suffix = '%' }) => {
   );
 };
 
-const MetricCard = ({ title, value, change, icon: Icon, status, isRecord }) => (
-  <div className={`p-4 rounded-xl bg-secondary/30 ${isRecord ? 'border-2 border-[#F7931A] animate-pulse' : 'border border-white/5'}`}>
+const MetricCard = ({ title, value, change, icon: Icon, status, isRecord, tooltip, testId }) => (
+  <div
+    data-testid={testId}
+    className={`p-4 rounded-xl bg-secondary/30 ${isRecord ? 'border-2 border-[#F7931A] animate-pulse' : 'border border-white/5'}`}
+  >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-xs text-muted-foreground uppercase tracking-wider">{title}</span>
+      <span className="text-xs text-muted-foreground uppercase tracking-wider flex items-center">
+        {title}
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </span>
       {Icon && <Icon className="w-4 h-4 text-muted-foreground" />}
     </div>
     <p className={`font-mono text-xl font-bold ${isRecord ? 'text-[#F7931A]' : ''}`}>{value}</p>
@@ -71,12 +79,16 @@ const MetricCard = ({ title, value, change, icon: Icon, status, isRecord }) => (
   </div>
 );
 
-const SectionHeader = ({ icon: Icon, title, badge, badgeColor = 'default' }) => (
+const SectionHeader = ({ icon: Icon, title, badge, badgeColor = 'default', tooltip, source, sourceLabel }) => (
   <div className="flex items-center justify-between mb-4">
-    <h3 className="text-lg font-semibold flex items-center gap-2">
-      {Icon && <Icon className="w-5 h-5 text-[#F7931A]" />}
-      {title}
-    </h3>
+    <div>
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        {Icon && <Icon className="w-5 h-5 text-[#F7931A]" />}
+        {title}
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </h3>
+      {source && <SourceLink source={source} label={sourceLabel} />}
+    </div>
     {badge && (
       <Badge variant="outline" className={`text-xs border-white/10 ${badgeColor}`}>
         {badge}
@@ -85,7 +97,6 @@ const SectionHeader = ({ icon: Icon, title, badge, badgeColor = 'default' }) => 
   </div>
 );
 
-// Custom tooltip for charts
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -104,21 +115,34 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ==================== MARKET CORE TAB ====================
 const MarketCoreTab = ({ data, loading }) => {
+  const { t } = useLanguage();
+
   if (loading) return <LoadingSkeleton />;
-  if (!data) return <div className="text-muted-foreground">No data available</div>;
+  if (!data) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
   const regime = data.market_regime;
   const regimeColor = regime === 'risk-on' ? '#10B981' : '#EF4444';
+  const fg = data.fear_greed;
+
+  // Fear & Greed color
+  const fgColor = fg?.value <= 25 ? '#EF4444' : fg?.value <= 45 ? '#F59E0B' : fg?.value <= 55 ? '#A1A1AA' : fg?.value <= 75 ? '#10B981' : '#22C55E';
 
   return (
     <div className="space-y-6">
+      {/* Tab description */}
+      <div className="p-3 rounded-lg bg-secondary/20 border border-white/5">
+        <p className="text-sm text-muted-foreground">{t('market_core_desc')}</p>
+        <SourceLink source="coinmarketcap" label="CoinMarketCap" />
+      </div>
+
       {/* Market Regime Banner */}
       <div className={`p-4 rounded-xl border-2 ${regime === 'risk-on' ? 'border-[#10B981] bg-[#10B981]/10' : 'border-[#EF4444] bg-[#EF4444]/10'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full ${regime === 'risk-on' ? 'bg-[#10B981]' : 'bg-[#EF4444]'} animate-pulse`} />
-            <span className="text-lg font-bold uppercase" style={{ color: regimeColor }}>
-              {regime}
+            <span className="text-lg font-bold uppercase flex items-center" style={{ color: regimeColor }}>
+              {regime === 'risk-on' ? t('risk_on') : t('risk_off')}
+              <InfoTooltip text={t('market_regime_desc')} />
             </span>
           </div>
           <div className="text-right">
@@ -128,37 +152,114 @@ const MarketCoreTab = ({ data, loading }) => {
         </div>
       </div>
 
+      {/* Crypto Prices */}
+      <Card className="glass-card" data-testid="crypto-prices-card">
+        <CardHeader className="pb-2">
+          <SectionHeader icon={DollarSign} title={t('crypto_prices')} tooltip={t('crypto_prices_desc')} source="coingecko" sourceLabel="CoinGecko" />
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {data.prices?.map(coin => (
+              <div key={coin.symbol} className="p-4 rounded-xl bg-secondary/30 border border-white/5">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-base">{coin.symbol}</span>
+                  <span className="text-xs text-muted-foreground">{coin.name}</span>
+                </div>
+                <p className="text-2xl font-bold font-mono text-[#F7931A]">
+                  ${coin.price?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </p>
+                <div className="flex gap-3 mt-2">
+                  <span className="text-xs text-muted-foreground">24h:</span>
+                  <ValueChange value={coin.change_24h} />
+                  <span className="text-xs text-muted-foreground ml-2">7d:</span>
+                  <ValueChange value={coin.change_7d} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">MCap: {formatNumber(coin.market_cap)}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Fear & Greed Index */}
+      <Card className="glass-card" data-testid="fear-greed-card">
+        <CardHeader className="pb-2">
+          <SectionHeader icon={Gauge} title={t('fear_greed')} tooltip={t('fear_greed_desc')} source="alternative_me" sourceLabel="Alternative.me" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-8">
+            <div className="relative w-32 h-32">
+              <svg viewBox="0 0 120 120" className="w-full h-full">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
+                <circle
+                  cx="60" cy="60" r="50"
+                  fill="none"
+                  stroke={fgColor}
+                  strokeWidth="10"
+                  strokeDasharray={`${(fg?.value || 0) * 3.14} 314`}
+                  strokeLinecap="round"
+                  transform="rotate(-90 60 60)"
+                  className="transition-all duration-500"
+                />
+                <text x="60" y="55" textAnchor="middle" className="fill-white text-2xl font-bold font-mono" style={{fontSize: '28px'}}>{fg?.value}</text>
+                <text x="60" y="75" textAnchor="middle" className="fill-gray-400" style={{fontSize: '10px'}}>{fg?.classification}</text>
+              </svg>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Previous Day</span>
+                <span className="font-mono">{fg?.previous_day}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Previous Week</span>
+                <span className="font-mono">{fg?.previous_week}</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-gradient-to-r from-[#EF4444] via-[#F59E0B] to-[#22C55E] mt-3" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Extreme Fear</span>
+                <span>Extreme Greed</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Main Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard 
-          title="Total Market Cap" 
+          title={t('total_market_cap')} 
           value={formatNumber(data.total_market_cap)} 
           change={data.total_market_cap_change_24h}
           icon={Globe}
+          testId="metric-total-mcap"
         />
         <MetricCard 
-          title="BTC Dominance" 
+          title={t('btc_dominance')} 
           value={`${data.btc_dominance}%`} 
           change={data.btc_dominance_change_24h}
           icon={PieIcon}
+          testId="metric-btc-dom"
         />
         <MetricCard 
-          title="ETH Dominance" 
+          title={t('eth_dominance')} 
           value={`${data.eth_dominance}%`} 
           change={data.eth_dominance_change_24h}
+          testId="metric-eth-dom"
         />
         <MetricCard 
-          title="TOTAL3 (Alts)" 
+          title={t('total3')} 
           value={formatNumber(data.total3)} 
           change={data.total3_change_24h}
+          tooltip={t('total3_desc')}
+          testId="metric-total3"
         />
       </div>
 
-      {/* Stablecoins & Traditional */}
+      {/* Stablecoins & Traditional Markets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={DollarSign} title="Stablecoins" />
+            <SectionHeader icon={DollarSign} title={t('stablecoins')} tooltip={t('stablecoins_desc')} source="coinmarketcap" sourceLabel="CoinMarketCap" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
@@ -179,7 +280,7 @@ const MarketCoreTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={BarChart3} title="Traditional Markets" />
+            <SectionHeader icon={BarChart3} title={t('traditional_markets')} tooltip={t('traditional_markets_desc')} source="tradingview" sourceLabel="TradingView" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
@@ -209,6 +310,13 @@ const MarketCoreTab = ({ data, loading }) => {
                 <ValueChange value={data.nq_change_pct} />
               </div>
             </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">{t('gold')} (XAU)</span>
+              <div className="text-right">
+                <span className="font-mono font-semibold text-[#FFD700]">${data.gold?.toLocaleString()}</span>
+                {data.gold_change_pct !== undefined && <ValueChange value={data.gold_change_pct} />}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -216,7 +324,7 @@ const MarketCoreTab = ({ data, loading }) => {
       {/* M2 Global Liquidity */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Waves} title="Global Liquidity (M2)" />
+          <SectionHeader icon={Waves} title={t('global_liquidity')} tooltip={t('global_liquidity_desc')} />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
@@ -236,10 +344,11 @@ const MarketCoreTab = ({ data, loading }) => {
 
 // ==================== DERIVATIVES TAB ====================
 const DerivativesTab = ({ data, loading }) => {
+  const { t } = useLanguage();
   const [selectedAsset, setSelectedAsset] = useState('BTC');
   
   if (loading) return <LoadingSkeleton />;
-  if (!data || !data.by_asset) return <div className="text-muted-foreground">No data available</div>;
+  if (!data || !data.by_asset) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
   const assetData = data.by_asset[selectedAsset];
   if (!assetData) return null;
@@ -251,6 +360,12 @@ const DerivativesTab = ({ data, loading }) => {
 
   return (
     <div className="space-y-6">
+      {/* Tab description */}
+      <div className="p-3 rounded-lg bg-secondary/20 border border-white/5">
+        <p className="text-sm text-muted-foreground">{t('derivatives_desc')}</p>
+        <SourceLink source="coinglass" label="CoinGlass" />
+      </div>
+
       {/* Asset Selector */}
       <div className="flex gap-2">
         {['BTC', 'ETH', 'SOL'].map(asset => (
@@ -259,6 +374,7 @@ const DerivativesTab = ({ data, loading }) => {
             variant={selectedAsset === asset ? 'default' : 'outline'}
             onClick={() => setSelectedAsset(asset)}
             className={selectedAsset === asset ? 'bg-[#F7931A] text-black' : 'border-white/10'}
+            data-testid={`derivatives-${asset.toLowerCase()}-btn`}
           >
             {asset}
           </Button>
@@ -269,7 +385,10 @@ const DerivativesTab = ({ data, loading }) => {
       <div className="p-4 rounded-xl bg-gradient-to-r from-[#F7931A]/20 to-transparent border border-[#F7931A]/30">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Total Open Interest</p>
+            <p className="text-sm text-muted-foreground flex items-center">
+              {t('open_interest')} (Total)
+              <InfoTooltip text={t('open_interest_desc')} />
+            </p>
             <p className="text-3xl font-bold font-mono">{formatNumber(data.total_open_interest)}</p>
           </div>
           <ValueChange value={data.total_oi_change_24h} />
@@ -279,21 +398,24 @@ const DerivativesTab = ({ data, loading }) => {
       {/* Main Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard 
-          title={`${selectedAsset} Open Interest`}
+          title={`${selectedAsset} OI`}
           value={formatNumber(assetData.open_interest)}
           change={assetData.oi_change_24h}
           isRecord={assetData.is_oi_record}
+          tooltip={t('open_interest_desc')}
         />
         <MetricCard 
-          title="Funding Rate"
+          title={t('funding_rate')}
           value={`${(assetData.funding_rate * 100).toFixed(3)}%`}
           isRecord={assetData.is_funding_record}
           status={Math.abs(assetData.funding_rate) > 0.05 ? 'HIGH' : 'NORMAL'}
+          tooltip={t('funding_rate_desc')}
         />
         <MetricCard 
-          title="Long/Short Ratio"
+          title={t('long_short_ratio')}
           value={assetData.long_short_ratio?.toFixed(2)}
           status={assetData.long_short_ratio > 1.5 ? 'LONG HEAVY' : assetData.long_short_ratio < 0.7 ? 'SHORT HEAVY' : 'BALANCED'}
+          tooltip={t('long_short_ratio_desc')}
         />
         <MetricCard 
           title="Basis"
@@ -307,7 +429,10 @@ const DerivativesTab = ({ data, loading }) => {
         <div className={`p-4 rounded-xl ${assetData.divergence.type === 'bearish' ? 'bg-[#EF4444]/10 border border-[#EF4444]/30' : 'bg-[#10B981]/10 border border-[#10B981]/30'}`}>
           <div className="flex items-center gap-2">
             <AlertTriangle className={`w-5 h-5 ${assetData.divergence.type === 'bearish' ? 'text-[#EF4444]' : 'text-[#10B981]'}`} />
-            <span className="font-semibold">OI Divergence Detected</span>
+            <span className="font-semibold flex items-center">
+              {t('oi_divergence')}
+              <InfoTooltip text={t('oi_divergence_desc')} />
+            </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">{assetData.divergence.signal}</p>
         </div>
@@ -316,7 +441,7 @@ const DerivativesTab = ({ data, loading }) => {
       {/* Funding History Chart */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title="Funding Rate History" />
+          <SectionHeader icon={Activity} title={t('funding_history')} tooltip={t('funding_rate_desc')} source="coinglass" sourceLabel="CoinGlass" />
         </CardHeader>
         <CardContent>
           <div className="h-[200px]">
@@ -342,7 +467,7 @@ const DerivativesTab = ({ data, loading }) => {
       {/* Liquidation Clusters */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Zap} title="Liquidation Clusters" badge="Heatmap" />
+          <SectionHeader icon={Zap} title={t('liquidation_clusters')} tooltip={t('liquidation_clusters_desc')} source="coinglass" sourceLabel="CoinGlass" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -369,7 +494,7 @@ const DerivativesTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Users} title="Top Traders" badge="Hyperliquid" />
+            <SectionHeader icon={Users} title={t('top_traders')} tooltip={t('top_traders_desc')} source="hyperliquid" sourceLabel="Hyperliquid" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -393,7 +518,7 @@ const DerivativesTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Target} title="Gamma Exposure" badge="Options" />
+            <SectionHeader icon={Target} title={t('gamma_exposure')} tooltip={t('gamma_exposure_desc')} source="deribit" sourceLabel="Deribit" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
