@@ -11,7 +11,7 @@ import {
   BookOpen, Layers, BarChart3, Target, Globe2, 
   ChevronDown, ChevronUp, Tag
 } from 'lucide-react';
-import { RukosWatermark } from '../components/RukosLogo';
+// watermarks removed
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 

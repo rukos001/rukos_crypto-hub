@@ -8,7 +8,7 @@ import { RefreshCw, AlertOctagon, Globe, BarChart3, Activity,
   Wallet, Shield, Brain, Flame } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../context/LanguageContext';
-import { RukosWatermark } from '../components/RukosLogo';
+// watermarks removed
 
 // Import all tab components
 import { MarketCoreTab, DerivativesTab } from '../components/DashboardTabs';

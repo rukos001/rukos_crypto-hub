@@ -10,7 +10,7 @@ import {
   Wallet, TrendingUp, TrendingDown, Shield, Zap, RefreshCw,
   Lock, Coins, Flame
 } from 'lucide-react';
-import { RukosWatermark, RukosIcon } from '../components/RukosLogo';
+// watermarks removed
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
