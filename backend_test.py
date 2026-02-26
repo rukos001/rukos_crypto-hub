@@ -341,6 +341,164 @@ class RukosCryptoAPITester:
             self.log_test("AI Assistant", False, f"AI assistant failed: {response}")
             return False
 
+    # ==================== ANALYTICS DASHBOARD TESTS ====================
+    
+    def test_analytics_market_core(self):
+        """Test Market Core analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/market-core")
+        
+        if success and isinstance(response, dict):
+            required_fields = ['total_market_cap', 'btc_dominance', 'eth_dominance', 'market_regime']
+            if all(field in response for field in required_fields):
+                self.log_test("Analytics Market Core", True, f"Market regime: {response.get('market_regime')}, BTC Dom: {response.get('btc_dominance')}%")
+                return True
+            else:
+                self.log_test("Analytics Market Core", False, f"Missing required fields: {required_fields}")
+                return False
+        else:
+            self.log_test("Analytics Market Core", False, f"Market core failed: {response}")
+            return False
+
+    def test_analytics_derivatives(self):
+        """Test Derivatives analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/derivatives")
+        
+        if success and isinstance(response, dict):
+            if 'by_asset' in response and 'total_open_interest' in response:
+                assets = list(response['by_asset'].keys()) if 'by_asset' in response else []
+                self.log_test("Analytics Derivatives", True, f"OI: ${response.get('total_open_interest', 0):,.0f}, Assets: {assets}")
+                return True
+            else:
+                self.log_test("Analytics Derivatives", False, "Missing by_asset or total_open_interest")
+                return False
+        else:
+            self.log_test("Analytics Derivatives", False, f"Derivatives failed: {response}")
+            return False
+
+    def test_analytics_etf_intelligence(self):
+        """Test ETF Intelligence analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/etf-intelligence")
+        
+        if success and isinstance(response, dict):
+            if 'btc_etf' in response and 'eth_etf' in response:
+                btc_aum = response['btc_etf'].get('total_aum', 0)
+                eth_aum = response['eth_etf'].get('total_aum', 0)
+                self.log_test("Analytics ETF Intelligence", True, f"BTC AUM: ${btc_aum:,.0f}, ETH AUM: ${eth_aum:,.0f}")
+                return True
+            else:
+                self.log_test("Analytics ETF Intelligence", False, "Missing btc_etf or eth_etf data")
+                return False
+        else:
+            self.log_test("Analytics ETF Intelligence", False, f"ETF Intelligence failed: {response}")
+            return False
+
+    def test_analytics_onchain(self):
+        """Test Onchain analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/onchain")
+        
+        if success and isinstance(response, dict):
+            if 'metrics' in response and 'exchange_flows' in response:
+                sopr = response['metrics'].get('sopr', 0)
+                mvrv = response['metrics'].get('mvrv', 0)
+                self.log_test("Analytics Onchain", True, f"SOPR: {sopr:.3f}, MVRV: {mvrv:.2f}")
+                return True
+            else:
+                self.log_test("Analytics Onchain", False, "Missing metrics or exchange_flows")
+                return False
+        else:
+            self.log_test("Analytics Onchain", False, f"Onchain failed: {response}")
+            return False
+
+    def test_analytics_altseason(self):
+        """Test Altseason analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/altseason")
+        
+        if success and isinstance(response, dict):
+            if 'altseason_probability' in response and 'altseason_status' in response:
+                prob = response.get('altseason_probability', 0)
+                status = response.get('altseason_status', 'UNKNOWN')
+                self.log_test("Analytics Altseason", True, f"Probability: {prob}%, Status: {status}")
+                return True
+            else:
+                self.log_test("Analytics Altseason", False, "Missing probability or status")
+                return False
+        else:
+            self.log_test("Analytics Altseason", False, f"Altseason failed: {response}")
+            return False
+
+    def test_analytics_risk_engine(self):
+        """Test Risk Engine analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/risk-engine")
+        
+        if success and isinstance(response, dict):
+            if 'risk_score' in response and 'market_regime' in response:
+                risk_level = response['risk_score'].get('level', 'UNKNOWN')
+                regime = response['market_regime'].get('current', 'UNKNOWN')
+                self.log_test("Analytics Risk Engine", True, f"Risk Level: {risk_level}, Regime: {regime}")
+                return True
+            else:
+                self.log_test("Analytics Risk Engine", False, "Missing risk_score or market_regime")
+                return False
+        else:
+            self.log_test("Analytics Risk Engine", False, f"Risk Engine failed: {response}")
+            return False
+
+    def test_analytics_ai_signals(self):
+        """Test AI Signals analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/ai-signals")
+        
+        if success and isinstance(response, dict):
+            if 'composite_signal' in response and 'squeeze_probability' in response:
+                signal_dir = response['composite_signal'].get('direction', 'UNKNOWN')
+                signal_strength = response['composite_signal'].get('strength', 0)
+                self.log_test("Analytics AI Signals", True, f"Signal: {signal_dir}, Strength: {signal_strength}%")
+                return True
+            else:
+                self.log_test("Analytics AI Signals", False, "Missing composite_signal or squeeze_probability")
+                return False
+        else:
+            self.log_test("Analytics AI Signals", False, f"AI Signals failed: {response}")
+            return False
+
+    def test_analytics_portfolio(self):
+        """Test Portfolio analytics endpoint"""
+        if not self.token:
+            self.log_test("Analytics Portfolio", False, "No auth token")
+            return False
+            
+        success, response = self.make_request("GET", "analytics/portfolio")
+        
+        if success and isinstance(response, dict):
+            if 'positions' in response and 'summary' in response:
+                total_value = response['summary'].get('total_value', 0)
+                pnl = response['summary'].get('unrealized_pnl', 0)
+                self.log_test("Analytics Portfolio", True, f"Total Value: ${total_value:,.2f}, PnL: ${pnl:,.2f}")
+                return True
+            else:
+                self.log_test("Analytics Portfolio", False, "Missing positions or summary")
+                return False
+        else:
+            self.log_test("Analytics Portfolio", False, f"Portfolio failed: {response}")
+            return False
+
+    def test_analytics_war_mode(self):
+        """Test War Mode analytics endpoint"""
+        success, response = self.make_request("GET", "analytics/war-mode")
+        
+        if success and isinstance(response, dict):
+            if 'stress_score' in response and 'stress_level' in response:
+                score = response.get('stress_score', 0)
+                level = response.get('stress_level', 'UNKNOWN')
+                war_mode = response.get('war_mode_active', False)
+                self.log_test("Analytics War Mode", True, f"Stress: {score}/100 ({level}), War Mode: {war_mode}")
+                return True
+            else:
+                self.log_test("Analytics War Mode", False, "Missing stress_score or stress_level")
+                return False
+        else:
+            self.log_test("Analytics War Mode", False, f"War Mode failed: {response}")
+            return False
+
     def run_all_tests(self):
         """Run comprehensive API test suite"""
         print("🚀 Starting RUKOS_CRYPTO | HUB API Testing")
