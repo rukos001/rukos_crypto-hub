@@ -1,29 +1,32 @@
 import React from 'react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
-import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Progress } from './ui/progress';
 import { 
-  BarChart, Bar, LineChart, Line, AreaChart, Area,
+  BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   Cell
 } from 'recharts';
 import { 
-  Shield, AlertOctagon, AlertTriangle, Zap, Target, Eye, Brain, 
-  Wallet, TrendingUp, TrendingDown, MessageCircle, ArrowRightLeft,
-  Flame, Activity
+  Shield, AlertOctagon, Zap, Target, Eye, Brain, 
+  Wallet, TrendingUp, TrendingDown,
+  ArrowRightLeft, Activity
 } from 'lucide-react';
 import { 
   SectionHeader, MetricCard, CustomTooltip, LoadingSkeleton,
-  formatNumber, formatPct, ValueChange, formatCompact
+  formatNumber, ValueChange
 } from './DashboardTabs';
+import { useLanguage } from '../context/LanguageContext';
+import { InfoTooltip, SourceLink } from './InfoComponents';
 
 // ==================== RISK ENGINE TAB ====================
 export const RiskEngineTab = ({ data, loading }) => {
+  const { t } = useLanguage();
+
   if (loading) return <LoadingSkeleton />;
-  if (!data) return <div className="text-muted-foreground">No data available</div>;
+  if (!data) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
   const riskLevel = data.risk_score?.level;
   const riskColor = 
@@ -38,14 +41,20 @@ export const RiskEngineTab = ({ data, loading }) => {
 
   return (
     <div className="space-y-6">
+      {/* Tab description */}
+      <div className="p-3 rounded-lg bg-secondary/20 border border-white/5">
+        <p className="text-sm text-muted-foreground">{t('risk_desc')}</p>
+        <SourceLink source="coinglass" label="CoinGlass" />
+      </div>
+
       {/* Risk Score Banner */}
-      <div 
-        className="p-6 rounded-xl border-2"
-        style={{ borderColor: riskColor, backgroundColor: `${riskColor}10` }}
-      >
+      <div className="p-6 rounded-xl border-2" style={{ borderColor: riskColor, backgroundColor: `${riskColor}10` }}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">Overall Risk Score</p>
+            <p className="text-sm text-muted-foreground uppercase tracking-wider flex items-center">
+              {t('risk_score')}
+              <InfoTooltip text={t('risk_score_desc')} />
+            </p>
             <p className="text-6xl font-bold font-mono" style={{ color: riskColor }}>
               {data.risk_score?.overall?.toFixed(1)}
             </p>
@@ -61,7 +70,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       {data.overheat_alerts?.length > 0 && (
         <Card className="glass-card border-[#EF4444]/30 bg-[#EF4444]/5">
           <CardHeader className="pb-2">
-            <SectionHeader icon={AlertOctagon} title="OVERHEAT ALERTS" badgeColor="text-[#EF4444]" />
+            <SectionHeader icon={AlertOctagon} title={t('overheat_alerts')} tooltip={t('overheat_alerts_desc')} badgeColor="text-[#EF4444]" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -107,7 +116,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Activity} title="Volatility Index" />
+            <SectionHeader icon={Activity} title={t('volatility_index')} tooltip={t('volatility_desc')} source="deribit" sourceLabel="Deribit" />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
@@ -126,7 +135,7 @@ export const RiskEngineTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Target} title="Market Regime" />
+            <SectionHeader icon={Target} title={t('market_regime_risk')} tooltip={t('market_regime_risk_desc')} />
           </CardHeader>
           <CardContent>
             <div className="text-center p-4">
@@ -142,7 +151,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Zap} title="Leverage Crowding" />
+            <SectionHeader icon={Zap} title={t('leverage_crowding')} tooltip={t('leverage_crowding_desc')} source="coinglass" sourceLabel="CoinGlass" />
           </CardHeader>
           <CardContent>
             <div className="text-center p-4">
@@ -166,7 +175,7 @@ export const RiskEngineTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={ArrowRightLeft} title="Stablecoin Flows (7d)" />
+            <SectionHeader icon={ArrowRightLeft} title={t('stablecoin_flows')} tooltip={t('stablecoin_flows_desc')} source="glassnode" sourceLabel="Glassnode" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
@@ -194,7 +203,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       {/* Exchange Reserves */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Wallet} title="Exchange Reserves" />
+          <SectionHeader icon={Wallet} title="Exchange Reserves" source="glassnode" sourceLabel="Glassnode" />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
@@ -207,9 +216,7 @@ export const RiskEngineTab = ({ data, loading }) => {
               <p className={`font-mono ${data.exchange_reserves?.btc_change_30d_pct >= 0 ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
                 {data.exchange_reserves?.btc_change_30d_pct >= 0 ? '+' : ''}{data.exchange_reserves?.btc_change_30d_pct}%
               </p>
-              <Badge className="mt-1" variant="outline">
-                {data.exchange_reserves?.signal}
-              </Badge>
+              <Badge className="mt-1" variant="outline">{data.exchange_reserves?.signal}</Badge>
             </div>
           </div>
         </CardContent>
@@ -220,8 +227,10 @@ export const RiskEngineTab = ({ data, loading }) => {
 
 // ==================== AI SIGNALS TAB ====================
 export const AISignalsTab = ({ data, loading }) => {
+  const { t } = useLanguage();
+
   if (loading) return <LoadingSkeleton />;
-  if (!data) return <div className="text-muted-foreground">No data available</div>;
+  if (!data) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
   const signal = data.composite_signal;
   const signalColor = signal?.direction === 'BULLISH' ? '#10B981' : signal?.direction === 'BEARISH' ? '#EF4444' : '#F59E0B';
@@ -234,14 +243,19 @@ export const AISignalsTab = ({ data, loading }) => {
 
   return (
     <div className="space-y-6">
+      {/* Tab description */}
+      <div className="p-3 rounded-lg bg-secondary/20 border border-white/5">
+        <p className="text-sm text-muted-foreground">{t('ai_desc')}</p>
+      </div>
+
       {/* Composite Signal */}
-      <div 
-        className="p-6 rounded-xl border-2"
-        style={{ borderColor: signalColor, backgroundColor: `${signalColor}10` }}
-      >
+      <div className="p-6 rounded-xl border-2" style={{ borderColor: signalColor, backgroundColor: `${signalColor}10` }}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">AI Composite Signal</p>
+            <p className="text-sm text-muted-foreground uppercase tracking-wider flex items-center">
+              {t('composite_signal')}
+              <InfoTooltip text={t('composite_signal_desc')} />
+            </p>
             <p className="text-5xl font-bold font-mono" style={{ color: signalColor }}>
               {signal?.direction}
             </p>
@@ -279,10 +293,11 @@ export const AISignalsTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={TrendingUp} title="Short Squeeze Probability" />
+            <SectionHeader icon={TrendingUp} title={t('squeeze_probability')} tooltip={t('squeeze_desc')} />
           </CardHeader>
           <CardContent>
             <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">Short Squeeze</p>
               <p className="text-4xl font-bold font-mono text-[#10B981]">
                 {data.squeeze_probability?.short_squeeze?.toFixed(0)}%
               </p>
@@ -293,10 +308,11 @@ export const AISignalsTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={TrendingDown} title="Long Squeeze Probability" />
+            <SectionHeader icon={TrendingDown} title={t('squeeze_probability')} tooltip={t('squeeze_desc')} />
           </CardHeader>
           <CardContent>
             <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">Long Squeeze</p>
               <p className="text-4xl font-bold font-mono text-[#EF4444]">
                 {data.squeeze_probability?.long_squeeze?.toFixed(0)}%
               </p>
@@ -309,7 +325,7 @@ export const AISignalsTab = ({ data, loading }) => {
       {/* Weekly Range Prediction */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title="Predicted Weekly Range" />
+          <SectionHeader icon={Activity} title={t('weekly_range')} tooltip={t('weekly_range_desc')} />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-4">
@@ -338,7 +354,7 @@ export const AISignalsTab = ({ data, loading }) => {
       {/* Liquidity Zones */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Eye} title="Liquidity Vacuum Zones" />
+          <SectionHeader icon={Eye} title={t('liquidity_zones')} tooltip={t('liquidity_zones_desc')} source="coinglass" sourceLabel="CoinGlass" />
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -366,33 +382,25 @@ export const AISignalsTab = ({ data, loading }) => {
       {/* Key Levels */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Target} title="Key Levels" />
+          <SectionHeader icon={Target} title={t('key_levels')} />
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-3 rounded-lg bg-[#10B981]/10 text-center">
               <p className="text-xs text-muted-foreground">Strong Support</p>
-              <p className="font-mono font-bold text-[#10B981]">
-                ${data.key_levels?.strong_support?.toLocaleString()}
-              </p>
+              <p className="font-mono font-bold text-[#10B981]">${data.key_levels?.strong_support?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#10B981]/5 text-center">
               <p className="text-xs text-muted-foreground">Immediate Support</p>
-              <p className="font-mono font-bold text-[#10B981]">
-                ${data.key_levels?.immediate_support?.toLocaleString()}
-              </p>
+              <p className="font-mono font-bold text-[#10B981]">${data.key_levels?.immediate_support?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#EF4444]/5 text-center">
               <p className="text-xs text-muted-foreground">Immediate Resistance</p>
-              <p className="font-mono font-bold text-[#EF4444]">
-                ${data.key_levels?.immediate_resistance?.toLocaleString()}
-              </p>
+              <p className="font-mono font-bold text-[#EF4444]">${data.key_levels?.immediate_resistance?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#EF4444]/10 text-center">
               <p className="text-xs text-muted-foreground">Strong Resistance</p>
-              <p className="font-mono font-bold text-[#EF4444]">
-                ${data.key_levels?.strong_resistance?.toLocaleString()}
-              </p>
+              <p className="font-mono font-bold text-[#EF4444]">${data.key_levels?.strong_resistance?.toLocaleString()}</p>
             </div>
           </div>
         </CardContent>
