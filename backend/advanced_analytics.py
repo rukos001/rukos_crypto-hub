@@ -32,7 +32,7 @@ def get_seed():
 # ==================== MARKET CORE ====================
 
 def get_market_core_data() -> Dict:
-    """Macro panel data"""
+    """Macro panel data with prices, fear&greed, gold"""
     cache_key = "market_core"
     cached = get_cached(cache_key, 60)
     if cached:
@@ -40,34 +40,89 @@ def get_market_core_data() -> Dict:
     
     random.seed(get_seed())
     
-    # Simulated macro data with realistic values
+    # Crypto prices
     btc_price = 97500 + random.uniform(-2000, 2000)
+    eth_price = 3450 + random.uniform(-150, 150)
+    sol_price = 185 + random.uniform(-10, 10)
+    
     total_mcap = 3.45e12 + random.uniform(-0.1e12, 0.1e12)
-    btc_mcap = btc_price * 19.5e6  # ~19.5M BTC in circulation
-    eth_mcap = 415e9 + random.uniform(-10e9, 10e9)
+    btc_mcap = btc_price * 19.5e6
+    eth_mcap = eth_price * 120e6
     
     btc_dom = (btc_mcap / total_mcap) * 100
     eth_dom = (eth_mcap / total_mcap) * 100
-    total3 = total_mcap - btc_mcap - eth_mcap  # Altcoin market cap
+    total3 = total_mcap - btc_mcap - eth_mcap
     
     # Stablecoins
     usdt_mcap = 142e9 + random.uniform(-2e9, 2e9)
     usdc_mcap = 45e9 + random.uniform(-1e9, 1e9)
     
-    # Traditional markets
+    # Traditional markets with Gold
     dxy = 103.5 + random.uniform(-0.5, 0.5)
     us10y = 4.25 + random.uniform(-0.1, 0.1)
     spx = 6050 + random.uniform(-50, 50)
     nq = 21500 + random.uniform(-200, 200)
+    gold = 2650 + random.uniform(-30, 30)  # Gold price per oz
     
-    # M2 Global Liquidity (trillions)
+    # M2 Global Liquidity
     m2_global = 108.5 + random.uniform(-0.5, 0.5)
     
     # Risk regime
     risk_score = random.uniform(0, 100)
     regime = "risk-on" if risk_score > 50 else "risk-off"
     
+    # Fear & Greed (simulated with realistic values)
+    fear_greed_value = random.randint(15, 85)
+    if fear_greed_value <= 25:
+        fg_class = "Extreme Fear"
+    elif fear_greed_value <= 45:
+        fg_class = "Fear"
+    elif fear_greed_value <= 55:
+        fg_class = "Neutral"
+    elif fear_greed_value <= 75:
+        fg_class = "Greed"
+    else:
+        fg_class = "Extreme Greed"
+    
     data = {
+        # Crypto prices
+        "prices": [
+            {
+                "symbol": "BTC",
+                "name": "Bitcoin",
+                "price": round(btc_price, 2),
+                "change_24h": round(random.uniform(-3, 5), 2),
+                "change_7d": round(random.uniform(-8, 12), 2),
+                "market_cap": btc_mcap,
+                "volume_24h": random.uniform(40e9, 60e9)
+            },
+            {
+                "symbol": "ETH",
+                "name": "Ethereum",
+                "price": round(eth_price, 2),
+                "change_24h": round(random.uniform(-4, 6), 2),
+                "change_7d": round(random.uniform(-10, 15), 2),
+                "market_cap": eth_mcap,
+                "volume_24h": random.uniform(15e9, 25e9)
+            },
+            {
+                "symbol": "SOL",
+                "name": "Solana",
+                "price": round(sol_price, 2),
+                "change_24h": round(random.uniform(-5, 8), 2),
+                "change_7d": round(random.uniform(-12, 18), 2),
+                "market_cap": sol_price * 430e6,
+                "volume_24h": random.uniform(2e9, 5e9)
+            }
+        ],
+        # Fear & Greed Index
+        "fear_greed": {
+            "value": fear_greed_value,
+            "classification": fg_class,
+            "previous_day": random.randint(15, 85),
+            "previous_week": random.randint(15, 85)
+        },
+        # Market cap metrics
         "total_market_cap": total_mcap,
         "total_market_cap_change_24h": random.uniform(-3, 5),
         "btc_dominance": round(btc_dom, 2),
@@ -76,10 +131,20 @@ def get_market_core_data() -> Dict:
         "eth_dominance_change_24h": round(random.uniform(-0.3, 0.3), 2),
         "total3": total3,
         "total3_change_24h": random.uniform(-4, 6),
+        # Stablecoins
         "stablecoin_mcap": usdt_mcap + usdc_mcap,
         "usdt_mcap": usdt_mcap,
         "usdc_mcap": usdc_mcap,
         "stablecoin_change_24h": random.uniform(-0.5, 1),
+        # Traditional markets
+        "traditional_markets": {
+            "dxy": {"value": round(dxy, 2), "change": round(random.uniform(-0.3, 0.3), 2)},
+            "us10y": {"value": round(us10y, 3), "change": round(random.uniform(-0.05, 0.05), 3)},
+            "spx": {"value": round(spx, 2), "change_pct": round(random.uniform(-1, 1.5), 2)},
+            "nq": {"value": round(nq, 2), "change_pct": round(random.uniform(-1.5, 2), 2)},
+            "gold": {"value": round(gold, 2), "change_pct": round(random.uniform(-1, 1), 2)}
+        },
+        # Legacy flat format for backward compatibility
         "dxy": round(dxy, 2),
         "dxy_change": round(random.uniform(-0.3, 0.3), 2),
         "us10y": round(us10y, 3),
@@ -88,8 +153,12 @@ def get_market_core_data() -> Dict:
         "spx_change_pct": round(random.uniform(-1, 1.5), 2),
         "nq": round(nq, 2),
         "nq_change_pct": round(random.uniform(-1.5, 2), 2),
+        "gold": round(gold, 2),
+        "gold_change_pct": round(random.uniform(-1, 1), 2),
+        # Liquidity
         "m2_global": round(m2_global, 2),
         "m2_change_mom": round(random.uniform(-0.5, 1.5), 2),
+        # Regime
         "market_regime": regime,
         "risk_score": round(risk_score, 1),
         "updated_at": datetime.now(timezone.utc).isoformat()
