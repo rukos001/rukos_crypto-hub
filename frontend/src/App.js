@@ -12,6 +12,8 @@ import { PostsPage } from './pages/PostsPage';
 import { IdeasPage } from './pages/IdeasPage';
 import { ChatPage } from './pages/ChatPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AdminPage } from './pages/AdminPage';
+import { PortfolioPage } from './pages/PortfolioPage';
 
 // Layout
 import { MainLayout } from './layouts/MainLayout';
