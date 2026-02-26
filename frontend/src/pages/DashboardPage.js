@@ -13,7 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { MarketCoreTab, DerivativesTab } from '../components/DashboardTabs';
 import { ETFIntelligenceTab, OnchainTab, AltseasonTab } from '../components/DashboardTabs2';
 import { RiskEngineTab, AISignalsTab } from '../components/DashboardTabs3';
-import { PortfolioTab, WarModeTab } from '../components/DashboardTabs4';
+import { WarModeTab } from '../components/DashboardTabs4';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
