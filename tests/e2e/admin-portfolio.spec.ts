@@ -179,3 +179,91 @@ test.describe('Portfolio Page Features', () => {
     await expect(page.getByTestId('position-PEPE')).toBeVisible();
   });
 });
+
+// ==================== ADMIN PORTFOLIO EDITOR - APPLY TO ALL ====================
+
+test.describe('Admin Portfolio - Apply to All Users', () => {
+  test('Admin portfolio section has Apply to All toggle', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.getByTestId('nav-admin').click();
+    await expect(page.getByTestId('admin-page')).toBeVisible();
+    
+    // Click portfolio section
+    await page.getByTestId('admin-section-portfolio').click();
+    
+    // Check for Apply to All toggle
+    const applyToggle = page.getByTestId('apply-to-all-toggle');
+    await expect(applyToggle).toBeVisible();
+  });
+
+  test('Admin can toggle Apply to All mode', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.getByTestId('nav-admin').click();
+    await expect(page.getByTestId('admin-page')).toBeVisible();
+    
+    await page.getByTestId('admin-section-portfolio').click();
+    
+    const applyToggle = page.getByTestId('apply-to-all-toggle');
+    await expect(applyToggle).toBeVisible();
+    
+    // Click to enable Apply to All
+    await applyToggle.click();
+    
+    // When Apply to All is active, should see "ALL USERS" text
+    await expect(page.locator('text=ALL USERS')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('Admin can select group when Apply to All is enabled', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.getByTestId('nav-admin').click();
+    await expect(page.getByTestId('admin-page')).toBeVisible();
+    
+    await page.getByTestId('admin-section-portfolio').click();
+    
+    // Enable Apply to All
+    await page.getByTestId('apply-to-all-toggle').click();
+    await expect(page.locator('text=ALL USERS')).toBeVisible();
+    
+    // Group buttons should be visible
+    await expect(page.getByTestId('admin-portfolio-group-HOLD')).toBeVisible();
+    await expect(page.getByTestId('admin-portfolio-group-ALTs')).toBeVisible();
+    await expect(page.getByTestId('admin-portfolio-group-HI_RISK')).toBeVisible();
+    
+    // Click HOLD group
+    await page.getByTestId('admin-portfolio-group-HOLD').click();
+    
+    // Position editor should appear with Add and Save buttons
+    await expect(page.getByTestId('add-position-btn')).toBeVisible();
+    await expect(page.getByTestId('save-portfolio-btn')).toBeVisible();
+  });
+});
+
+// ==================== WATERMARK TESTS ====================
+
+test.describe('RukosWatermark Components', () => {
+  test('Dashboard page has watermarks', async ({ page }) => {
+    await loginAsUser(page);
+    await expect(page.getByTestId('dashboard-page')).toBeVisible();
+    const watermarks = page.locator('[data-testid="rukos-watermark"]');
+    const count = await watermarks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Portfolio page has watermarks', async ({ page }) => {
+    await loginAsUser(page);
+    await page.getByTestId('nav-portfolio').click();
+    await expect(page.getByTestId('portfolio-page')).toBeVisible();
+    const watermarks = page.locator('[data-testid="rukos-watermark"]');
+    const count = await watermarks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Admin page has watermarks', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.getByTestId('nav-admin').click();
+    await expect(page.getByTestId('admin-page')).toBeVisible();
+    const watermarks = page.locator('[data-testid="rukos-watermark"]');
+    const count = await watermarks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+});
