@@ -362,7 +362,8 @@ async def get_crypto_prices():
         return cached
     
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            # Get coin market data
             response = await client.get(
                 f"{COINGECKO_API}/coins/markets",
                 params={
@@ -376,9 +377,26 @@ async def get_crypto_prices():
             response.raise_for_status()
             coins = response.json()
             
-            # Get global market data
-            global_response = await client.get(f"{COINGECKO_API}/global")
-            global_data = global_response.json()["data"]
+            # Calculate totals from coins data
+            total_market_cap = sum(c.get("market_cap", 0) or 0 for c in coins)
+            total_volume = sum(c.get("total_volume", 0) or 0 for c in coins)
+            
+            # Try to get global data, but don't fail if unavailable
+            btc_dominance = 54.5
+            eth_dominance = 11.5
+            global_market_cap = 3500000000000
+            
+            try:
+                global_response = await client.get(f"{COINGECKO_API}/global", timeout=5.0)
+                if global_response.status_code == 200:
+                    global_json = global_response.json()
+                    if "data" in global_json:
+                        global_data = global_json["data"]
+                        global_market_cap = global_data.get("total_market_cap", {}).get("usd", global_market_cap)
+                        btc_dominance = round(global_data.get("market_cap_percentage", {}).get("btc", btc_dominance), 1)
+                        eth_dominance = round(global_data.get("market_cap_percentage", {}).get("eth", eth_dominance), 1)
+            except Exception as ge:
+                logger.warning(f"Global data unavailable: {ge}")
             
             data = {
                 "data": [
@@ -388,27 +406,26 @@ async def get_crypto_prices():
                         "price": coin["current_price"],
                         "change_24h": round(coin.get("price_change_percentage_24h", 0) or 0, 2),
                         "change_7d": round(coin.get("price_change_percentage_7d_in_currency", 0) or 0, 2),
-                        "market_cap": coin["market_cap"],
-                        "volume_24h": coin["total_volume"],
-                        "high_24h": coin["high_24h"],
-                        "low_24h": coin["low_24h"],
-                        "image": coin["image"]
+                        "market_cap": coin.get("market_cap", 0),
+                        "volume_24h": coin.get("total_volume", 0),
+                        "high_24h": coin.get("high_24h", 0),
+                        "low_24h": coin.get("low_24h", 0),
+                        "image": coin.get("image", "")
                     }
                     for coin in coins
                 ],
-                "total_market_cap": global_data["total_market_cap"]["usd"],
-                "btc_dominance": round(global_data["market_cap_percentage"]["btc"], 1),
-                "eth_dominance": round(global_data["market_cap_percentage"]["eth"], 1),
-                "total_volume_24h": global_data["total_volume"]["usd"],
+                "total_market_cap": global_market_cap,
+                "btc_dominance": btc_dominance,
+                "eth_dominance": eth_dominance,
+                "total_volume_24h": total_volume,
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
             set_cached(cache_key, data, ttl_seconds=30)
             return data
             
-    except httpx.HTTPError as e:
+    except Exception as e:
         logger.error(f"CoinGecko API error: {str(e)}")
-        # Return fallback mock data if API fails
         return get_fallback_prices()
 
 @api_router.get("/crypto/price-history/{coin_id}")
