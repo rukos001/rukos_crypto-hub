@@ -39,6 +39,8 @@ function App() {
               <Route path="/ideas" element={<IdeasPage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/knowledge" element={<KnowledgePage />} />
+              <Route path="/knowledge/:category" element={<KnowledgePage />} />
               <Route path="/admin" element={<AdminPage />} />
             </Route>
 
