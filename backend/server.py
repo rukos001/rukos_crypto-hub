@@ -69,6 +69,7 @@ class UserResponse(BaseModel):
     id: str
     username: str
     email: str
+    role: str = "user"
     created_at: str
 
 class TokenResponse(BaseModel):
