@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { RukosIcon } from './RukosLogo';
+import { RukosSidebarLogo } from './RukosAnimatedLogo';
 import { Button } from './ui/button';
 import { 
   LayoutDashboard, 
@@ -89,17 +89,8 @@ export const Sidebar = ({ onOpenAI }) => {
       >
         <div className="flex flex-col h-full p-4">
           {/* Logo */}
-          <div className={`flex items-center gap-3 mb-8 ${isCollapsed ? 'justify-center' : ''}`}>
-            {isCollapsed ? (
-              <RukosIcon size={32} className="text-[#F7931A]" />
-            ) : (
-              <img 
-                src="/logo.jpg" 
-                alt="RUKOS CRYPTO" 
-                className="h-10 object-contain"
-                data-testid="sidebar-logo"
-              />
-            )}
+          <div className={`flex items-center mb-8 ${isCollapsed ? 'justify-center' : ''}`}>
+            <RukosSidebarLogo collapsed={isCollapsed} />
           </div>
 
           {/* Navigation */}
@@ -235,16 +226,14 @@ export const Sidebar = ({ onOpenAI }) => {
           )}
 
           {/* Collapse button */}
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="mt-4 text-muted-foreground hover:text-white hidden lg:flex"
+            className="mt-4 flex items-center justify-center gap-2 py-2 text-muted-foreground hover:text-white transition-colors bg-transparent border-none cursor-pointer hidden lg:flex"
             data-testid="collapse-sidebar-btn"
           >
             <Menu className="w-4 h-4" />
-            {!isCollapsed && <span className="ml-2">{t('collapse')}</span>}
-          </Button>
+            {!isCollapsed && <span className="text-sm">{t('collapse')}</span>}
+          </button>
         </div>
       </aside>
     </>
