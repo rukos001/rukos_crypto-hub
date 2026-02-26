@@ -6,16 +6,18 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ## Architecture
 - **Frontend**: React + Tailwind + Shadcn/UI + Recharts
 - **Backend**: FastAPI + MongoDB (Motor) + JWT + role-based auth
-- **Assets**: /public/logo.jpg (brand logo), /public/hero-video.mp4 (landing video)
+- **Assets**: /public/hero-video.mp4 (landing video)
 
 ## What's Implemented
 
-### Branding & Design
-- Video background on landing page (hero-video.mp4 converted from .mov)
-- Logo image (logo.jpg) in hero section and sidebar
-- SVG logo components (RukosLogo, RukosIcon, RukosWatermark)
-- Subtle watermark cubes (2-3 per page, 3% opacity)
-- Dark theme with orange/gold (#F7931A) accents
+### Branding & Design (Updated Feb 2026)
+- Video background on landing page (hero-video.mp4)
+- Custom-drawn animated SVG logo: 3 golden wireframe isometric cubes expanding + "RUKOS_CRYPTO | HUB" text reveal
+- Components: `RukosAnimatedLogo`, `RukosCubeIcon`, `RukosSidebarLogo` in `/components/RukosAnimatedLogo.js`
+- Old logo.jpg replaced everywhere with SVG components
+- Watermarks removed from all pages
+- Sidebar collapse button: transparent background
+- Dark theme with orange/gold (#F7931A / #FFD700) accents
 
 ### Authentication
 - JWT-based auth with role-based access (admin/user)
@@ -23,7 +25,7 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 
 ### Admin Panel (/admin)
 - **Users**: View all users (login, email, password show/hide), delete
-- **Portfolio Manager**: Select user OR toggle "Apply to All Users" -> edit HOLD/ALTs/HI_RISK groups -> add/remove/save positions. "Apply to All" writes to every user's portfolio in MongoDB.
+- **Portfolio Manager**: Select user OR toggle "Apply to All Users" -> edit HOLD/ALTs/HI_RISK groups -> add/remove/save positions
 - **Chat**: View and moderate chat messages
 - **Stats**: Platform statistics
 
@@ -49,20 +51,18 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ### Localization (RU/EN)
 - Language switcher, all UI text localized
 
-### UI Components
-- Info tooltips on all key metrics
-- Source links to data portals
-
 ## Testing
-- iteration_7: Backend 59/59, Frontend 70/70, 0 regressions
+- iteration_8: Backend 59/59, Frontend 68/68, 0 regressions
 
 ## Data Status
 - **MOCK**: All analytics, portfolio defaults, knowledge defaults
+- **LIVE**: CoinGecko API (BTC/ETH/SOL prices, market data)
 
 ## Backlog
+
 ### P1
+- CoinGecko API caching (rate limiting fix)
 - Real API integrations (CoinGlass, SoSoValue, Arkham)
-- CoinGecko caching
 - WebSocket for real-time updates
 
 ### P2
@@ -75,3 +75,5 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - TradingView widgets
 - Capital Flow Map
 - Social & Sentiment tab
+- Database migration (hardcoded data → MongoDB)
+- Refactor server.py monolith into modules
