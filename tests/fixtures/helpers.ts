@@ -59,3 +59,43 @@ export async function removeEmergentBadge(page: Page) {
     if (badge) badge.remove();
   });
 }
+
+export async function loginAsAdmin(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  
+  // Click login button
+  const loginBtn = page.getByRole('button', { name: /Войти|Login/i });
+  await expect(loginBtn).toBeVisible();
+  await loginBtn.click();
+  
+  // Fill admin credentials
+  await page.getByPlaceholder(/email/i).fill('admin@rukos.crypto');
+  await page.getByPlaceholder(/password|пароль/i).fill('1661616irk');
+  
+  // Submit login
+  const submitBtn = page.getByRole('button', { name: /Войти|Login|Sign in/i }).last();
+  await submitBtn.click();
+  
+  // Wait for dashboard to load
+  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 15000 });
+}
+
+export async function loginAsUser(page: Page, email: string = 'test@test.com', password: string = 'password123') {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  
+  // Click login button
+  const loginBtn = page.getByRole('button', { name: /Войти|Login/i });
+  await expect(loginBtn).toBeVisible();
+  await loginBtn.click();
+  
+  // Fill user credentials
+  await page.getByPlaceholder(/email/i).fill(email);
+  await page.getByPlaceholder(/password|пароль/i).fill(password);
+  
+  // Submit login
+  const submitBtn = page.getByRole('button', { name: /Войти|Login|Sign in/i }).last();
+  await submitBtn.click();
+  
+  // Wait for dashboard to load
+  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 15000 });
+}
