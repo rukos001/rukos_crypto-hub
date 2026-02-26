@@ -798,6 +798,149 @@ async def war_mode():
     """War mode alerts"""
     return get_war_mode_alerts()
 
+# ==================== ADMIN ROUTES ====================
+
+class AdminUserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    raw_password: Optional[str] = None
+    role: str = "user"
+    created_at: str
+
+@api_router.get("/admin/users")
+async def admin_get_users(admin: dict = Depends(get_admin_user)):
+    """List all users with their details (admin only)"""
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+    return [AdminUserResponse(
+        id=u["id"],
+        username=u["username"],
+        email=u["email"],
+        raw_password=u.get("raw_password", "***"),
+        role=u.get("role", "user"),
+        created_at=u["created_at"]
+    ) for u in users]
+
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a user (admin only)"""
+    target = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.get("role") == "admin":
+        raise HTTPException(status_code=400, detail="Cannot delete admin")
+    await db.users.delete_one({"id": user_id})
+    await db.posts.delete_many({"author_id": user_id})
+    await db.ideas.delete_many({"author_id": user_id})
+    await db.chat_messages.delete_many({"author_id": user_id})
+    return {"status": "deleted", "user_id": user_id}
+
+class UpdateUserRole(BaseModel):
+    role: str
+
+@api_router.put("/admin/users/{user_id}/role")
+async def admin_update_role(user_id: str, body: UpdateUserRole, admin: dict = Depends(get_admin_user)):
+    """Update user role (admin only)"""
+    target = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    await db.users.update_one({"id": user_id}, {"$set": {"role": body.role}})
+    return {"status": "updated", "user_id": user_id, "role": body.role}
+
+@api_router.get("/admin/stats")
+async def admin_get_stats(admin: dict = Depends(get_admin_user)):
+    """Get platform stats (admin only)"""
+    users_count = await db.users.count_documents({})
+    posts_count = await db.posts.count_documents({})
+    ideas_count = await db.ideas.count_documents({})
+    messages_count = await db.chat_messages.count_documents({})
+    return {
+        "users": users_count,
+        "posts": posts_count,
+        "ideas": ideas_count,
+        "chat_messages": messages_count
+    }
+
+@api_router.get("/admin/chat-messages")
+async def admin_get_chat_messages(admin: dict = Depends(get_admin_user)):
+    """Get all chat messages (admin only)"""
+    messages = await db.chat_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return messages
+
+@api_router.delete("/admin/chat-messages/{message_id}")
+async def admin_delete_chat_message(message_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a chat message (admin only)"""
+    result = await db.chat_messages.delete_one({"id": message_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return {"status": "deleted", "message_id": message_id}
+
+# ==================== PORTFOLIO WITH SUBGROUPS ====================
+
+@api_router.get("/portfolio/groups")
+async def get_portfolio_groups(current_user: dict = Depends(get_current_user)):
+    """Get user portfolio with HOLD / ALTs / HI RISK groups"""
+    user_id = current_user["user_id"]
+    
+    # Check if user has custom portfolio data
+    portfolio = await db.portfolios.find_one({"user_id": user_id}, {"_id": 0})
+    
+    if not portfolio:
+        # Return default mock portfolio groups
+        portfolio = {
+            "user_id": user_id,
+            "groups": {
+                "HOLD": {
+                    "description": "Long-term core positions",
+                    "positions": [
+                        {"asset": "BTC", "size": 2.5, "entry": 92000, "current": 97500, "notes": "Core position"},
+                        {"asset": "ETH", "size": 30, "entry": 3200, "current": 3450, "notes": "ETH 2.0 staking"},
+                    ]
+                },
+                "ALTs": {
+                    "description": "Altcoin swing positions",
+                    "positions": [
+                        {"asset": "SOL", "size": 200, "entry": 175, "current": 185, "notes": "DeFi growth"},
+                        {"asset": "AVAX", "size": 500, "entry": 35, "current": 38.5, "notes": "Subnet ecosystem"},
+                        {"asset": "LINK", "size": 800, "entry": 14, "current": 16.2, "notes": "Oracle dominance"},
+                        {"asset": "ARB", "size": 5000, "entry": 1.1, "current": 1.25, "notes": "L2 leader"},
+                    ]
+                },
+                "HI_RISK": {
+                    "description": "High risk / high reward bets",
+                    "positions": [
+                        {"asset": "PEPE", "size": 50000000, "entry": 0.000012, "current": 0.000015, "notes": "Meme play"},
+                        {"asset": "WIF", "size": 10000, "entry": 2.1, "current": 2.8, "notes": "Solana meme"},
+                        {"asset": "INJ", "size": 300, "entry": 22, "current": 28, "notes": "DeFi derivatives"},
+                    ]
+                }
+            }
+        }
+    
+    # Calculate PnL for each group
+    for group_name, group in portfolio["groups"].items():
+        group_value = 0
+        group_pnl = 0
+        for pos in group["positions"]:
+            pos["value_usd"] = pos["size"] * pos["current"]
+            pos["pnl_usd"] = pos["size"] * (pos["current"] - pos["entry"])
+            pos["pnl_pct"] = ((pos["current"] - pos["entry"]) / pos["entry"]) * 100 if pos["entry"] else 0
+            group_value += pos["value_usd"]
+            group_pnl += pos["pnl_usd"]
+        group["total_value"] = group_value
+        group["total_pnl"] = group_pnl
+        group["total_pnl_pct"] = (group_pnl / (group_value - group_pnl) * 100) if (group_value - group_pnl) > 0 else 0
+    
+    total_value = sum(g["total_value"] for g in portfolio["groups"].values())
+    total_pnl = sum(g["total_pnl"] for g in portfolio["groups"].values())
+    
+    return {
+        "groups": portfolio["groups"],
+        "total_value": total_value,
+        "total_pnl": total_pnl,
+        "total_pnl_pct": (total_pnl / (total_value - total_pnl) * 100) if (total_value - total_pnl) > 0 else 0
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "RUKOS_CRYPTO | HUB API"}
