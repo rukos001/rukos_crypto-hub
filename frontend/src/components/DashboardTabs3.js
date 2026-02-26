@@ -401,6 +401,3 @@ export const AISignalsTab = ({ data, loading }) => {
     </div>
   );
 };
-
-// Need to import Cell for BarChart
-import { Cell } from 'recharts';
