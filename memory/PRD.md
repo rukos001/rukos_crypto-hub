@@ -17,7 +17,8 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - **DeFi Llama**: Real DeFi TVL, top protocols, stablecoin market caps, chain TVL. 120-300s cache.
 - **Centralized data_service.py**: Single source of truth, prevents duplicate API calls.
 - **Auto-refresh**: Frontend polls every 60 seconds.
-- **Fallback**: Graceful degradation with cached/fallback data on API failures.
+- **Fallback**: Graceful degradation with cached/fallback data on API failures (price-history generates synthetic history from real current price).
+- **All 29 endpoints verified working** (22 public + 7 authenticated)
 
 ### Branding & Design (Updated Feb 2026)
 - Video background on landing page (hero-video.mp4)
@@ -41,6 +42,7 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - DeFi, PERP, OPTIONS, MACRO categories with articles
 
 ### Dashboard (8 tabs)
+All tabs use real prices from CoinGecko as anchor:
 1. Market Core - REAL: BTC/ETH/SOL prices, Fear & Greed, market caps, dominance
 2. Derivatives - Simulated OI/funding anchored to real prices
 3. ETF Intelligence - Simulated flows anchored to real prices
@@ -50,9 +52,39 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 7. AI Signals - Real price-based key levels
 8. War Mode - Real price volatility alerts
 
-## Data Status
-- **REAL**: CoinGecko prices, Alternative.me F&G, DeFi Llama TVL/stablecoins
-- **SIMULATED (anchored to real prices)**: Derivatives OI, ETF flows, DXY/SPX/Gold, Sentiment
+## API Endpoints (All Working)
+### Public (22):
+- GET /api/ - health
+- GET /api/crypto/prices - real CoinGecko
+- GET /api/crypto/price-history/{coin} - CoinGecko + fallback
+- GET /api/crypto/etf-flows - simulated
+- GET /api/crypto/whale-activity - real prices
+- GET /api/crypto/liquidations - simulated
+- GET /api/crypto/fear-greed - real Alternative.me
+- GET /api/analytics/market-core - real
+- GET /api/analytics/derivatives - simulated + real prices
+- GET /api/analytics/etf-intelligence - simulated + real prices
+- GET /api/analytics/onchain - real prices
+- GET /api/analytics/altseason - real DeFi Llama + CoinGecko
+- GET /api/analytics/risk-engine - real F&G
+- GET /api/analytics/options - real prices
+- GET /api/analytics/sentiment - simulated
+- GET /api/analytics/capital-flows - simulated
+- GET /api/analytics/ai-signals - real prices
+- GET /api/analytics/war-mode - real prices
+- GET /api/knowledge - hardcoded
+- GET /api/posts - MongoDB
+- GET /api/ideas - MongoDB
+- GET /api/chat - MongoDB
+
+### Authenticated (7):
+- GET /api/auth/me
+- GET /api/analytics/portfolio
+- GET /api/portfolio/groups
+- GET /api/admin/users (admin)
+- GET /api/admin/stats (admin)
+- GET /api/admin/chat-messages (admin)
+- GET /api/admin/portfolios (admin)
 
 ## Testing
 - iteration_9: Backend 98/98, Frontend 68/68, 0 regressions
@@ -67,12 +99,9 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ### P2
 - AI Assistant (GPT-5.2)
 - Telegram bot integration
-- Enhanced Posts/Ideas/Chat
-- Admin knowledge article editor UI
+- Posts/Ideas/Chat enhancements
 
 ### P3
 - TradingView widgets
-- Capital Flow Map
-- Social & Sentiment tab
 - Database migration (hardcoded data -> MongoDB)
 - Refactor server.py monolith into modules
