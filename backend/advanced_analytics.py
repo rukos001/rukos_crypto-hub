@@ -181,7 +181,7 @@ async def get_derivatives_data(asset: str = "all") -> Dict:
             dt = datetime.now() - timedelta(hours=i * 8)
             funding_history.append({
                 "timestamp": dt.isoformat(),
-                "rate": round(random.uniform(-0.01, 0.08), 4),
+                "rate": round(random.uniform(-0.005, 0.015), 4),  # realistic 8h funding
                 "time": dt.strftime("%d.%m %H:00"),
             })
 
