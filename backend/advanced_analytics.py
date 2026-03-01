@@ -833,9 +833,9 @@ async def get_war_mode_alerts() -> Dict:
     random.seed(_seed())
     alerts = []
 
-    funding_rate = random.uniform(-0.02, 0.15)
-    if abs(funding_rate) > 0.05:
-        alerts.append({"type": "FUNDING_SPIKE", "severity": "HIGH" if abs(funding_rate) > 0.08 else "MEDIUM", "value": f"{funding_rate * 100:.2f}%", "message": "Extreme funding rate detected", "action": "Consider counter-trading the crowd"})
+    funding_rate = random.uniform(-0.005, 0.03)
+    if abs(funding_rate) > 0.015:
+        alerts.append({"type": "FUNDING_SPIKE", "severity": "HIGH" if abs(funding_rate) > 0.025 else "MEDIUM", "value": f"{funding_rate * 100:.3f}%", "message": "Extreme funding rate detected", "action": "Consider counter-trading the crowd"})
 
     oi_change = random.uniform(-5, 12)
     if abs(oi_change) > 5:
