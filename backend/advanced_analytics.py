@@ -172,7 +172,7 @@ async def get_derivatives_data(asset: str = "all") -> Dict:
 
         oi = rec["oi"] * random.uniform(0.7, 0.98)
         oi_24h = random.uniform(-5, 8)
-        funding = random.uniform(-0.005, rec["funding_max"])  # realistic: -0.005% to 0.03-0.05%
+        funding = random.uniform(-0.0003, rec["funding_max"])  # realistic 8h funding: -0.03% to 0.1-0.2%
         ls_ratio = random.uniform(0.85, rec["ls_ratio"])  # realistic: 0.85 to 1.2
         basis = random.uniform(-0.5, 2.5)
 
