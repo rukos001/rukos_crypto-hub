@@ -365,78 +365,36 @@ COINGECKO_API = "https://api.coingecko.com/api/v3"
 
 @api_router.get("/crypto/prices")
 async def get_crypto_prices():
-    """Get real crypto prices from CoinGecko"""
-    cache_key = "crypto_prices"
-    cached = get_cached(cache_key, ttl_seconds=30)
-    if cached:
-        return cached
-    
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            # Get coin market data
-            response = await client.get(
-                f"{COINGECKO_API}/coins/markets",
-                params={
-                    "vs_currency": "usd",
-                    "ids": "bitcoin,ethereum,solana",
-                    "order": "market_cap_desc",
-                    "sparkline": "false",
-                    "price_change_percentage": "24h,7d"
-                }
-            )
-            response.raise_for_status()
-            coins = response.json()
-            
-            # Calculate totals from coins data
-            total_market_cap = sum(c.get("market_cap", 0) or 0 for c in coins)
-            total_volume = sum(c.get("total_volume", 0) or 0 for c in coins)
-            
-            # Try to get global data, but don't fail if unavailable
-            btc_dominance = 54.5
-            eth_dominance = 11.5
-            global_market_cap = 3500000000000
-            
-            try:
-                global_response = await client.get(f"{COINGECKO_API}/global", timeout=5.0)
-                if global_response.status_code == 200:
-                    global_json = global_response.json()
-                    if "data" in global_json:
-                        global_data = global_json["data"]
-                        global_market_cap = global_data.get("total_market_cap", {}).get("usd", global_market_cap)
-                        btc_dominance = round(global_data.get("market_cap_percentage", {}).get("btc", btc_dominance), 1)
-                        eth_dominance = round(global_data.get("market_cap_percentage", {}).get("eth", eth_dominance), 1)
-            except Exception as ge:
-                logger.warning(f"Global data unavailable: {ge}")
-            
-            data = {
-                "data": [
-                    {
-                        "symbol": coin["symbol"].upper(),
-                        "name": coin["name"],
-                        "price": coin["current_price"],
-                        "change_24h": round(coin.get("price_change_percentage_24h", 0) or 0, 2),
-                        "change_7d": round(coin.get("price_change_percentage_7d_in_currency", 0) or 0, 2),
-                        "market_cap": coin.get("market_cap", 0),
-                        "volume_24h": coin.get("total_volume", 0),
-                        "high_24h": coin.get("high_24h", 0),
-                        "low_24h": coin.get("low_24h", 0),
-                        "image": coin.get("image", "")
-                    }
-                    for coin in coins
-                ],
-                "total_market_cap": global_market_cap,
-                "btc_dominance": btc_dominance,
-                "eth_dominance": eth_dominance,
-                "total_volume_24h": total_volume,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }
-            
-            set_cached(cache_key, data, ttl_seconds=30)
-            return data
-            
-    except Exception as e:
-        logger.error(f"CoinGecko API error: {str(e)}")
-        return get_fallback_prices()
+    """Get real crypto prices via shared data service (60s cache)"""
+    prices = await ds.get_prices()
+    coins = prices.get("coins", {})
+    gl = prices.get("global", {})
+
+    data_list = []
+    for sym in ["BTC", "ETH", "SOL"]:
+        c = coins.get(sym, {})
+        if c:
+            data_list.append({
+                "symbol": c.get("symbol", sym),
+                "name": c.get("name", ""),
+                "price": c.get("price", 0),
+                "change_24h": c.get("change_24h", 0),
+                "change_7d": c.get("change_7d", 0),
+                "market_cap": c.get("market_cap", 0),
+                "volume_24h": c.get("volume_24h", 0),
+                "high_24h": c.get("high_24h", 0),
+                "low_24h": c.get("low_24h", 0),
+                "image": c.get("image", ""),
+            })
+
+    return {
+        "data": data_list,
+        "total_market_cap": gl.get("total_market_cap", 0),
+        "btc_dominance": gl.get("btc_dominance", 0),
+        "eth_dominance": gl.get("eth_dominance", 0),
+        "total_volume_24h": gl.get("total_volume_24h", 0),
+        "updated_at": prices.get("updated_at", datetime.now(timezone.utc).isoformat()),
+    }
 
 @api_router.get("/crypto/price-history/{coin_id}")
 async def get_price_history(coin_id: str, days: int = 7):
