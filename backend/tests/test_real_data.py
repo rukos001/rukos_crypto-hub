@@ -262,8 +262,13 @@ class TestCryptoPricesEndpoint:
         assert response.status_code == 200
         data = response.json()
         
-        # Should have coins data
-        assert "coins" in data or "BTC" in data
+        # Should have data array with prices
+        assert "data" in data
+        assert len(data["data"]) >= 3  # BTC, ETH, SOL
+        
+        # Should have global market data
+        assert "total_market_cap" in data
+        assert "btc_dominance" in data
         
         # Should have updated_at
         assert "updated_at" in data
