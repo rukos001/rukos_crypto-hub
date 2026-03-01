@@ -42,25 +42,31 @@ COINGECKO = "https://api.coingecko.com/api/v3"
 
 async def get_prices() -> dict:
     """Real prices for BTC, ETH, SOL + global market data."""
-    cached = _get("prices", 60)
+    cached = _get("prices", 90)
     if cached:
         return cached
+
+    # Stagger calls to avoid rate limiting
+    import asyncio
 
     coins_data = await _fetch(
         f"{COINGECKO}/coins/markets",
         params={
             "vs_currency": "usd",
-            "ids": "bitcoin,ethereum,solana,binancecoin,ripple,cardano,dogecoin,avalanche-2,chainlink,polkadot,near,uniswap,stellar,filecoin,injective-protocol,aptos,arbitrum,optimism,sui,shiba-inu,pepe,dogwifcoin",
+            "ids": "bitcoin,ethereum,solana,binancecoin,ripple,cardano,dogecoin,avalanche-2,chainlink,polkadot,near,uniswap,injective-protocol,aptos,arbitrum,sui,pepe,dogwifcoin",
             "order": "market_cap_desc",
             "sparkline": "false",
             "price_change_percentage": "24h,7d",
         },
     )
 
+    # Wait before second call to respect rate limits
+    await asyncio.sleep(1.5)
+
     global_data = await _fetch(f"{COINGECKO}/global")
 
     if not coins_data:
-        prev = _get("prices_fallback", 3600)
+        prev = _get("prices_fallback", 7200)
         if prev:
             return prev
         return _fallback_prices()
