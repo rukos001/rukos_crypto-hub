@@ -6,68 +6,67 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ## Architecture
 - **Frontend**: React + Tailwind + Shadcn/UI + Recharts
 - **Backend**: FastAPI + MongoDB (Motor) + JWT + role-based auth
+- **Data Service**: Centralized `data_service.py` for all real-time API calls
 - **Assets**: /public/hero-video.mp4 (landing video)
 
 ## What's Implemented
 
+### Real-Time Data (Updated Mar 2026)
+- **CoinGecko**: Real prices for BTC, ETH, SOL + 15 altcoins. Global market cap, dominance. 90s cache.
+- **Alternative.me**: Real Fear & Greed Index with 7-day history. 600s cache.
+- **DeFi Llama**: Real DeFi TVL, top protocols, stablecoin market caps, chain TVL. 120-300s cache.
+- **Centralized data_service.py**: Single source of truth, prevents duplicate API calls.
+- **Auto-refresh**: Frontend polls every 60 seconds.
+- **Fallback**: Graceful degradation with cached/fallback data on API failures.
+
 ### Branding & Design (Updated Feb 2026)
 - Video background on landing page (hero-video.mp4)
-- Custom-drawn animated SVG logo: 3 golden wireframe isometric cubes expanding + "RUKOS_CRYPTO | HUB" text reveal
-- Components: `RukosAnimatedLogo`, `RukosCubeIcon`, `RukosSidebarLogo` in `/components/RukosAnimatedLogo.js`
-- Old logo.jpg replaced everywhere with SVG components
-- Watermarks removed from all pages
+- Custom animated SVG logo: 3 golden wireframe cubes + "RUKOS_CRYPTO | HUB" text
+- Components: `RukosAnimatedLogo`, `RukosCubeIcon`, `RukosSidebarLogo`
+- No watermarks on any page
 - Sidebar collapse button: transparent background
 - Dark theme with orange/gold (#F7931A / #FFD700) accents
 
 ### Authentication
 - JWT-based auth with role-based access (admin/user)
-- Admin: admin@rukos.crypto / 1661616irk (seeded on startup)
+- Admin: admin@rukos.crypto / 1661616irk
 
 ### Admin Panel (/admin)
-- **Users**: View all users (login, email, password show/hide), delete
-- **Portfolio Manager**: Select user OR toggle "Apply to All Users" -> edit HOLD/ALTs/HI_RISK groups -> add/remove/save positions
-- **Chat**: View and moderate chat messages
-- **Stats**: Platform statistics
+- Users management, portfolio editor, chat moderation, stats
 
 ### Portfolio Page (/portfolio)
-- Separate sidebar item with HOLD / ALTs / HI RISK subgroups
-- Filter by group, per-position PnL, group totals
+- HOLD / ALTs / HI RISK groups with PnL
 
 ### Knowledge Base (/knowledge/:category)
-- Sidebar with expandable subgroups: DeFi, PERP, OPTIONS, MACRO
-- 12 default educational articles (3 per category)
-- Expandable article cards with tags, bold formatting
+- DeFi, PERP, OPTIONS, MACRO categories with articles
 
 ### Dashboard (8 tabs)
-1. Market Core: BTC/ETH/SOL, Fear & Greed, Gold, Traditional Markets, Stablecoins, M2
-2. Derivatives: OI, Funding, Long/Short, Liquidation Clusters, Gamma
-3. ETF Intelligence: All/BTC/ETH filter (20 ETFs), AUM, flows
-4. Onchain: BTC/ETH/SOL chain selector, SOPR, NUPL, MVRV, Exchange Flows
-5. Altseason: Probability, Dominance, Sectors, DeFi TVL
-6. Risk Engine: Risk score, Overheat alerts, Volatility
-7. AI Signals: Composite signal, Squeeze, Weekly range, Key levels
-8. War Mode: Stress level, Alerts, Quick actions
-
-### Localization (RU/EN)
-- Language switcher, all UI text localized
-
-## Testing
-- iteration_8: Backend 59/59, Frontend 68/68, 0 regressions
+1. Market Core - REAL: BTC/ETH/SOL prices, Fear & Greed, market caps, dominance
+2. Derivatives - Simulated OI/funding anchored to real prices
+3. ETF Intelligence - Simulated flows anchored to real prices
+4. Onchain - Real prices + simulated metrics
+5. Altseason - REAL: dominance, DeFi TVL + real alt performances
+6. Risk Engine - Real Fear & Greed influence + simulated metrics
+7. AI Signals - Real price-based key levels
+8. War Mode - Real price volatility alerts
 
 ## Data Status
-- **MOCK**: All analytics, portfolio defaults, knowledge defaults
-- **LIVE**: CoinGecko API (BTC/ETH/SOL prices, market data)
+- **REAL**: CoinGecko prices, Alternative.me F&G, DeFi Llama TVL/stablecoins
+- **SIMULATED (anchored to real prices)**: Derivatives OI, ETF flows, DXY/SPX/Gold, Sentiment
+
+## Testing
+- iteration_9: Backend 98/98, Frontend 68/68, 0 regressions
 
 ## Backlog
 
 ### P1
-- CoinGecko API caching (rate limiting fix)
-- Real API integrations (CoinGlass, SoSoValue, Arkham)
+- Connect real APIs: CoinGlass (derivatives), SoSoValue (ETF flows), Arkham (whales)
 - WebSocket for real-time updates
+- Traditional markets API (DXY, SPX, Gold)
 
 ### P2
 - AI Assistant (GPT-5.2)
-- Telegram bot
+- Telegram bot integration
 - Enhanced Posts/Ideas/Chat
 - Admin knowledge article editor UI
 
@@ -75,5 +74,5 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - TradingView widgets
 - Capital Flow Map
 - Social & Sentiment tab
-- Database migration (hardcoded data → MongoDB)
+- Database migration (hardcoded data -> MongoDB)
 - Refactor server.py monolith into modules
