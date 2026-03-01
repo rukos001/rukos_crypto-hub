@@ -65,14 +65,13 @@ async def get_market_core_data() -> Dict:
         elif sc["symbol"] == "USDC":
             usdc_mcap = sc["market_cap"]
 
-    # Traditional markets – we use deterministic simulation seeded on the hour
-    # (free real APIs for DXY/SPX need paid keys)
+    # Traditional markets – deterministic simulation with REAL base values (Mar 2026)
     random.seed(_seed())
-    dxy = 104.2 + random.uniform(-0.8, 0.8)
-    us10y = 4.30 + random.uniform(-0.15, 0.15)
-    spx = 6050 + random.uniform(-80, 80)
-    nq = 21500 + random.uniform(-300, 300)
-    gold = 2920 + random.uniform(-40, 40)
+    dxy = 97.6 + random.uniform(-0.5, 0.5)
+    us10y = 3.95 + random.uniform(-0.08, 0.08)
+    spx = 6880 + random.uniform(-60, 60)
+    nq = 24960 + random.uniform(-200, 200)
+    gold = 5278 + random.uniform(-50, 50)
     m2_global = 108.5 + random.uniform(-0.5, 0.5)
 
     # Risk regime from real data
