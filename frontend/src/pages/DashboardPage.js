@@ -88,7 +88,7 @@ export const DashboardPage = () => {
     const interval = setInterval(() => {
       fetchTabData(activeTab, true);
       fetchTabData('war', true);
-    }, 30000);
+    }, 60000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
