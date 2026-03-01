@@ -122,8 +122,8 @@ async def get_prices() -> dict:
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    _set("prices", result, 60)
-    _set("prices_fallback", result, 3600)
+    _set("prices", result, 90)
+    _set("prices_fallback", result, 7200)
     return result
 
 
