@@ -403,11 +403,11 @@ async def get_onchain_data(chain: str = "btc") -> Dict:
 
     notable_wallets_map = {
         "BTC": [
-            {"name": "MicroStrategy", "balance": 252220}, {"name": "US Government", "balance": 198109},
+            {"name": "MicroStrategy", "balance": 717722}, {"name": "US Government", "balance": 198109},
             {"name": "Block.one", "balance": 164000}, {"name": "Tether Treasury", "balance": 82454},
-            {"name": "Marathon Digital", "balance": 44893}, {"name": "Riot Platforms", "balance": 17722},
+            {"name": "Marathon Digital", "balance": 46376}, {"name": "Riot Platforms", "balance": 18692},
             {"name": "Galaxy Digital", "balance": 15449}, {"name": "Tesla", "balance": 9720},
-            {"name": "El Salvador", "balance": 5955}, {"name": "Coinbase Treasury", "balance": 9000},
+            {"name": "El Salvador", "balance": 6120}, {"name": "Coinbase Treasury", "balance": 9000},
         ],
         "ETH": [
             {"name": "Beacon Chain", "balance": 34000000}, {"name": "Lido Staking", "balance": 9800000},
