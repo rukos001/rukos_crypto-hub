@@ -159,9 +159,9 @@ async def get_derivatives_data(asset: str = "all") -> Dict:
     assets = ["BTC", "ETH", "SOL"] if asset == "all" else [asset.upper()]
 
     records = {
-        "BTC": {"oi": 35e9, "funding": 0.15, "ls_ratio": 2.5},
-        "ETH": {"oi": 15e9, "funding": 0.12, "ls_ratio": 2.2},
-        "SOL": {"oi": 4e9, "funding": 0.18, "ls_ratio": 2.8},
+        "BTC": {"oi": 35e9, "funding_max": 0.03, "ls_ratio": 1.2},
+        "ETH": {"oi": 15e9, "funding_max": 0.04, "ls_ratio": 1.15},
+        "SOL": {"oi": 4e9, "funding_max": 0.05, "ls_ratio": 1.25},
     }
 
     assets_data = {}
