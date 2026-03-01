@@ -629,9 +629,9 @@ async def get_risk_engine() -> Dict:
     leverage_score = random.uniform(3, 9)
 
     overheat_alerts = []
-    funding_rate = random.uniform(-0.005, 0.03)
-    if abs(funding_rate) > 0.015:
-        overheat_alerts.append({"type": "FUNDING_SPIKE", "severity": "HIGH", "message": f"Funding rate at {funding_rate * 100:.3f}% - market overheated", "asset": "BTC"})
+    funding_rate = random.uniform(-0.0003, 0.0015)
+    if abs(funding_rate) > 0.0008:
+        overheat_alerts.append({"type": "FUNDING_SPIKE", "severity": "HIGH", "message": f"Funding rate at {funding_rate * 100:.4f}% - market overheated", "asset": "BTC"})
 
     btc_change = btc.get("change_24h", 0)
     oi_change = random.uniform(-5, 15)
