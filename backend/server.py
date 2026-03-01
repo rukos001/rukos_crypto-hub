@@ -507,25 +507,23 @@ async def get_etf_flows():
 
 @api_router.get("/crypto/whale-activity")
 async def get_whale_activity():
-    """Whale activity - simulated Arkham-style data"""
+    """Whale activity - simulated Arkham-style data with real prices"""
     cache_key = "whale_activity"
     cached = get_cached(cache_key, ttl_seconds=60)
     if cached:
         return cached
     
-    # Try to get real whale data from whale-alert or similar
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            # Get top holders changes from CoinGecko
-            response = await client.get(f"{COINGECKO_API}/coins/bitcoin")
-            btc_data = response.json()
-            
-    except Exception:
-        pass
+    # Get real prices
+    prices_data = await ds.get_prices()
+    coins = prices_data.get("coins", {})
+    coin_prices = {
+        "BTC": coins.get("BTC", {}).get("price", 67000),
+        "ETH": coins.get("ETH", {}).get("price", 2000),
+        "SOL": coins.get("SOL", {}).get("price", 86),
+    }
     
-    # Generate realistic whale alerts
     import random
-    random.seed(int(datetime.now().timestamp() / 60))  # Changes every minute
+    random.seed(int(datetime.now().timestamp() / 60))
     
     exchanges = ["Binance", "Coinbase", "Kraken", "OKX", "Bybit"]
     entities = ["Unknown Wallet", "Jump Trading", "Cumberland", "Wintermute", "Galaxy Digital", "Alameda Remnant"]
@@ -533,7 +531,6 @@ async def get_whale_activity():
     alerts = []
     for i in range(8):
         coin = random.choice(["BTC", "ETH", "SOL"])
-        coin_prices = {"BTC": 97000, "ETH": 3400, "SOL": 185}
         
         if coin == "BTC":
             amount = random.randint(100, 3500)
@@ -574,12 +571,11 @@ async def get_whale_activity():
             "tx_hash": f"0x{random.randbytes(4).hex()}...{random.randbytes(4).hex()}"
         })
     
-    # Sort by time (most recent first)
     alerts.sort(key=lambda x: int(x["time"].split()[0]) if x["time"].split()[0].isdigit() else 999)
     
     data = {
         "alerts": alerts,
-        "total_24h_volume": sum(a["usd_value"] for a in alerts) * 12,  # Extrapolate
+        "total_24h_volume": sum(a["usd_value"] for a in alerts) * 12,
         "source": "Arkham Intelligence (simulated)",
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
