@@ -15,18 +15,49 @@ const formatVolume = (v) => {
   return `$${v.toFixed(0)}`;
 };
 
-const ProbBar = ({ yes, no, outcomes, t }) => (
-  <div className="space-y-1.5">
-    <div className="flex justify-between text-xs font-medium">
-      <span className="text-emerald-400">{outcomes?.[0] || t('yes')} {yes}%</span>
-      <span className="text-rose-400">{outcomes?.[1] || t('no')} {no}%</span>
+const ProbBar = ({ yes, no, outcomes, outcome_probabilities, t }) => {
+  // Use outcome_probabilities if available (new format with all outcomes)
+  if (outcome_probabilities && outcome_probabilities.length > 0) {
+    const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+    
+    return (
+      <div className="space-y-1.5">
+        {/* Labels */}
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium">
+          {outcome_probabilities.slice(0, 6).map((op, i) => (
+            <span key={i} style={{ color: colors[i % colors.length] }}>
+              {op.name} {op.probability}%
+            </span>
+          ))}
+        </div>
+        {/* Bar */}
+        <div className="h-2 rounded-full bg-white/5 overflow-hidden flex">
+          {outcome_probabilities.slice(0, 6).map((op, i) => (
+            <div 
+              key={i}
+              className="transition-all duration-500" 
+              style={{ width: `${op.probability}%`, backgroundColor: colors[i % colors.length] }} 
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
+  // Fallback to old format (Yes/No)
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between text-xs font-medium">
+        <span className="text-emerald-400">{outcomes?.[0] || t('yes')} {yes}%</span>
+        <span className="text-rose-400">{outcomes?.[1] || t('no')} {no}%</span>
+      </div>
+      <div className="h-2 rounded-full bg-white/5 overflow-hidden flex">
+        <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${yes}%` }} />
+        <div className="bg-rose-500 transition-all duration-500" style={{ width: `${no}%` }} />
+      </div>
     </div>
-    <div className="h-2 rounded-full bg-white/5 overflow-hidden flex">
-      <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${yes}%` }} />
-      <div className="bg-rose-500 transition-all duration-500" style={{ width: `${no}%` }} />
-    </div>
-  </div>
-);
+  );
+};
 
 const EventCard = ({ event, rank, t }) => (
   <Card className="glass-card hover:border-[#F7931A]/30 transition-all duration-200 group" data-testid={`prediction-event-${rank}`}>
@@ -62,7 +93,13 @@ const EventCard = ({ event, rank, t }) => (
             {event.liquidity > 0 && <span>{t('liquidity')}: {formatVolume(event.liquidity)}</span>}
           </div>
           <div className="mt-2.5">
-            <ProbBar yes={event.yes_probability} no={event.no_probability} outcomes={event.outcomes} t={t} />
+            <ProbBar 
+              yes={event.yes_probability} 
+              no={event.no_probability} 
+              outcomes={event.outcomes} 
+              outcome_probabilities={event.outcome_probabilities}
+              t={t} 
+            />
           </div>
         </div>
       </div>
@@ -211,6 +248,7 @@ const PredictionsTab = () => {
               yes={data.extreme_mover.yes_probability}
               no={data.extreme_mover.no_probability}
               outcomes={data.extreme_mover.outcomes}
+              outcome_probabilities={data.extreme_mover.outcome_probabilities}
               t={t}
             />
             <div className="flex gap-3 mt-2 text-xs text-white/40">

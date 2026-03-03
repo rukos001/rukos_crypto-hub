@@ -1151,6 +1151,9 @@ POLYMARKET_API = "https://gamma-api.polymarket.com"
 @api_router.get("/predictions")
 async def get_predictions():
     """Top 10 Polymarket events + extreme probability change + analytics"""
+    import json as _json
+    import re
+    
     cache_key = "predictions"
     cached = get_cached(cache_key, ttl_seconds=60)
     if cached:
@@ -1186,28 +1189,89 @@ async def get_predictions():
             if not markets:
                 continue
 
-            m = markets[0]
-            outcome_prices = m.get("outcomePrices", "")
-            outcomes = m.get("outcomes", "")
+            # Check if this is a grouped event (multiple markets for one question)
+            # e.g., "Who will Trump nominate..." with separate markets for each candidate
+            is_grouped_event = len(markets) > 3 and all(
+                "Yes" in str(m.get("outcomes", "")) for m in markets[:5]
+            )
+            
+            if is_grouped_event:
+                # Aggregate all markets into one outcome list
+                outcome_probabilities = []
+                for sub_market in markets:
+                    sub_prices = sub_market.get("outcomePrices", "")
+                    if isinstance(sub_prices, str) and sub_prices:
+                        try:
+                            sub_prices = _json.loads(sub_prices)
+                        except Exception:
+                            continue
+                    if not sub_prices or float(sub_prices[0]) < 0.001:
+                        continue
+                    
+                    # Extract candidate name from question
+                    question = sub_market.get("question", sub_market.get("groupItemTitle", ""))
+                    # Try to extract the name between "nominate" and "as" or similar patterns
+                    import re
+                    name_match = re.search(r'nominate\s+(.+?)\s+(?:as|to|for|in)', question, re.IGNORECASE)
+                    if not name_match:
+                        name_match = re.search(r'Will\s+(.+?)\s+(?:win|beat|be)', question, re.IGNORECASE)
+                    
+                    if name_match:
+                        candidate = name_match.group(1).strip()
+                    else:
+                        candidate = question[:30]
+                    
+                    prob = round(float(sub_prices[0]) * 100, 1)
+                    if prob >= 0.1:  # Only show candidates with at least 0.1%
+                        outcome_probabilities.append({"name": candidate, "probability": prob})
+                
+                # Sort by probability and take top 6
+                outcome_probabilities.sort(key=lambda x: x["probability"], reverse=True)
+                outcome_probabilities = outcome_probabilities[:6]
+                
+                # Use first market for other data
+                m = markets[0]
+                outcomes = [op["name"] for op in outcome_probabilities]
+                yes_prob = outcome_probabilities[0]["probability"] if outcome_probabilities else 0
+                no_prob = outcome_probabilities[1]["probability"] if len(outcome_probabilities) > 1 else 0
+            else:
+                # Single market event - original logic
+                m = markets[0]
+                outcome_prices = m.get("outcomePrices", "")
+                outcomes = m.get("outcomes", "")
 
-            try:
-                if isinstance(outcome_prices, str) and outcome_prices:
-                    import json as _json
-                    prices = _json.loads(outcome_prices)
-                elif isinstance(outcome_prices, list):
-                    prices = outcome_prices
-                else:
-                    continue
-                yes_prob = round(float(prices[0]) * 100, 1) if prices else 0
-                no_prob = round(float(prices[1]) * 100, 1) if len(prices) > 1 else round(100 - yes_prob, 1)
-            except Exception:
-                continue
-
-            if isinstance(outcomes, str) and outcomes:
                 try:
-                    outcomes = _json.loads(outcomes)
+                    if isinstance(outcome_prices, str) and outcome_prices:
+                        prices = _json.loads(outcome_prices)
+                    elif isinstance(outcome_prices, list):
+                        prices = outcome_prices
+                    else:
+                        continue
+                    
+                    # Parse outcomes properly
+                    if isinstance(outcomes, str) and outcomes:
+                        try:
+                            outcomes = _json.loads(outcomes)
+                        except Exception:
+                            outcomes = ["Yes", "No"]
+                    
+                    # Build outcome_probabilities with all outcomes and their probabilities
+                    outcome_probabilities = []
+                    if isinstance(outcomes, list) and isinstance(prices, list):
+                        for i, outcome_name in enumerate(outcomes):
+                            prob = round(float(prices[i]) * 100, 1) if i < len(prices) else 0
+                            outcome_probabilities.append({
+                                "name": outcome_name,
+                                "probability": prob
+                            })
+                        # Sort by probability descending
+                        outcome_probabilities.sort(key=lambda x: x["probability"], reverse=True)
+                    
+                    # For backwards compatibility
+                    yes_prob = round(float(prices[0]) * 100, 1) if prices else 0
+                    no_prob = round(float(prices[1]) * 100, 1) if len(prices) > 1 else round(100 - yes_prob, 1)
                 except Exception:
-                    outcomes = ["Yes", "No"]
+                    continue
 
             volume = float(m.get("volume", 0) or 0)
             liquidity = float(m.get("liquidity", 0) or 0)
@@ -1236,7 +1300,8 @@ async def get_predictions():
                 "image": ev.get("image", m.get("image", "")),
                 "yes_probability": yes_prob,
                 "no_probability": no_prob,
-                "outcomes": outcomes[:2] if isinstance(outcomes, list) else ["Yes", "No"],
+                "outcomes": outcomes if isinstance(outcomes, list) else ["Yes", "No"],
+                "outcome_probabilities": outcome_probabilities,  # New: all outcomes with probabilities
                 "volume": volume,
                 "volume_24h": vol_24h,
                 "liquidity": liquidity,
