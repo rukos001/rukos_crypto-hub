@@ -602,7 +602,6 @@ async def get_liquidations():
     short_liqs = base_total - long_liqs
     
     coins_data = []
-    remaining = base_total
     for coin, share in [("BTC", 0.55), ("ETH", 0.28), ("SOL", 0.12), ("OTHER", 0.05)]:
         coin_total = int(base_total * share)
         coin_long_ratio = random.uniform(0.4, 0.6)
@@ -1033,7 +1032,7 @@ POLYMARKET_API = "https://gamma-api.polymarket.com"
 
 @api_router.get("/predictions")
 async def get_predictions():
-    """Top 10 Polymarket events + extreme probability change"""
+    """Top 10 Polymarket events + extreme probability change + analytics"""
     cache_key = "predictions"
     cached = get_cached(cache_key, ttl_seconds=60)
     if cached:
@@ -1046,7 +1045,7 @@ async def get_predictions():
                 params={
                     "active": "true",
                     "closed": "false",
-                    "limit": 30,
+                    "limit": 50,
                     "order": "volume",
                     "ascending": "false",
                 }
@@ -1057,6 +1056,12 @@ async def get_predictions():
         events = []
         extreme_event = None
         max_change = 0
+        
+        # Analytics tracking
+        category_volumes = {}
+        high_confidence_events = []  # events with yes_prob > 80 or < 20
+        total_liquidity = 0
+        total_vol_24h = 0
 
         for ev in events_raw:
             markets = ev.get("markets", [])
@@ -1092,11 +1097,24 @@ async def get_predictions():
             best_ask = float(m.get("bestAsk", 0) or 0)
             spread = round((best_ask - best_bid) * 100, 2) if best_ask and best_bid else 0
             vol_24h = float(m.get("volume24hr", 0) or 0)
+            
+            # Get category from tags or event
+            category = ev.get("category", "") or ""
+            tags = ev.get("tags", [])
+            if not category and tags:
+                category = tags[0].get("label", "") if isinstance(tags[0], dict) else str(tags[0])
+            
+            # Build slug for proper link
+            slug = ev.get("slug", "")
+            if not slug:
+                # Create slug from title
+                title_for_slug = ev.get("title", m.get("question", ""))
+                slug = title_for_slug.lower().replace(" ", "-").replace("?", "")[:50]
 
             event_data = {
                 "id": ev.get("id", ""),
                 "title": ev.get("title", m.get("question", "")),
-                "slug": ev.get("slug", ""),
+                "slug": slug,
                 "image": ev.get("image", m.get("image", "")),
                 "yes_probability": yes_prob,
                 "no_probability": no_prob,
@@ -1106,10 +1124,32 @@ async def get_predictions():
                 "liquidity": liquidity,
                 "spread": spread,
                 "end_date": m.get("endDate", ev.get("endDate", "")),
-                "category": ev.get("category", ""),
+                "category": category,
+                "url": f"https://polymarket.com/event/{slug}" if slug else f"https://polymarket.com/event/{ev.get('id', '')}",
             }
 
             events.append(event_data)
+            
+            # Track analytics
+            total_liquidity += liquidity
+            total_vol_24h += vol_24h
+            
+            if category:
+                if category not in category_volumes:
+                    category_volumes[category] = {"volume": 0, "count": 0, "liquidity": 0}
+                category_volumes[category]["volume"] += volume
+                category_volumes[category]["count"] += 1
+                category_volumes[category]["liquidity"] += liquidity
+            
+            # Track high confidence events (very likely or very unlikely)
+            if yes_prob >= 85 or yes_prob <= 15:
+                high_confidence_events.append({
+                    "title": event_data["title"][:60],
+                    "probability": yes_prob if yes_prob >= 85 else no_prob,
+                    "direction": "yes" if yes_prob >= 85 else "no",
+                    "volume": volume,
+                    "url": event_data["url"],
+                })
 
             activity_score = vol_24h / volume if volume > 0 else 0
             if activity_score > max_change and vol_24h > 10000:
@@ -1125,12 +1165,34 @@ async def get_predictions():
                 if ev["id"] not in top_ids and ev.get("volume_24h", 0) > 10000:
                     extreme_event = {**ev, "activity_score": round((ev["volume_24h"] / ev["volume"]) * 100, 1) if ev["volume"] > 0 else 0}
                     break
+        
+        # Build category analytics
+        top_categories = sorted(
+            [{"name": k, **v} for k, v in category_volumes.items()],
+            key=lambda x: x["volume"],
+            reverse=True
+        )[:5]
+        
+        # Sort high confidence by volume
+        high_confidence_events.sort(key=lambda x: x["volume"], reverse=True)
+        
+        total_volume = sum(e["volume"] for e in events)
+        avg_yes_prob = sum(e["yes_probability"] for e in events) / len(events) if events else 50
 
         data = {
             "top_events": top_events,
             "extreme_mover": extreme_event,
-            "total_volume": sum(e["volume"] for e in events),
+            "total_volume": total_volume,
+            "total_liquidity": total_liquidity,
+            "volume_24h": total_vol_24h,
             "active_markets": len(events),
+            # Analytics
+            "analytics": {
+                "avg_yes_probability": round(avg_yes_prob, 1),
+                "top_categories": top_categories,
+                "high_confidence_events": high_confidence_events[:3],
+                "market_activity": round((total_vol_24h / total_volume * 100), 1) if total_volume > 0 else 0,
+            },
             "source": "Polymarket",
             "updated_at": datetime.now(timezone.utc).isoformat(),
         }
@@ -1147,6 +1209,7 @@ async def get_predictions():
         return {
             "top_events": [], "extreme_mover": None,
             "total_volume": 0, "active_markets": 0,
+            "analytics": {},
             "source": "Polymarket (unavailable)",
             "updated_at": datetime.now(timezone.utc).isoformat(),
         }
