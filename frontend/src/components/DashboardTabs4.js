@@ -11,6 +11,7 @@ import {
 } from './DashboardTabs';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip } from './InfoComponents';
+import { TermLink, InfoButton } from './shared/TermLink';
 
 // ==================== PORTFOLIO TAB ====================
 export const PortfolioTab = ({ data, loading }) => {

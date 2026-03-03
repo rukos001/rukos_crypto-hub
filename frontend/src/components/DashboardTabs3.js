@@ -20,6 +20,7 @@ import {
 } from './DashboardTabs';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip, SourceLink } from './InfoComponents';
+import { TermLink, InfoButton } from './shared/TermLink';
 
 // ==================== RISK ENGINE TAB ====================
 export const RiskEngineTab = ({ data, loading }) => {
@@ -177,7 +178,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Zap} title={t('leverage_crowding')} tooltip={t('leverage_crowding_desc')} source="coinglass" sourceLabel="CoinGlass" />
+            <SectionHeader icon={Zap} title={t('leverage_crowding')} term="leverage" tooltip={t('leverage_crowding_desc')} source="coinglass" sourceLabel="CoinGlass" />
           </CardHeader>
           <CardContent>
             <div className="text-center p-4">
@@ -201,7 +202,7 @@ export const RiskEngineTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={ArrowRightLeft} title={t('stablecoin_flows')} tooltip={t('stablecoin_flows_desc')} source="glassnode" sourceLabel="Glassnode" />
+            <SectionHeader icon={ArrowRightLeft} title={t('stablecoin_flows')} term="stablecoin" tooltip={t('stablecoin_flows_desc')} source="glassnode" sourceLabel="Glassnode" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">

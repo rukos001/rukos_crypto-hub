@@ -20,6 +20,7 @@ import {
 } from './DashboardTabs';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip, SourceLink } from './InfoComponents';
+import { TermLink, InfoButton } from './shared/TermLink';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -104,11 +105,11 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
       {/* Totals for selected filter */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-[#F7931A]/10 text-center border border-[#F7931A]/20">
-          <p className="text-sm text-muted-foreground">{t('total_aum')}</p>
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">{t('total_aum')} <TermLink term="aum" size="sm" /></p>
           <p className="text-3xl font-bold font-mono text-[#F7931A]">{formatNumber(totalDisplayAum)}</p>
         </div>
         <div className="p-4 rounded-xl bg-secondary/30 text-center border border-white/5">
-          <p className="text-sm text-muted-foreground">{t('daily_flow')}</p>
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">{t('daily_flow')} <TermLink term="inflow" size="sm" /></p>
           <p className={`text-3xl font-bold font-mono ${totalDisplayFlow >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
             {totalDisplayFlow >= 0 ? '+' : ''}{formatNumber(totalDisplayFlow)}
           </p>
@@ -286,19 +287,19 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
       {/* Key Onchain Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard 
-          title={t('sopr')} 
+          title={<span className="flex items-center gap-1">{t('sopr')} <TermLink term="sopr" size="sm" /></span>} 
           value={metrics?.sopr?.toFixed(4)}
           status={metrics?.sopr_status?.toUpperCase()}
           tooltip={t('sopr_desc')}
         />
         <MetricCard 
-          title={t('nupl')} 
+          title={<span className="flex items-center gap-1">{t('nupl')} <TermLink term="nupl" size="sm" /></span>} 
           value={metrics?.nupl?.toFixed(3)}
           status={metrics?.nupl_zone?.toUpperCase()}
           tooltip={t('nupl_desc')}
         />
         <MetricCard 
-          title={t('mvrv')} 
+          title={<span className="flex items-center gap-1">{t('mvrv')} <TermLink term="mvrv" size="sm" /></span>} 
           value={metrics?.mvrv?.toFixed(2)}
           status={metrics?.mvrv_signal?.toUpperCase()}
           tooltip={t('mvrv_desc')}
@@ -314,7 +315,7 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
       {/* Realized vs Market Cap */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title={t('realized_vs_market')} source="glassnode" sourceLabel="Glassnode" />
+          <SectionHeader icon={Activity} title={t('realized_vs_market')} term="realized cap" source="glassnode" sourceLabel="Glassnode" />
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
@@ -646,12 +647,12 @@ export const AltseasonTab = ({ data, loading }) => {
       {/* DeFi TVL */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title={t('defi_tvl')} source="defillama" sourceLabel="DefiLlama" />
+          <SectionHeader icon={Activity} title={t('defi_tvl')} term="tvl" source="defillama" sourceLabel="DefiLlama" />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
             <div>
-              <p className="text-sm text-muted-foreground">{t('total_value_locked')}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">{t('total_value_locked')} <TermLink term="tvl" size="sm" /></p>
               <p className="text-3xl font-bold font-mono text-[#F7931A]">{formatNumber(data.defi_tvl)}</p>
             </div>
             <ValueChange value={data.defi_tvl_change_7d} />

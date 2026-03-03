@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip, SourceLink } from './InfoComponents';
+import { TermLink, InfoButton } from './shared/TermLink';
 
 // Utility functions
 const formatNumber = (num, decimals = 2) => {
@@ -119,12 +120,13 @@ const MetricCard = ({ title, value, change, icon: Icon, status, isRecord, toolti
   </div>
 );
 
-const SectionHeader = ({ icon: Icon, title, badge, badgeColor = 'default', tooltip, source, sourceLabel }) => (
+const SectionHeader = ({ icon: Icon, title, badge, badgeColor = 'default', tooltip, source, sourceLabel, term }) => (
   <div className="flex items-center justify-between mb-4">
     <div>
       <h3 className="text-lg font-semibold flex items-center gap-2">
         {Icon && <Icon className="w-5 h-5 text-[#F7931A]" />}
         {title}
+        {term && <TermLink term={term} size="sm" />}
         {tooltip && <InfoTooltip text={tooltip} />}
       </h3>
       {source && <SourceLink source={source} label={sourceLabel} />}
@@ -224,7 +226,7 @@ const MarketCoreTab = ({ data, loading }) => {
       {/* Fear & Greed Index */}
       <Card className="glass-card" data-testid="fear-greed-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Gauge} title={t('fear_greed')} tooltip={t('fear_greed_desc')} source="alternative_me" sourceLabel="Alternative.me" />
+          <SectionHeader icon={Gauge} title={t('fear_greed')} term="fear & greed" tooltip={t('fear_greed_desc')} source="alternative_me" sourceLabel="Alternative.me" />
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-8">
@@ -293,11 +295,11 @@ const MarketCoreTab = ({ data, loading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={DollarSign} title={t('stablecoins')} tooltip={t('stablecoins_desc')} source="coinmarketcap" sourceLabel="CoinMarketCap" />
+            <SectionHeader icon={DollarSign} title={t('stablecoins')} term="stablecoin" tooltip={t('stablecoins_desc')} source="coinmarketcap" sourceLabel="CoinMarketCap" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">{t('total_stablecoin_mcap')}</span>
+              <span className="text-muted-foreground flex items-center gap-1">{t('total_stablecoin_mcap')} <TermLink term="stablecoin" size="sm" /></span>
               <span className="font-mono font-semibold">{formatNumber(data.stablecoin_mcap)}</span>
             </div>
             <div className="flex justify-between items-center">
@@ -314,11 +316,11 @@ const MarketCoreTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={BarChart3} title={t('traditional_markets')} tooltip={t('traditional_markets_desc')} source="tradingview" sourceLabel="TradingView" />
+            <SectionHeader icon={BarChart3} title={t('traditional_markets')} term="dxy" tooltip={t('traditional_markets_desc')} source="tradingview" sourceLabel="TradingView" />
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">DXY</span>
+              <span className="text-muted-foreground flex items-center gap-1">DXY <TermLink term="dxy" size="sm" /></span>
               <div className="text-right">
                 <span className="font-mono font-semibold">{data.dxy}</span>
                 <ValueChange value={data.dxy_change} suffix="" />
@@ -358,13 +360,13 @@ const MarketCoreTab = ({ data, loading }) => {
       {/* M2 Global Liquidity */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Waves} title={t('global_liquidity')} tooltip={t('global_liquidity_desc')} />
+          <SectionHeader icon={Waves} title={t('global_liquidity')} term="global liquidity" tooltip={t('global_liquidity_desc')} />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-3xl font-bold font-mono text-[#F7931A]">${data.m2_global}T</p>
-              <p className="text-sm text-muted-foreground">{t('global_m2_supply')}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">{t('global_m2_supply')} <TermLink term="m2" size="sm" /></p>
             </div>
             <div className="text-right">
               <ValueChange value={data.m2_change_mom} suffix={`% ${t('mom')}`} />
@@ -419,8 +421,9 @@ const DerivativesTab = ({ data, loading }) => {
       <div className="p-4 rounded-xl bg-gradient-to-r from-[#F7931A]/20 to-transparent border border-[#F7931A]/30">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground flex items-center">
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
               {t('open_interest')} ({t('total') || 'Всего'})
+              <TermLink term="open interest" size="sm" />
               <InfoTooltip text={t('open_interest_desc')} />
             </p>
             <p className="text-3xl font-bold font-mono">{formatNumber(data.total_open_interest)}</p>
@@ -475,7 +478,7 @@ const DerivativesTab = ({ data, loading }) => {
       {/* Funding History Chart */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title={t('funding_history')} tooltip={t('funding_rate_desc')} source="coinglass" sourceLabel="CoinGlass" />
+          <SectionHeader icon={Activity} title={t('funding_history')} term="funding rate" tooltip={t('funding_rate_desc')} source="coinglass" sourceLabel="CoinGlass" />
         </CardHeader>
         <CardContent>
           <div className="h-[200px]">
@@ -501,7 +504,7 @@ const DerivativesTab = ({ data, loading }) => {
       {/* Liquidation Clusters */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Zap} title={t('liquidation_clusters')} tooltip={t('liquidation_clusters_desc')} source="coinglass" sourceLabel="CoinGlass" />
+          <SectionHeader icon={Zap} title={t('liquidation_clusters')} term="liquidation" tooltip={t('liquidation_clusters_desc')} source="coinglass" sourceLabel="CoinGlass" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -552,20 +555,20 @@ const DerivativesTab = ({ data, loading }) => {
 
         <Card className="glass-card">
           <CardHeader className="pb-2">
-            <SectionHeader icon={Target} title={t('gamma_exposure')} tooltip={t('gamma_exposure_desc')} source="deribit" sourceLabel="Deribit" />
+            <SectionHeader icon={Target} title={t('gamma_exposure')} term="gamma exposure" tooltip={t('gamma_exposure_desc')} source="deribit" sourceLabel="Deribit" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('total_gamma')}</span>
+                <span className="text-muted-foreground flex items-center gap-1">{t('total_gamma')} <TermLink term="gamma" size="sm" /></span>
                 <span className="font-mono">{formatNumber(assetData.gamma_exposure?.total_gamma)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('max_pain')}</span>
+                <span className="text-muted-foreground flex items-center gap-1">{t('max_pain')} <TermLink term="max pain" size="sm" /></span>
                 <span className="font-mono text-[#F7931A]">${assetData.gamma_exposure?.max_pain?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('gamma_flip')}</span>
+                <span className="text-muted-foreground flex items-center gap-1">{t('gamma_flip')} <TermLink term="gamma flip" size="sm" /></span>
                 <span className="font-mono">${assetData.gamma_exposure?.gamma_flip?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">

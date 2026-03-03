@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -70,10 +70,27 @@ const ArticleCard = ({ article, isExpanded, onToggle }) => {
 export const KnowledgePage = () => {
   const { language } = useLanguage();
   const { category: urlCategory } = useParams();
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState(urlCategory || 'defi');
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+
+  // Handle navigation state from TermLink
+  useEffect(() => {
+    if (location.state?.highlightArticle) {
+      setExpandedId(location.state.highlightArticle);
+      // Scroll to article after articles load
+      setTimeout(() => {
+        const el = document.querySelector(`[data-testid="article-${location.state.highlightArticle}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-[#F7931A]');
+          setTimeout(() => el.classList.remove('ring-2', 'ring-[#F7931A]'), 2000);
+        }
+      }, 300);
+    }
+  }, [location.state, articles]);
 
   useEffect(() => {
     if (urlCategory && CATEGORIES.find(c => c.key === urlCategory)) {
