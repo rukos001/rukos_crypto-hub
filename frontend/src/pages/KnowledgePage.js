@@ -6,10 +6,11 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Skeleton } from '../components/ui/skeleton';
+import { Input } from '../components/ui/input';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   BookOpen, Layers, BarChart3, Target, Globe2, 
-  ChevronDown, ChevronUp, Tag, Activity, TrendingUp
+  ChevronDown, ChevronUp, Tag, Activity, TrendingUp, Search, X
 } from 'lucide-react';
 // watermarks removed
 
@@ -75,8 +76,42 @@ export const KnowledgePage = () => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState(urlCategory || 'defi');
   const [articles, setArticles] = useState([]);
+  const [allArticles, setAllArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Fetch all articles for search
+  useEffect(() => {
+    const fetchAllArticles = async () => {
+      try {
+        const res = await axios.get(`${API}/knowledge`);
+        setAllArticles(res.data);
+      } catch (err) {
+        console.error('Error fetching all articles:', err);
+      }
+    };
+    fetchAllArticles();
+  }, []);
+
+  // Search handler
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+    setIsSearching(true);
+    const query = searchQuery.toLowerCase();
+    const results = allArticles.filter(article => 
+      article.title.toLowerCase().includes(query) ||
+      article.content.toLowerCase().includes(query) ||
+      article.tags?.some(tag => tag.toLowerCase().includes(query))
+    );
+    setSearchResults(results);
+  }, [searchQuery, allArticles]);
 
   // Handle navigation state from TermLink
   useEffect(() => {
@@ -121,18 +156,91 @@ export const KnowledgePage = () => {
   return (
     <div className="space-y-6 animate-fade-in relative" data-testid="knowledge-page">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-[#F7931A]" />
-          {language === 'ru' ? 'База знаний' : 'Knowledge Base'}
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          {language === 'ru' ? 'Образовательные материалы по трейдингу и криптовалютам' : 'Educational materials on trading and crypto'}
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-[#F7931A]" />
+            {language === 'ru' ? 'База знаний' : 'Knowledge Base'}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {language === 'ru' ? 'Образовательные материалы по трейдингу и криптовалютам' : 'Educational materials on trading and crypto'}
+          </p>
+        </div>
+        {/* Search */}
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder={language === 'ru' ? 'Поиск по статьям...' : 'Search articles...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-8 bg-secondary/30 border-white/10 focus:border-[#F7931A]/50"
+            data-testid="knowledge-search"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Category Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="knowledge-categories">
+      {/* Search Results */}
+      {isSearching && searchResults.length > 0 && (
+        <Card className="glass-card border-[#F7931A]/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Search className="w-4 h-4 text-[#F7931A]" />
+              {language === 'ru' ? `Найдено: ${searchResults.length}` : `Found: ${searchResults.length}`}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+            {searchResults.map(article => {
+              const cat = CATEGORIES.find(c => c.key === article.category);
+              return (
+                <button
+                  key={article.id}
+                  onClick={() => {
+                    setActiveCategory(article.category);
+                    setExpandedId(article.id);
+                    setSearchQuery('');
+                    setTimeout(() => {
+                      const el = document.querySelector(`[data-testid="article-${article.id}"]`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                  }}
+                  className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge 
+                      variant="outline" 
+                      className="text-[10px] px-1.5 border-transparent"
+                      style={{ backgroundColor: `${cat?.color}20`, color: cat?.color }}
+                    >
+                      {cat?.label}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-medium">{article.title}</p>
+                </button>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <p>{language === 'ru' ? 'Ничего не найдено' : 'No results found'}</p>
+        </div>
+      )}
+
+      {/* Category Cards - Hide when searching */}
+      {!isSearching && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="knowledge-categories">
         {CATEGORIES.map(cat => {
           const Icon = cat.icon;
           const isActive = activeCategory === cat.key;
@@ -161,9 +269,10 @@ export const KnowledgePage = () => {
           );
         })}
       </div>
+      )}
 
-      {/* Category header */}
-      {activeCat && (
+      {/* Category header - Hide when searching */}
+      {!isSearching && activeCat && (
         <div className="flex items-center gap-3 p-4 rounded-xl" style={{ backgroundColor: `${activeCat.color}10`, borderLeft: `4px solid ${activeCat.color}` }}>
           <activeCat.icon className="w-6 h-6" style={{ color: activeCat.color }} />
           <div>
@@ -178,8 +287,8 @@ export const KnowledgePage = () => {
         </div>
       )}
 
-      {/* Articles */}
-      {loading ? (
+      {/* Articles - Hide when searching */}
+      {!isSearching && (loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
         </div>
@@ -199,7 +308,7 @@ export const KnowledgePage = () => {
             />
           ))}
         </div>
-      )}
+      ))}
     </div>
   );
 };

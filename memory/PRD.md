@@ -11,6 +11,12 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 
 ## What's Implemented
 
+### UX/UI Improvements (Mar 2026 - NEW ✅)
+- **Fear & Greed Index карточка** — увеличена, добавлена пульсация при экстремальных значениях, сигнал покупки/продажи
+- **РИСК-ОФФ баннер** — градиентный дизайн, прогресс-бар вместо рамки
+- **Поиск в базе знаний** — мгновенный поиск по всем статьям, тегам и контенту
+- **Переводы** — добавлены buy_signal, sell_signal, risk_score
+
 ### Term Links to Knowledge Base (Mar 2026 - VERIFIED ✅)
 - Created `TermLink` component (`/app/frontend/src/components/shared/TermLink.js`)
 - All crypto terms throughout the dashboard now have clickable ? icons

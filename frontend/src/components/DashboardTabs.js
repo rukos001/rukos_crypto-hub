@@ -177,19 +177,35 @@ const MarketCoreTab = ({ data, loading }) => {
         <SourceLink source="coinmarketcap" label="CoinMarketCap" />
       </div>
 
-      {/* Market Regime Banner */}
-      <div className={`p-4 rounded-xl border-2 ${regime === 'risk-on' ? 'border-[#10B981] bg-[#10B981]/10' : 'border-[#EF4444] bg-[#EF4444]/10'}`}>
+      {/* Market Regime Banner - Improved */}
+      <div className={`p-4 rounded-xl ${regime === 'risk-on' ? 'bg-gradient-to-r from-[#10B981]/20 to-[#10B981]/5 border border-[#10B981]/30' : 'bg-gradient-to-r from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${regime === 'risk-on' ? 'bg-[#10B981]' : 'bg-[#EF4444]'} animate-pulse`} />
-            <span className="text-lg font-bold uppercase flex items-center gap-1" style={{ color: regimeColor }}>
-              {regime === 'risk-on' ? t('risk_on') : t('risk_off')}
-              <TermLink term="risk-off" />
-            </span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${regime === 'risk-on' ? 'bg-[#10B981]/20' : 'bg-[#EF4444]/20'}`}>
+              <div className={`w-4 h-4 rounded-full ${regime === 'risk-on' ? 'bg-[#10B981]' : 'bg-[#EF4444]'} animate-pulse`} />
+            </div>
+            <div>
+              <span className="text-lg font-bold uppercase flex items-center gap-1" style={{ color: regimeColor }}>
+                {regime === 'risk-on' ? t('risk_on') : t('risk_off')}
+                <TermLink term="risk-off" />
+              </span>
+              <p className="text-xs text-muted-foreground">{t('market_regime') || 'Режим рынка'}</p>
+            </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">{t('risk_score')}</p>
-            <p className="font-mono text-2xl font-bold" style={{ color: regimeColor }}>{data.risk_score}</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('risk_score')}</p>
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-2 rounded-full bg-white/10 overflow-hidden">
+                <div 
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ 
+                    width: `${data.risk_score}%`, 
+                    backgroundColor: regimeColor 
+                  }}
+                />
+              </div>
+              <p className="font-mono text-xl font-bold" style={{ color: regimeColor }}>{data.risk_score}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -223,34 +239,55 @@ const MarketCoreTab = ({ data, loading }) => {
         </CardContent>
       </Card>
 
-      {/* Fear & Greed Index */}
-      <Card className="glass-card" data-testid="fear-greed-card">
+      {/* Fear & Greed Index - Enhanced */}
+      <Card 
+        className={`glass-card ${(fg?.value <= 25 || fg?.value >= 75) ? 'ring-2 ring-offset-2 ring-offset-[#0a0a1a]' : ''}`}
+        style={{ 
+          ringColor: fg?.value <= 25 ? '#EF4444' : fg?.value >= 75 ? '#22C55E' : 'transparent'
+        }}
+        data-testid="fear-greed-card"
+      >
         <CardHeader className="pb-2">
           <SectionHeader icon={Gauge} title={t('fear_greed')} term="fear & greed" tooltip={t('fear_greed_desc')} source="alternative_me" sourceLabel="Alternative.me" />
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-8">
-            <div className="relative w-32 h-32 flex items-center justify-center">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {/* Main Gauge - Larger */}
+            <div className={`relative w-40 h-40 flex items-center justify-center ${(fg?.value <= 25 || fg?.value >= 75) ? 'animate-pulse' : ''}`}>
               <div 
-                className="absolute inset-0 rounded-full border-8 transition-all duration-500"
+                className="absolute inset-0 rounded-full border-[10px] transition-all duration-500"
                 style={{ borderColor: fgColor, borderRightColor: 'transparent', borderBottomColor: 'transparent', transform: `rotate(${(fg?.value || 0) * 3.6}deg)` }}
               />
-              <div className="absolute inset-2 rounded-full bg-[#0a0a1a]" />
+              <div className="absolute inset-3 rounded-full bg-[#0a0a1a]" />
               <div className="relative text-center">
-                <p className="text-3xl font-bold font-mono" style={{ color: fgColor }}>{fg?.value}</p>
-                <p className="text-xs text-muted-foreground">{fg?.classification}</p>
+                <p className="text-5xl font-bold font-mono" style={{ color: fgColor }}>{fg?.value}</p>
+                <p className="text-sm font-medium mt-1" style={{ color: fgColor }}>{fg?.classification}</p>
               </div>
             </div>
-            <div className="flex-1 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{t('previous_day')}</span>
-                <span className="font-mono">{fg?.previous_day}</span>
+            {/* Stats */}
+            <div className="flex-1 space-y-3 w-full">
+              {/* Signal indicator */}
+              {(fg?.value <= 25 || fg?.value >= 75) && (
+                <div className={`p-2 rounded-lg text-center text-sm font-medium ${fg?.value <= 25 ? 'bg-[#EF4444]/20 text-[#EF4444]' : 'bg-[#22C55E]/20 text-[#22C55E]'}`}>
+                  {fg?.value <= 25 ? '⚠️ ' + (t('buy_signal') || 'Сигнал к покупке') : '⚠️ ' + (t('sell_signal') || 'Сигнал к продаже')}
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-muted-foreground">{t('previous_day')}</p>
+                  <p className="font-mono font-bold text-lg">{fg?.previous_day}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-muted-foreground">{t('previous_week')}</p>
+                  <p className="font-mono font-bold text-lg">{fg?.previous_week}</p>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{t('previous_week')}</span>
-                <span className="font-mono">{fg?.previous_week}</span>
+              <div className="h-3 w-full rounded-full bg-gradient-to-r from-[#EF4444] via-[#F59E0B] to-[#22C55E] relative">
+                <div 
+                  className="absolute w-3 h-5 bg-white rounded-sm -top-1 transition-all duration-500 shadow-lg"
+                  style={{ left: `calc(${fg?.value || 0}% - 6px)` }}
+                />
               </div>
-              <div className="h-2 w-full rounded-full bg-gradient-to-r from-[#EF4444] via-[#F59E0B] to-[#22C55E] mt-3" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{t('extreme_fear') || 'Крайний страх'}</span>
                 <span>{t('extreme_greed') || 'Крайняя жадность'}</span>
