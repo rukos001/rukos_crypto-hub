@@ -11,18 +11,20 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 
 ## What's Implemented
 
-### Term Links to Knowledge Base (Mar 2026 - NEW)
+### Term Links to Knowledge Base (Mar 2026 - VERIFIED ✅)
 - Created `TermLink` component (`/app/frontend/src/components/shared/TermLink.js`)
 - All crypto terms throughout the dashboard now have clickable ? icons
 - Clicking redirects to the relevant knowledge base article
 - Auto-highlights and scrolls to the specific article
-- 80+ terms mapped to articles:
-  - DeFi: TVL, liquidity, yield farming, AMM, smart contracts
-  - Derivatives: perpetual, funding rate, OI, leverage, liquidation
-  - Options: gamma, delta, max pain, IV, greeks
-  - Macro: DXY, M2, interest rates, global liquidity, risk-on/off
-  - Onchain: SOPR, NUPL, MVRV, realized cap
-- Russian translations included
+- 80+ terms mapped to 19 articles across 6 categories:
+  - DeFi (4 статьи): d1, d2, d3, st1 - TVL, liquidity, yield farming, AMM, stablecoins
+  - Derivatives (4 статьи): p1, p2, p3, tr1 - perpetual, funding rate, OI, liquidation, support/resistance
+  - Options (3 статьи): o1, o2, o3 - gamma, delta, max pain, IV, greeks, strategies
+  - Macro (4 статьи): m1, m2, m3, alt1 - DXY, M2, global liquidity, risk-on/off, fear & greed, altseason
+  - Onchain (3 статьи): on1, on2, on3 - SOPR, NUPL, MVRV, realized cap
+  - ETF (1 статья): etf1 - AUM, inflows, outflows
+- All 19 articles written in Russian
+- **Testing completed**: 50/50 tests passed (backend: 32/32, frontend: 18/18)
 
 ### Full Russian Localization (Mar 2026)
 - All UI components translate dynamically via LanguageContext.js
