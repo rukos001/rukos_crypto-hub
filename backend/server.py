@@ -887,6 +887,17 @@ async def war_mode():
     """War mode alerts"""
     return await get_war_mode_alerts()
 
+@api_router.post("/analytics/refresh")
+async def force_refresh():
+    """Force refresh all cached data"""
+    ds.clear_cache()
+    return {"status": "ok", "message": "Cache cleared, next request will fetch fresh data"}
+
+@api_router.get("/analytics/cache-status")
+async def cache_status():
+    """Get current cache status for debugging"""
+    return ds.get_cache_status()
+
 # ==================== ADMIN ROUTES ====================
 
 class AdminUserResponse(BaseModel):

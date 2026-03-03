@@ -165,12 +165,21 @@ const MarketCoreTab = ({ data, loading }) => {
   const regime = data.market_regime;
   const regimeColor = regime === 'risk-on' ? '#10B981' : '#EF4444';
   const fg = data.fear_greed;
+  const isCached = data.is_cached || data.is_fallback;
 
   // Fear & Greed color
   const fgColor = fg?.value <= 25 ? '#EF4444' : fg?.value <= 45 ? '#F59E0B' : fg?.value <= 55 ? '#A1A1AA' : fg?.value <= 75 ? '#10B981' : '#22C55E';
 
   return (
     <div className="space-y-6">
+      {/* Cache/Fallback indicator */}
+      {isCached && (
+        <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-2 text-yellow-500 text-sm">
+          <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+          {t('data_cached') || 'Данные из кэша — API временно недоступен. Нажмите "Обновить" для обновления.'}
+        </div>
+      )}
+
       {/* Tab description */}
       <div className="p-3 rounded-lg bg-secondary/20 border border-white/5">
         <p className="text-sm text-muted-foreground">{t('market_core_desc')}</p>

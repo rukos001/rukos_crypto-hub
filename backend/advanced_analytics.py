@@ -35,6 +35,7 @@ def _seed():
 async def get_market_core_data() -> Dict:
     c = _get("market_core", 60)
     if c:
+        c["is_cached"] = True  # Mark as cached when returning from local cache
         return c
 
     prices_data = await ds.get_prices()
@@ -128,6 +129,8 @@ async def get_market_core_data() -> Dict:
         "market_regime": regime,
         "risk_score": round(risk_score, 1),
         "updated_at": datetime.now(timezone.utc).isoformat(),
+        "is_cached": prices_data.get("is_cached", False),
+        "is_fallback": prices_data.get("is_fallback", False),
     }
     _set("market_core", data, 60)
     return data

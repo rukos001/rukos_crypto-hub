@@ -80,6 +80,14 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 
 ## Completed Migrations
 
+### Data Quality Improvements (Mar 2026) ✅
+- Added cache/fallback indicator banner on dashboard (yellow warning)
+- Exponential backoff for rate-limited APIs (CoinGecko 429 handling)
+- `/api/analytics/refresh` endpoint to force clear cache
+- `/api/analytics/cache-status` endpoint for debugging
+- `is_cached`, `is_fallback` flags propagated to frontend
+- Translation: "Данные из кэша — API временно недоступен"
+
 ### WebSocket Real-Time Updates (Mar 2026) ✅
 - Added WebSocket endpoint `/api/ws/market` for live market data
 - Created `useMarketWebSocket` React hook for auto-reconnection

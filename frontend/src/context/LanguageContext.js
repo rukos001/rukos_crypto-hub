@@ -27,6 +27,10 @@ const translations = {
     tab_portfolio: 'Портфель',
     tab_war: 'Режим войны',
     
+    // Data status
+    data_cached: 'Данные из кэша — API временно недоступен. Нажмите "Обновить" позже.',
+    data_live: 'Данные актуальны',
+    
     // Tab groups
     group_market: 'Рынок',
     group_analytics: 'Аналитика',

@@ -5,6 +5,7 @@ Uses free APIs: CoinGecko, Alternative.me, DeFi Llama.
 """
 import httpx
 import logging
+import asyncio
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, Optional
 
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 # ── In-memory cache ──
 _cache: Dict[str, Any] = {}
 _cache_ts: Dict[str, datetime] = {}
+_rate_limit_until: Dict[str, datetime] = {}  # Track rate limit cooldowns
 
 def _get(key: str, ttl: int = 60) -> Optional[Any]:
     if key in _cache and key in _cache_ts:
@@ -24,13 +26,45 @@ def _set(key: str, data: Any, ttl: int = 60):
     _cache[key] = data
     _cache_ts[key] = datetime.now(timezone.utc) + timedelta(seconds=ttl)
 
-# ── HTTP client helper ──
-async def _fetch(url: str, params: dict = None, timeout: float = 12.0) -> Optional[dict]:
+def _is_rate_limited(api: str) -> bool:
+    """Check if API is in rate limit cooldown"""
+    if api in _rate_limit_until:
+        if datetime.now(timezone.utc) < _rate_limit_until[api]:
+            return True
+    return False
+
+def _set_rate_limit(api: str, seconds: int = 60):
+    """Set rate limit cooldown with exponential backoff"""
+    current_wait = _rate_limit_until.get(api)
+    if current_wait and datetime.now(timezone.utc) < current_wait:
+        # Exponential backoff - double the wait time
+        seconds = min(seconds * 2, 300)  # Max 5 minutes
+    _rate_limit_until[api] = datetime.now(timezone.utc) + timedelta(seconds=seconds)
+    logger.warning(f"Rate limited {api}, waiting {seconds}s")
+
+# ── HTTP client helper with rate limit handling ──
+async def _fetch(url: str, params: dict = None, timeout: float = 12.0, api_name: str = "default") -> Optional[dict]:
+    # Check rate limit before making request
+    if _is_rate_limited(api_name):
+        logger.debug(f"Skipping {api_name} - rate limited")
+        return None
+    
     try:
         async with httpx.AsyncClient(timeout=timeout) as c:
             r = await c.get(url, params=params)
+            
+            # Handle rate limiting (429)
+            if r.status_code == 429:
+                _set_rate_limit(api_name, 60)
+                return None
+            
             r.raise_for_status()
             return r.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            _set_rate_limit(api_name, 60)
+        logger.warning(f"API fetch failed {url}: {e}")
+        return None
     except Exception as e:
         logger.warning(f"API fetch failed {url}: {e}")
         return None
@@ -44,10 +78,8 @@ async def get_prices() -> dict:
     """Real prices for BTC, ETH, SOL + global market data."""
     cached = _get("prices", 90)
     if cached:
+        cached["is_cached"] = True
         return cached
-
-    # Stagger calls to avoid rate limiting
-    import asyncio
 
     coins_data = await _fetch(
         f"{COINGECKO}/coins/markets",
@@ -58,18 +90,23 @@ async def get_prices() -> dict:
             "sparkline": "false",
             "price_change_percentage": "24h,7d",
         },
+        api_name="coingecko"
     )
 
     # Wait before second call to respect rate limits
     await asyncio.sleep(1.5)
 
-    global_data = await _fetch(f"{COINGECKO}/global")
+    global_data = await _fetch(f"{COINGECKO}/global", api_name="coingecko")
 
     if not coins_data:
         prev = _get("prices_fallback", 7200)
         if prev:
+            prev["is_cached"] = True
+            prev["cache_age"] = "Кэш (данные могут быть устаревшими)"
             return prev
-        return _fallback_prices()
+        fallback = _fallback_prices()
+        fallback["is_fallback"] = True
+        return fallback
 
     # Parse coins
     coins = {}
@@ -117,6 +154,8 @@ async def get_prices() -> dict:
         "coins": coins,
         "global": gd,
         "updated_at": datetime.now(timezone.utc).isoformat(),
+        "is_cached": False,
+        "is_fallback": False,
     }
 
     _set("prices", result, 90)
@@ -130,9 +169,10 @@ async def get_prices() -> dict:
 async def get_fear_greed() -> dict:
     cached = _get("fear_greed", 600)
     if cached:
+        cached["is_cached"] = True
         return cached
 
-    data = await _fetch("https://api.alternative.me/fng/?limit=7")
+    data = await _fetch("https://api.alternative.me/fng/?limit=7", api_name="alternative_me")
     if not data or "data" not in data:
         return {"value": 50, "classification": "Neutral", "history": []}
 
@@ -148,6 +188,8 @@ async def get_fear_greed() -> dict:
             }
             for d in data["data"]
         ],
+        "is_cached": False,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     _set("fear_greed", result, 600)
     return result
@@ -162,10 +204,11 @@ async def get_defi_tvl() -> dict:
     """Total DeFi TVL + top protocols."""
     cached = _get("defi_tvl", 120)
     if cached:
+        cached["is_cached"] = True
         return cached
 
-    tvl_data = await _fetch(f"{DEFILLAMA}/v2/historicalChainTvl")
-    protocols = await _fetch(f"{DEFILLAMA}/protocols")
+    tvl_data = await _fetch(f"{DEFILLAMA}/v2/historicalChainTvl", api_name="defillama")
+    protocols = await _fetch(f"{DEFILLAMA}/protocols", api_name="defillama")
 
     total_tvl = 0
     tvl_change_1d = 0
@@ -202,9 +245,10 @@ async def get_stablecoins() -> dict:
     """Stablecoin market caps from DeFi Llama."""
     cached = _get("stablecoins", 300)
     if cached:
+        cached["is_cached"] = True
         return cached
 
-    data = await _fetch("https://stablecoins.llama.fi/stablecoins?includePrices=true")
+    data = await _fetch("https://stablecoins.llama.fi/stablecoins?includePrices=true", api_name="defillama")
     if not data or "peggedAssets" not in data:
         return {"total": 0, "coins": []}
 
@@ -239,9 +283,10 @@ async def get_chain_tvl() -> dict:
     """TVL by chain from DeFi Llama."""
     cached = _get("chain_tvl", 120)
     if cached:
+        cached["is_cached"] = True
         return cached
 
-    data = await _fetch(f"{DEFILLAMA}/v2/chains")
+    data = await _fetch(f"{DEFILLAMA}/v2/chains", api_name="defillama")
     if not data:
         return {"chains": []}
 
@@ -253,9 +298,39 @@ async def get_chain_tvl() -> dict:
             "tokenSymbol": c.get("tokenSymbol", ""),
         })
 
-    result = {"chains": chains}
+    result = {"chains": chains, "is_cached": False}
     _set("chain_tvl", result, 120)
     return result
+
+
+# ═══════════════════════════════════════════════════════════
+# Force refresh - clears cache for fresh data
+# ═══════════════════════════════════════════════════════════
+def clear_cache(key: str = None):
+    """Clear specific cache key or all cache"""
+    global _cache, _cache_ts
+    if key:
+        _cache.pop(key, None)
+        _cache_ts.pop(key, None)
+    else:
+        _cache.clear()
+        _cache_ts.clear()
+    logger.info(f"Cache cleared: {key or 'ALL'}")
+
+def get_cache_status() -> dict:
+    """Return cache status for debugging"""
+    now = datetime.now(timezone.utc)
+    status = {}
+    for key in _cache:
+        expiry = _cache_ts.get(key)
+        if expiry:
+            remaining = (expiry - now).total_seconds()
+            status[key] = {
+                "cached": True,
+                "expires_in": max(0, int(remaining)),
+                "expired": remaining <= 0
+            }
+    return status
 
 
 # ═══════════════════════════════════════════════════════════

@@ -92,11 +92,23 @@ export const DashboardPage = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setData({});
-    await fetchTabData(activeTab, true);
-    await fetchTabData('war', true);
+    try {
+      // Force clear cache on backend
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.post(`${API}/analytics/refresh`, {}, { headers });
+      
+      // Clear local data and refetch
+      setData({});
+      await fetchTabData(activeTab, true);
+      await fetchTabData('war', true);
+      setLastUpdate(new Date());
+      toast.success(t('updated'));
+    } catch (error) {
+      console.error('Refresh error:', error);
+      toast.error(t('error'));
+    }
     setRefreshing(false);
-    toast.success(t('updated'));
   };
 
   useEffect(() => {
