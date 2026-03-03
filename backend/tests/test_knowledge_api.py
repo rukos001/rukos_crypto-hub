@@ -10,7 +10,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://trading-dashboard-99.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://rukos-crypto-hub.preview.emergentagent.com').rstrip('/')
 
 # ==================== FIXTURES ====================
 
@@ -60,33 +60,37 @@ def user_client(api_client, user_token):
 class TestKnowledgeGet:
     """Test GET /api/knowledge endpoint"""
 
-    def test_get_all_knowledge_returns_12_articles(self, api_client):
-        """GET /api/knowledge returns all 12 default articles"""
+    def test_get_all_knowledge_returns_19_articles(self, api_client):
+        """GET /api/knowledge returns all 19 default articles"""
         response = api_client.get(f"{BASE_URL}/api/knowledge")
         assert response.status_code == 200
         articles = response.json()
-        assert len(articles) == 12, f"Expected 12 articles, got {len(articles)}"
+        assert len(articles) == 19, f"Expected 19 articles, got {len(articles)}"
 
-    def test_get_knowledge_defi_returns_3_articles(self, api_client):
-        """GET /api/knowledge?category=defi returns 3 DeFi articles"""
+    def test_get_knowledge_defi_returns_4_articles(self, api_client):
+        """GET /api/knowledge?category=defi returns 4 DeFi articles (d1, d2, d3, st1)"""
         response = api_client.get(f"{BASE_URL}/api/knowledge?category=defi")
         assert response.status_code == 200
         articles = response.json()
-        assert len(articles) == 3, f"Expected 3 defi articles, got {len(articles)}"
+        assert len(articles) == 4, f"Expected 4 defi articles, got {len(articles)}"
         for article in articles:
             assert article["category"] == "defi"
+        # Check expected article IDs
+        article_ids = [a["id"] for a in articles]
+        assert "d1" in article_ids  # Что такое DeFi?
+        assert "st1" in article_ids  # Стейблкоины: Гид
 
-    def test_get_knowledge_perp_returns_3_articles(self, api_client):
-        """GET /api/knowledge?category=perp returns 3 PERP articles"""
+    def test_get_knowledge_perp_returns_4_articles(self, api_client):
+        """GET /api/knowledge?category=perp returns 4 PERP articles (p1, p2, p3, tr1)"""
         response = api_client.get(f"{BASE_URL}/api/knowledge?category=perp")
         assert response.status_code == 200
         articles = response.json()
-        assert len(articles) == 3, f"Expected 3 perp articles, got {len(articles)}"
+        assert len(articles) == 4, f"Expected 4 perp articles, got {len(articles)}"
         for article in articles:
             assert article["category"] == "perp"
 
     def test_get_knowledge_options_returns_3_articles(self, api_client):
-        """GET /api/knowledge?category=options returns 3 OPTIONS articles"""
+        """GET /api/knowledge?category=options returns 3 OPTIONS articles (o1, o2, o3)"""
         response = api_client.get(f"{BASE_URL}/api/knowledge?category=options")
         assert response.status_code == 200
         articles = response.json()
@@ -94,14 +98,32 @@ class TestKnowledgeGet:
         for article in articles:
             assert article["category"] == "options"
 
-    def test_get_knowledge_macro_returns_3_articles(self, api_client):
-        """GET /api/knowledge?category=macro returns 3 MACRO articles"""
+    def test_get_knowledge_macro_returns_4_articles(self, api_client):
+        """GET /api/knowledge?category=macro returns 4 MACRO articles (m1, m2, m3, alt1)"""
         response = api_client.get(f"{BASE_URL}/api/knowledge?category=macro")
         assert response.status_code == 200
         articles = response.json()
-        assert len(articles) == 3, f"Expected 3 macro articles, got {len(articles)}"
+        assert len(articles) == 4, f"Expected 4 macro articles, got {len(articles)}"
         for article in articles:
             assert article["category"] == "macro"
+
+    def test_get_knowledge_onchain_returns_3_articles(self, api_client):
+        """GET /api/knowledge?category=onchain returns 3 ONCHAIN articles (on1, on2, on3)"""
+        response = api_client.get(f"{BASE_URL}/api/knowledge?category=onchain")
+        assert response.status_code == 200
+        articles = response.json()
+        assert len(articles) == 3, f"Expected 3 onchain articles, got {len(articles)}"
+        for article in articles:
+            assert article["category"] == "onchain"
+
+    def test_get_knowledge_etf_returns_1_article(self, api_client):
+        """GET /api/knowledge?category=etf returns 1 ETF article (etf1)"""
+        response = api_client.get(f"{BASE_URL}/api/knowledge?category=etf")
+        assert response.status_code == 200
+        articles = response.json()
+        assert len(articles) == 1, f"Expected 1 etf article, got {len(articles)}"
+        assert articles[0]["category"] == "etf"
+        assert articles[0]["id"] == "etf1"
 
     def test_knowledge_article_has_required_fields(self, api_client):
         """Articles have id, title, content, category, tags, author, created_at"""
@@ -118,6 +140,17 @@ class TestKnowledgeGet:
         assert "author" in article
         assert "created_at" in article
         assert isinstance(article["tags"], list)
+
+    def test_knowledge_articles_are_in_russian(self, api_client):
+        """All articles have Russian content"""
+        response = api_client.get(f"{BASE_URL}/api/knowledge")
+        assert response.status_code == 200
+        articles = response.json()
+        # Sample check for Russian characters in content
+        for article in articles:
+            # Check for Cyrillic characters in title or content
+            has_cyrillic = any(ord(c) >= 0x0400 and ord(c) <= 0x04FF for c in article["title"] + article["content"])
+            assert has_cyrillic, f"Article {article['id']} should have Russian content"
 
 # ==================== ADMIN KNOWLEDGE TESTS ====================
 
