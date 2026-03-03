@@ -48,6 +48,48 @@ const ValueChange = ({ value, suffix = '%' }) => {
   );
 };
 
+// Status translations for onchain metrics
+const translateStatus = (status) => {
+  if (!status) return null;
+  const translations = {
+    // SOPR
+    'NEUTRAL': 'НЕЙТРАЛЬНО',
+    'PROFIT': 'В ПРИБЫЛИ',
+    'LOSS': 'В УБЫТКЕ',
+    // NUPL
+    'BELIEF': 'ВЕРА',
+    'CAPITULATION': 'КАПИТУЛЯЦИЯ',
+    'DENIAL': 'ОТРИЦАНИЕ',
+    'HOPE': 'НАДЕЖДА',
+    'OPTIMISM': 'ОПТИМИЗМ',
+    'EUPHORIA': 'ЭЙФОРИЯ',
+    'ANXIETY': 'ТРЕВОГА',
+    // MVRV
+    'OVERVALUED': 'ПЕРЕОЦЕНЁН',
+    'UNDERVALUED': 'НЕДООЦЕНЁН',
+    'FAIR': 'СПРАВЕДЛИВО',
+    // General
+    'NORMAL': 'НОРМА',
+    'HIGH': 'ВЫСОКИЙ',
+    'LOW': 'НИЗКИЙ',
+    'ELEVATED': 'ПОВЫШЕН',
+    'CRITICAL': 'КРИТИЧЕСКИЙ',
+    'BULLISH': 'БЫЧИЙ',
+    'BEARISH': 'МЕДВЕЖИЙ',
+    // Funding
+    'BACKWARDATION': 'БЭКВАРДАЦИЯ',
+    'CONTANGO': 'КОНТАНГО',
+    // Dominance
+    'STRONG': 'СИЛЬНЫЙ',
+    'MODERATE': 'УМЕРЕННЫЙ',
+    'WEAK': 'СЛАБЫЙ',
+    // Absorption
+    'ABSORBING': 'ПОГЛОЩЕНИЕ',
+    'NOT_ABSORBING': 'НЕ ПОГЛОЩАЕТ',
+  };
+  return translations[status.toUpperCase()] || status;
+};
+
 const MetricCard = ({ title, value, change, icon: Icon, status, isRecord, tooltip, testId }) => (
   <div
     data-testid={testId}
@@ -68,7 +110,7 @@ const MetricCard = ({ title, value, change, icon: Icon, status, isRecord, toolti
         status === 'LOW' ? 'bg-[#10B981]/20 text-[#10B981]' :
         'bg-[#F59E0B]/20 text-[#F59E0B]'
       }`}>
-        {status}
+        {translateStatus(status)}
       </Badge>
     )}
     {isRecord && <Badge className="mt-2 text-xs bg-[#F7931A]/20 text-[#F7931A]">RECORD!</Badge>}
@@ -142,7 +184,7 @@ const MarketCoreTab = ({ data, loading }) => {
             </span>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Risk Score</p>
+            <p className="text-sm text-muted-foreground">{t('risk_score')}</p>
             <p className="font-mono text-2xl font-bold" style={{ color: regimeColor }}>{data.risk_score}</p>
           </div>
         </div>
@@ -197,17 +239,17 @@ const MarketCoreTab = ({ data, loading }) => {
             </div>
             <div className="flex-1 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Previous Day</span>
+                <span className="text-muted-foreground">{t('previous_day')}</span>
                 <span className="font-mono">{fg?.previous_day}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Previous Week</span>
+                <span className="text-muted-foreground">{t('previous_week')}</span>
                 <span className="font-mono">{fg?.previous_week}</span>
               </div>
               <div className="h-2 w-full rounded-full bg-gradient-to-r from-[#EF4444] via-[#F59E0B] to-[#22C55E] mt-3" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Extreme Fear</span>
-                <span>Extreme Greed</span>
+                <span>{t('extreme_fear') || 'Крайний страх'}</span>
+                <span>{t('extreme_greed') || 'Крайняя жадность'}</span>
               </div>
             </div>
           </div>
@@ -253,7 +295,7 @@ const MarketCoreTab = ({ data, loading }) => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Total Stablecoin MCap</span>
+              <span className="text-muted-foreground">{t('total_stablecoin_mcap')}</span>
               <span className="font-mono font-semibold">{formatNumber(data.stablecoin_mcap)}</span>
             </div>
             <div className="flex justify-between items-center">
@@ -320,10 +362,10 @@ const MarketCoreTab = ({ data, loading }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-3xl font-bold font-mono text-[#F7931A]">${data.m2_global}T</p>
-              <p className="text-sm text-muted-foreground">Global M2 Money Supply</p>
+              <p className="text-sm text-muted-foreground">{t('global_m2_supply')}</p>
             </div>
             <div className="text-right">
-              <ValueChange value={data.m2_change_mom} suffix="% MoM" />
+              <ValueChange value={data.m2_change_mom} suffix={`% ${t('mom')}`} />
             </div>
           </div>
         </CardContent>
@@ -376,7 +418,7 @@ const DerivativesTab = ({ data, loading }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground flex items-center">
-              {t('open_interest')} (Total)
+              {t('open_interest')} ({t('total') || 'Всего'})
               <InfoTooltip text={t('open_interest_desc')} />
             </p>
             <p className="text-3xl font-bold font-mono">{formatNumber(data.total_open_interest)}</p>
@@ -398,19 +440,19 @@ const DerivativesTab = ({ data, loading }) => {
           title={t('funding_rate')}
           value={`${(assetData.funding_rate * 100).toFixed(3)}%`}
           isRecord={assetData.is_funding_record}
-          status={Math.abs(assetData.funding_rate) > 0.05 ? 'HIGH' : 'NORMAL'}
+          status={Math.abs(assetData.funding_rate) > 0.05 ? t('high').toUpperCase() : t('normal').toUpperCase()}
           tooltip={t('funding_rate_desc')}
         />
         <MetricCard 
           title={t('long_short_ratio')}
           value={assetData.long_short_ratio?.toFixed(2)}
-          status={assetData.long_short_ratio > 1.5 ? 'LONG HEAVY' : assetData.long_short_ratio < 0.7 ? 'SHORT HEAVY' : 'BALANCED'}
+          status={assetData.long_short_ratio > 1.5 ? 'ПЕРЕВЕС ЛОНГОВ' : assetData.long_short_ratio < 0.7 ? 'ПЕРЕВЕС ШОРТОВ' : 'БАЛАНС'}
           tooltip={t('long_short_ratio_desc')}
         />
         <MetricCard 
-          title="Basis"
+          title={t('basis') || 'Базис'}
           value={`${assetData.basis?.toFixed(2)}%`}
-          status={assetData.basis > 1 ? 'CONTANGO' : 'BACKWARDATION'}
+          status={assetData.basis > 1 ? 'КОНТАНГО' : 'БЭКВАРДАЦИЯ'}
         />
       </div>
 
@@ -489,17 +531,17 @@ const DerivativesTab = ({ data, loading }) => {
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Long Accounts</span>
+                <span className="text-muted-foreground">{t('long_accounts')}</span>
                 <span className="font-mono text-[#10B981]">{assetData.top_traders?.long_accounts}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Short Accounts</span>
+                <span className="text-muted-foreground">{t('short_accounts')}</span>
                 <span className="font-mono text-[#EF4444]">{assetData.top_traders?.short_accounts}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Whale Sentiment</span>
+                <span className="text-muted-foreground">{t('whale_sentiment')}</span>
                 <Badge className={assetData.top_traders?.whale_sentiment === 'bullish' ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-[#EF4444]/20 text-[#EF4444]'}>
-                  {assetData.top_traders?.whale_sentiment?.toUpperCase()}
+                  {assetData.top_traders?.whale_sentiment === 'bullish' ? t('bullish').toUpperCase() : t('bearish').toUpperCase()}
                 </Badge>
               </div>
             </div>
@@ -513,19 +555,19 @@ const DerivativesTab = ({ data, loading }) => {
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Gamma</span>
+                <span className="text-muted-foreground">{t('total_gamma')}</span>
                 <span className="font-mono">{formatNumber(assetData.gamma_exposure?.total_gamma)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Max Pain</span>
+                <span className="text-muted-foreground">{t('max_pain')}</span>
                 <span className="font-mono text-[#F7931A]">${assetData.gamma_exposure?.max_pain?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Gamma Flip</span>
+                <span className="text-muted-foreground">{t('gamma_flip')}</span>
                 <span className="font-mono">${assetData.gamma_exposure?.gamma_flip?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Dealer Position</span>
+                <span className="text-muted-foreground">{t('dealer_position')}</span>
                 <Badge variant="outline" className="border-white/10">
                   {assetData.gamma_exposure?.dealer_positioning?.replace('_', ' ').toUpperCase()}
                 </Badge>
@@ -549,4 +591,4 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-export { MarketCoreTab, DerivativesTab, LoadingSkeleton, MetricCard, SectionHeader, CustomTooltip, formatNumber, formatPct, formatCompact, ValueChange };
+export { MarketCoreTab, DerivativesTab, LoadingSkeleton, MetricCard, SectionHeader, CustomTooltip, formatNumber, formatPct, formatCompact, ValueChange, translateStatus };

@@ -27,10 +27,10 @@ const GROUP_COLORS = {
   HI_RISK: 'border-rose-500/30 bg-rose-500/5',
 };
 
-const GROUP_LABELS = { HOLD: 'HOLD', ALTs: 'ALTs', HI_RISK: 'HI RISK' };
+const GROUP_LABELS_EN = { HOLD: 'HOLD', ALTs: 'ALTs', HI_RISK: 'HI RISK' };
 
 // ── Position Row ──
-const PositionRow = ({ pos, onDelete, onEdit, readOnly }) => {
+const PositionRow = ({ pos, onDelete, onEdit, readOnly, t }) => {
   const pnlColor = pos.pnl_usd >= 0 ? 'text-emerald-400' : 'text-rose-400';
   const PnlIcon = pos.pnl_usd >= 0 ? TrendingUp : TrendingDown;
 
@@ -40,10 +40,10 @@ const PositionRow = ({ pos, onDelete, onEdit, readOnly }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-sm">{pos.asset}</span>
-          <span className="text-xs text-white/30">{pos.size} шт</span>
+          <span className="text-xs text-white/30">{pos.size} {t('pieces')}</span>
         </div>
         <div className="text-xs text-white/40">
-          Entry: {fmt(pos.entry_price)} | Now: {fmt(pos.current_price)}
+          {t('entry')}: {fmt(pos.entry_price)} | {t('current')}: {fmt(pos.current_price)}
         </div>
       </div>
       <div className="text-right shrink-0">
@@ -68,15 +68,20 @@ const PositionRow = ({ pos, onDelete, onEdit, readOnly }) => {
 };
 
 // ── Group Card ──
-const GroupCard = ({ name, data, readOnly, onDelete, onEdit }) => {
+const GroupCard = ({ name, data, readOnly, onDelete, onEdit, t }) => {
   if (!data || data.count === 0) return null;
+  const groupLabels = { 
+    HOLD: t('hold'), 
+    ALTs: t('alts'), 
+    HI_RISK: t('hi_risk') 
+  };
   return (
     <Card className={`glass-card ${GROUP_COLORS[name] || ''}`} data-testid={`group-${name}`}>
       <CardHeader className="pb-2 pt-3 px-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-bold tracking-wider">{GROUP_LABELS[name] || name}</CardTitle>
+          <CardTitle className="text-sm font-bold tracking-wider">{groupLabels[name] || name}</CardTitle>
           <div className="flex items-center gap-3 text-xs">
-            <span className="text-white/40">{data.count} поз.</span>
+            <span className="text-white/40">{data.count} {t('positions_count')}</span>
             <span className="font-medium">{fmt(data.total_value)}</span>
             <span className={data.total_pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
               {fmtPct(data.total_pnl_pct)}
@@ -86,7 +91,7 @@ const GroupCard = ({ name, data, readOnly, onDelete, onEdit }) => {
       </CardHeader>
       <CardContent className="px-3 pb-3 divide-y divide-white/5">
         {(data.positions || []).map(pos => (
-          <PositionRow key={pos.id || pos.asset} pos={pos} readOnly={readOnly} onDelete={onDelete} onEdit={onEdit} />
+          <PositionRow key={pos.id || pos.asset} pos={pos} readOnly={readOnly} onDelete={onDelete} onEdit={onEdit} t={t} />
         ))}
       </CardContent>
     </Card>
@@ -94,7 +99,7 @@ const GroupCard = ({ name, data, readOnly, onDelete, onEdit }) => {
 };
 
 // ── Add/Edit Position Dialog ──
-const PositionDialog = ({ open, onClose, onSave, editPos }) => {
+const PositionDialog = ({ open, onClose, onSave, editPos, t }) => {
   const [asset, setAsset] = useState('');
   const [size, setSize] = useState('');
   const [entry, setEntry] = useState('');
@@ -115,7 +120,7 @@ const PositionDialog = ({ open, onClose, onSave, editPos }) => {
 
   const handleSubmit = () => {
     if (!asset || !size || !entry) {
-      toast.error('Заполните все поля');
+      toast.error(t('fill_all_fields'));
       return;
     }
     onSave({ asset: asset.toUpperCase(), size: parseFloat(size), entry_price: parseFloat(entry), group, notes }, editPos?.id);
@@ -126,23 +131,23 @@ const PositionDialog = ({ open, onClose, onSave, editPos }) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="bg-[#0a0a0a] border-white/10 max-w-sm" data-testid="position-dialog">
         <DialogHeader>
-          <DialogTitle>{editPos ? 'Редактировать позицию' : 'Добавить позицию'}</DialogTitle>
+          <DialogTitle>{editPos ? t('edit_position') : t('add_position')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 mt-2">
-          <Input placeholder="Тикер (BTC, ETH, SOL...)" value={asset} onChange={e => setAsset(e.target.value)} disabled={!!editPos} data-testid="input-asset" />
-          <Input placeholder="Количество" type="number" step="any" value={size} onChange={e => setSize(e.target.value)} data-testid="input-size" />
-          <Input placeholder="Цена входа ($)" type="number" step="any" value={entry} onChange={e => setEntry(e.target.value)} data-testid="input-entry" />
+          <Input placeholder={t('ticker_placeholder')} value={asset} onChange={e => setAsset(e.target.value)} disabled={!!editPos} data-testid="input-asset" />
+          <Input placeholder={t('amount')} type="number" step="any" value={size} onChange={e => setSize(e.target.value)} data-testid="input-size" />
+          <Input placeholder={t('entry_price')} type="number" step="any" value={entry} onChange={e => setEntry(e.target.value)} data-testid="input-entry" />
           <Select value={group} onValueChange={setGroup}>
             <SelectTrigger data-testid="select-group"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="HOLD">HOLD</SelectItem>
-              <SelectItem value="ALTs">ALTs</SelectItem>
-              <SelectItem value="HI_RISK">HI RISK</SelectItem>
+              <SelectItem value="HOLD">{t('hold')}</SelectItem>
+              <SelectItem value="ALTs">{t('alts')}</SelectItem>
+              <SelectItem value="HI_RISK">{t('hi_risk')}</SelectItem>
             </SelectContent>
           </Select>
-          <Input placeholder="Заметка (опционально)" value={notes} onChange={e => setNotes(e.target.value)} data-testid="input-notes" />
+          <Input placeholder={t('note_optional')} value={notes} onChange={e => setNotes(e.target.value)} data-testid="input-notes" />
           <Button onClick={handleSubmit} className="w-full bg-[#F7931A] hover:bg-[#FFAC40] text-black font-bold" data-testid="save-position-btn">
-            {editPos ? 'Сохранить' : 'Добавить'}
+            {editPos ? t('save') : t('add')}
           </Button>
         </div>
       </DialogContent>
@@ -151,23 +156,23 @@ const PositionDialog = ({ open, onClose, onSave, editPos }) => {
 };
 
 // ── Summary Card ──
-const SummaryCard = ({ data, label }) => {
+const SummaryCard = ({ data, label, t }) => {
   const pnlColor = (data?.total_pnl || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400';
   return (
     <Card className="glass-card" data-testid="portfolio-summary">
       <CardContent className="p-4 flex flex-wrap items-center gap-x-8 gap-y-2">
         <div>
-          <div className="text-xs text-white/40 mb-0.5">{label || 'Портфель'}</div>
+          <div className="text-xs text-white/40 mb-0.5">{label || t('portfolio')}</div>
           <div className="text-xl font-bold">{fmt(data?.total_value)}</div>
         </div>
         <div>
-          <div className="text-xs text-white/40 mb-0.5">PnL</div>
+          <div className="text-xs text-white/40 mb-0.5">{t('pnl')}</div>
           <div className={`text-lg font-semibold ${pnlColor}`}>
             {fmt(data?.total_pnl)} ({fmtPct(data?.total_pnl_pct)})
           </div>
         </div>
         <div>
-          <div className="text-xs text-white/40 mb-0.5">Позиций</div>
+          <div className="text-xs text-white/40 mb-0.5">{t('positions')}</div>
           <div className="text-lg font-semibold">{data?.positions_count || 0}</div>
         </div>
       </CardContent>
@@ -214,24 +219,24 @@ export const PortfolioPage = () => {
     try {
       if (editId) {
         await axios.put(`${API}/portfolio/positions/${editId}`, data, { headers });
-        toast.success('Позиция обновлена');
+        toast.success(t('position_updated'));
       } else {
         await axios.post(`${API}/portfolio/positions`, data, { headers });
-        toast.success('Позиция добавлена');
+        toast.success(t('position_added'));
       }
       fetchMy();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Ошибка');
+      toast.error(err.response?.data?.detail || t('error'));
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API}/portfolio/positions/${id}`, { headers });
-      toast.success('Позиция удалена');
+      toast.success(t('position_deleted'));
       fetchMy();
     } catch (err) {
-      toast.error('Ошибка удаления');
+      toast.error(t('delete_error'));
     }
   };
 
@@ -240,7 +245,7 @@ export const PortfolioPage = () => {
     setDialogOpen(true);
   };
 
-  if (loading) return <div className="text-center py-20 text-white/40">Загрузка...</div>;
+  if (loading) return <div className="text-center py-20 text-white/40">{t('loading')}</div>;
 
   return (
     <div className="space-y-5 animate-fade-in" data-testid="portfolio-page">
@@ -250,11 +255,11 @@ export const PortfolioPage = () => {
             <Wallet className="w-6 h-6 text-[#F7931A]" />
             {t('portfolio')}
           </h1>
-          <p className="text-sm text-white/40">Управление позициями и отслеживание PnL</p>
+          <p className="text-sm text-white/40">{t('portfolio_management')}</p>
         </div>
         <Button variant="outline" size="sm" className="border-white/10" onClick={() => { fetchMy(); fetchRukos(); }} data-testid="refresh-portfolio-btn">
           <RefreshCw className="w-4 h-4 mr-2" />
-          Обновить
+          {t('refresh')}
         </Button>
       </div>
 
@@ -273,27 +278,27 @@ export const PortfolioPage = () => {
         {/* MY PORTFOLIO */}
         <TabsContent value="my" className="mt-5 space-y-4">
           <div className="flex items-center justify-between">
-            <SummaryCard data={myData} label="Мой портфель" />
+            <SummaryCard data={myData} label={t('my_portfolio_label')} t={t} />
             <Button onClick={() => { setEditPos(null); setDialogOpen(true); }} className="bg-[#F7931A] hover:bg-[#FFAC40] text-black font-bold ml-4 shrink-0" data-testid="add-position-btn">
               <Plus className="w-4 h-4 mr-1" />
-              Добавить
+              {t('add')}
             </Button>
           </div>
 
           {myData && myData.positions_count > 0 ? (
             <div className="space-y-4">
               {['HOLD', 'ALTs', 'HI_RISK'].map(g => (
-                <GroupCard key={g} name={g} data={myData.groups[g]} readOnly={false} onDelete={handleDelete} onEdit={handleEdit} />
+                <GroupCard key={g} name={g} data={myData.groups[g]} readOnly={false} onDelete={handleDelete} onEdit={handleEdit} t={t} />
               ))}
             </div>
           ) : (
             <Card className="glass-card">
               <CardContent className="py-16 text-center">
                 <Wallet className="w-12 h-12 mx-auto mb-4 text-white/10" />
-                <p className="text-white/40 mb-4">Портфель пуст. Добавьте первую позицию!</p>
+                <p className="text-white/40 mb-4">{t('portfolio_empty')}</p>
                 <Button onClick={() => { setEditPos(null); setDialogOpen(true); }} className="bg-[#F7931A] hover:bg-[#FFAC40] text-black font-bold" data-testid="add-first-position-btn">
                   <Plus className="w-4 h-4 mr-1" />
-                  Добавить позицию
+                  {t('add_position')}
                 </Button>
               </CardContent>
             </Card>
@@ -307,8 +312,8 @@ export const PortfolioPage = () => {
               <div className="flex items-center gap-3 mb-2">
                 <Lock className="w-5 h-5 text-[#F7931A]" />
                 <div>
-                  <h3 className="font-bold text-sm">Портфель RUKOS_CRYPTO</h3>
-                  <p className="text-xs text-white/40">Low-risk портфель от команды. Только для просмотра.</p>
+                  <h3 className="font-bold text-sm">{t('portfolio_rukos')}</h3>
+                  <p className="text-xs text-white/40">{t('low_risk_portfolio')}</p>
                 </div>
               </div>
             </CardContent>
@@ -316,7 +321,7 @@ export const PortfolioPage = () => {
 
           {rukosData && rukosData.positions_count > 0 ? (
             <>
-              <SummaryCard data={rukosData} label="RUKOS_CRYPTO" />
+              <SummaryCard data={rukosData} label="RUKOS_CRYPTO" t={t} />
               <div className="space-y-4">
                 {['HOLD', 'ALTs', 'HI_RISK'].map(g => (
                   rukosData.groups[g] && rukosData.groups[g].positions?.length > 0 && (
@@ -326,7 +331,7 @@ export const PortfolioPage = () => {
                       total_value: rukosData.groups[g].total_value,
                       total_pnl: rukosData.groups[g].total_pnl,
                       total_pnl_pct: rukosData.groups[g].total_pnl_pct,
-                    }} readOnly={true} />
+                    }} readOnly={true} t={t} />
                   )
                 ))}
               </div>
@@ -335,14 +340,14 @@ export const PortfolioPage = () => {
             <Card className="glass-card">
               <CardContent className="py-16 text-center">
                 <Lock className="w-12 h-12 mx-auto mb-4 text-white/10" />
-                <p className="text-white/40">{rukosData?.description || 'Портфель RUKOS_CRYPTO пока не настроен администратором.'}</p>
+                <p className="text-white/40">{rukosData?.description || t('portfolio_not_configured')}</p>
               </CardContent>
             </Card>
           )}
         </TabsContent>
       </Tabs>
 
-      <PositionDialog open={dialogOpen} onClose={() => { setDialogOpen(false); setEditPos(null); }} onSave={handleSave} editPos={editPos} />
+      <PositionDialog open={dialogOpen} onClose={() => { setDialogOpen(false); setEditPos(null); }} onSave={handleSave} editPos={editPos} t={t} />
     </div>
   );
 };

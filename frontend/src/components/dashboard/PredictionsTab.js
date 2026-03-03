@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { TrendingUp, TrendingDown, Zap, ExternalLink, BarChart3 } from 'lucide-react';
 import axios from 'axios';
+import { useLanguage } from '../../context/LanguageContext';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -14,11 +15,11 @@ const formatVolume = (v) => {
   return `$${v.toFixed(0)}`;
 };
 
-const ProbBar = ({ yes, no, outcomes }) => (
+const ProbBar = ({ yes, no, outcomes, t }) => (
   <div className="space-y-1.5">
     <div className="flex justify-between text-xs font-medium">
-      <span className="text-emerald-400">{outcomes?.[0] || 'Yes'} {yes}%</span>
-      <span className="text-rose-400">{outcomes?.[1] || 'No'} {no}%</span>
+      <span className="text-emerald-400">{outcomes?.[0] || t('yes')} {yes}%</span>
+      <span className="text-rose-400">{outcomes?.[1] || t('no')} {no}%</span>
     </div>
     <div className="h-2 rounded-full bg-white/5 overflow-hidden flex">
       <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${yes}%` }} />
@@ -27,7 +28,7 @@ const ProbBar = ({ yes, no, outcomes }) => (
   </div>
 );
 
-const EventCard = ({ event, rank }) => (
+const EventCard = ({ event, rank, t }) => (
   <Card className="glass-card hover:border-[#F7931A]/30 transition-all duration-200 group" data-testid={`prediction-event-${rank}`}>
     <CardContent className="p-4">
       <div className="flex items-start gap-3">
@@ -48,14 +49,14 @@ const EventCard = ({ event, rank }) => (
             <ExternalLink className="w-3 h-3 shrink-0 mt-0.5 opacity-0 group-hover:opacity-50 transition-opacity" />
           </a>
           <div className="flex items-center gap-3 mt-1.5 text-xs text-white/40">
-            <span>Vol: {formatVolume(event.volume)}</span>
+            <span>{t('volume')}: {formatVolume(event.volume)}</span>
             {event.volume_24h > 0 && (
-              <span className="text-[#F7931A]">24h: {formatVolume(event.volume_24h)}</span>
+              <span className="text-[#F7931A]">24ч: {formatVolume(event.volume_24h)}</span>
             )}
-            {event.liquidity > 0 && <span>Liq: {formatVolume(event.liquidity)}</span>}
+            {event.liquidity > 0 && <span>{t('liquidity')}: {formatVolume(event.liquidity)}</span>}
           </div>
           <div className="mt-2.5">
-            <ProbBar yes={event.yes_probability} no={event.no_probability} outcomes={event.outcomes} />
+            <ProbBar yes={event.yes_probability} no={event.no_probability} outcomes={event.outcomes} t={t} />
           </div>
         </div>
       </div>
@@ -64,6 +65,7 @@ const EventCard = ({ event, rank }) => (
 );
 
 const PredictionsTab = () => {
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -84,8 +86,8 @@ const PredictionsTab = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) return <div className="text-center py-20 text-white/40">Загрузка Polymarket...</div>;
-  if (!data || !data.top_events?.length) return <div className="text-center py-20 text-white/40">Нет данных с Polymarket</div>;
+  if (loading) return <div className="text-center py-20 text-white/40">{t('loading')} Polymarket...</div>;
+  if (!data || !data.top_events?.length) return <div className="text-center py-20 text-white/40">{t('no_data')} Polymarket</div>;
 
   return (
     <div className="space-y-5" data-testid="predictions-tab">
@@ -93,12 +95,12 @@ const PredictionsTab = () => {
       <div className="flex flex-wrap items-center gap-4">
         <Badge variant="outline" className="border-[#F7931A]/30 text-[#F7931A] px-3 py-1">
           <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
-          {data.active_markets} рынков
+          {data.active_markets} {t('markets')}
         </Badge>
         <Badge variant="outline" className="border-white/10 text-white/50 px-3 py-1">
-          Общий объём: {formatVolume(data.total_volume)}
+          {t('total_volume')}: {formatVolume(data.total_volume)}
         </Badge>
-        <span className="text-xs text-white/30 ml-auto">Источник: Polymarket</span>
+        <span className="text-xs text-white/30 ml-auto">{t('source_label')}: Polymarket</span>
       </div>
 
       {/* Extreme mover alert */}
@@ -107,9 +109,9 @@ const PredictionsTab = () => {
           <CardHeader className="pb-2 pt-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#F7931A]" />
-              Экстремальное изменение
+              {t('extreme_change')}
               <Badge variant="outline" className="border-[#F7931A]/50 text-[#F7931A] text-xs ml-auto">
-                Активность: {data.extreme_mover.activity_score}%
+                {t('activity')}: {data.extreme_mover.activity_score}%
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -119,10 +121,11 @@ const PredictionsTab = () => {
               yes={data.extreme_mover.yes_probability}
               no={data.extreme_mover.no_probability}
               outcomes={data.extreme_mover.outcomes}
+              t={t}
             />
             <div className="flex gap-3 mt-2 text-xs text-white/40">
-              <span>Vol: {formatVolume(data.extreme_mover.volume)}</span>
-              <span className="text-[#F7931A]">24h: {formatVolume(data.extreme_mover.volume_24h)}</span>
+              <span>{t('volume')}: {formatVolume(data.extreme_mover.volume)}</span>
+              <span className="text-[#F7931A]">24ч: {formatVolume(data.extreme_mover.volume_24h)}</span>
             </div>
           </CardContent>
         </Card>
@@ -131,7 +134,7 @@ const PredictionsTab = () => {
       {/* Top 10 events */}
       <div className="grid gap-3">
         {data.top_events.map((event, i) => (
-          <EventCard key={event.id} event={event} rank={i + 1} />
+          <EventCard key={event.id} event={event} rank={i + 1} t={t} />
         ))}
       </div>
     </div>

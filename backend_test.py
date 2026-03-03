@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 class RukosCryptoAPITester:
     def __init__(self):
-        self.base_url = "https://crypto-dash-preview.preview.emergentagent.com/api"
+        self.base_url = "https://trading-dashboard-99.preview.emergentagent.com/api"
         self.token = None
         self.user_id = None
         self.username = None

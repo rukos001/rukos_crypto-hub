@@ -46,7 +46,7 @@ export const PortfolioTab = ({ data, loading }) => {
           </p>
         </div>
         <div className="p-6 rounded-xl bg-secondary/30 border border-white/5">
-          <p className="text-sm text-muted-foreground">Account Balance</p>
+          <p className="text-sm text-muted-foreground">{t('account_balance')}</p>
           <p className="text-3xl font-bold font-mono">
             {formatNumber(data.summary?.account_balance)}
           </p>
@@ -69,7 +69,7 @@ export const PortfolioTab = ({ data, loading }) => {
                     </div>
                     <div>
                       <p className="font-semibold">{pos.asset}</p>
-                      <p className="text-sm text-muted-foreground">{pos.size} units @ ${pos.entry?.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground">{pos.size} {t('units_at')} ${pos.entry?.toLocaleString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -87,11 +87,11 @@ export const PortfolioTab = ({ data, loading }) => {
                     <p className="font-mono">{pos.leverage?.toFixed(1)}x</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-xs">Value</p>
+                    <p className="text-muted-foreground text-xs">{t('value')}</p>
                     <p className="font-mono">{formatNumber(pos.value_usd)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-xs">Exposure</p>
+                    <p className="text-muted-foreground text-xs">{t('exposure')}</p>
                     <p className="font-mono">{pos.exposure_pct?.toFixed(1)}%</p>
                   </div>
                   <div>
@@ -103,7 +103,7 @@ export const PortfolioTab = ({ data, loading }) => {
                 </div>
                 {pos.liquidation_price > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/5 flex justify-between text-sm">
-                    <span className="text-muted-foreground">Liquidation Price</span>
+                    <span className="text-muted-foreground">{t('liquidation_price')}</span>
                     <span className="font-mono text-[#EF4444]">${pos.liquidation_price?.toLocaleString()}</span>
                   </div>
                 )}
@@ -129,7 +129,7 @@ export const PortfolioTab = ({ data, loading }) => {
               <p className="font-mono font-bold text-lg">{formatNumber(data.risk_metrics?.risk_per_trade)}</p>
             </div>
             <div className="p-3 rounded-lg bg-secondary/30 text-center">
-              <p className="text-xs text-muted-foreground">Leverage Exposure</p>
+              <p className="text-xs text-muted-foreground">{t('leverage_exposure')}</p>
               <p className="font-mono font-bold text-lg">{formatNumber(data.risk_metrics?.total_leverage_exposure)}</p>
             </div>
             <div className="p-3 rounded-lg bg-secondary/30 text-center">
@@ -142,7 +142,7 @@ export const PortfolioTab = ({ data, loading }) => {
               </p>
             </div>
             <div className="p-3 rounded-lg bg-secondary/30 text-center">
-              <p className="text-xs text-muted-foreground">{t('liq_distance')} (Min)</p>
+              <p className="text-xs text-muted-foreground">{t('liq_distance')} ({t('min')})</p>
               <p className={`font-mono font-bold text-lg ${data.risk_metrics?.min_distance_to_liq < 10 ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
                 {data.risk_metrics?.min_distance_to_liq?.toFixed(1)}%
               </p>
@@ -177,6 +177,30 @@ export const WarModeTab = ({ data, loading }) => {
   if (loading) return <LoadingSkeleton />;
   if (!data) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
+  // Translate stress level
+  const translateStressLevel = (level) => {
+    const translations = {
+      'CRITICAL': t('status_critical'),
+      'HIGH': t('status_high'),
+      'ELEVATED': t('status_elevated'),
+      'NORMAL': t('status_normal'),
+      'LOW': t('status_low'),
+    };
+    return translations[level] || level;
+  };
+
+  // Translate alert type
+  const translateAlertType = (type) => {
+    const typeKey = type?.replace(/_/g, ' ');
+    const translations = {
+      'OI SPIKE': t('oi_spike') || 'СКАЧОК OI',
+      'WHALE MOVE': t('whale_move') || 'ДВИЖЕНИЕ КИТОВ',
+      'FUNDING SPIKE': t('funding_spike') || 'СКАЧОК ФАНДИНГА',
+      'LIQUIDATION': t('liquidation') || 'ЛИКВИДАЦИЯ',
+    };
+    return translations[typeKey] || typeKey;
+  };
+
   const stressColor = 
     data.stress_level === 'CRITICAL' ? '#EF4444' :
     data.stress_level === 'HIGH' ? '#F59E0B' :
@@ -210,12 +234,12 @@ export const WarModeTab = ({ data, loading }) => {
               className="text-2xl px-6 py-3 mb-4"
               style={{ backgroundColor: `${stressColor}30`, color: stressColor }}
             >
-              {data.stress_level}
+              {translateStressLevel(data.stress_level)}
             </Badge>
             {data.war_mode_active && (
               <div className="flex items-center gap-2 text-[#EF4444]">
                 <AlertOctagon className="w-6 h-6 animate-pulse" />
-                <span className="font-bold">WAR MODE ACTIVE</span>
+                <span className="font-bold">{t('war_mode_active')}</span>
               </div>
             )}
           </div>
@@ -231,7 +255,7 @@ export const WarModeTab = ({ data, loading }) => {
             <div className="flex items-center justify-between">
               <SectionHeader icon={AlertOctagon} title={t('active_alerts')} />
               <Badge className="bg-[#EF4444]/20 text-[#EF4444]">
-                {data.active_alerts} ALERTS
+                {data.active_alerts} {t('alerts')}
               </Badge>
             </div>
           </CardHeader>
@@ -248,7 +272,7 @@ export const WarModeTab = ({ data, loading }) => {
                     <div className="flex items-center gap-2">
                       <Zap className={`w-5 h-5 ${alert.severity === 'HIGH' ? 'text-[#EF4444]' : 'text-[#F59E0B]'}`} />
                       <Badge className={alert.severity === 'HIGH' ? 'bg-[#EF4444]/20 text-[#EF4444]' : 'bg-[#F59E0B]/20 text-[#F59E0B]'}>
-                        {alert.type.replace(/_/g, ' ')}
+                        {translateAlertType(alert.type)}
                       </Badge>
                     </div>
                     <span className={`font-mono font-bold ${alert.severity === 'HIGH' ? 'text-[#EF4444]' : 'text-[#F59E0B]'}`}>
@@ -268,8 +292,8 @@ export const WarModeTab = ({ data, loading }) => {
         <Card className="glass-card border-[#10B981]/30 bg-[#10B981]/5">
           <CardContent className="p-8 text-center">
             <Shield className="w-16 h-16 mx-auto text-[#10B981] mb-4" />
-            <p className="text-xl font-semibold text-[#10B981]">All Clear</p>
-            <p className="text-muted-foreground">No active stress signals detected</p>
+            <p className="text-xl font-semibold text-[#10B981]">{t('all_clear')}</p>
+            <p className="text-muted-foreground">{t('no_stress_signals')}</p>
           </CardContent>
         </Card>
       )}

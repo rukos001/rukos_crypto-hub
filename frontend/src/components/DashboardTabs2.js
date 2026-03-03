@@ -71,8 +71,8 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
               </p>
               <p className="text-sm text-muted-foreground">
                 {data.etf_absorption?.signal 
-                  ? 'ETFs buying more than miners selling' 
-                  : 'Miners selling exceeds ETF buying'}
+                  ? t('etf_absorption_bullish')
+                  : t('etf_absorption_bearish')}
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
         <div className="p-4 rounded-xl bg-secondary/30 text-center border border-white/5">
           <p className="text-sm text-muted-foreground">{t('fund_breakdown')}</p>
           <p className="text-3xl font-bold font-mono">{displayFunds.length}</p>
-          <p className="text-xs text-muted-foreground">funds</p>
+          <p className="text-xs text-muted-foreground">{t('funds')}</p>
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
       {/* Flow History Chart */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Activity} title={t('flow_history')} badge="14 Days" source="sosovalue" sourceLabel="SoSoValue" />
+          <SectionHeader icon={Activity} title={t('flow_history')} badge={t('days_14')} source="sosovalue" sourceLabel="SoSoValue" />
         </CardHeader>
         <CardContent>
           <div className="h-[250px]">
@@ -192,11 +192,11 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
             <div>
-              <p className="text-sm text-muted-foreground">Daily Miner Sell</p>
+              <p className="text-sm text-muted-foreground">{t('daily_miner_sell')}</p>
               <p className="font-mono font-semibold">{data.miner_metrics?.daily_sell_btc?.toFixed(1)} BTC</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">USD Value</p>
+              <p className="text-sm text-muted-foreground">{t('usd_value')}</p>
               <p className="font-mono text-[#EF4444]">{formatNumber(data.miner_metrics?.daily_sell_usd)}</p>
             </div>
           </div>
@@ -276,7 +276,7 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
       {/* Price */}
       {data.price && (
         <div className="p-4 rounded-xl bg-gradient-to-r from-[#F7931A]/20 to-transparent border border-[#F7931A]/30">
-          <p className="text-sm text-muted-foreground">{chainLabel} Price</p>
+          <p className="text-sm text-muted-foreground">{chainLabel} {t('price')}</p>
           <p className="text-3xl font-bold font-mono text-[#F7931A]">
             ${data.price?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </p>
@@ -319,11 +319,11 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-[#F7931A]/10 text-center">
-              <p className="text-sm text-muted-foreground">Market Cap</p>
+              <p className="text-sm text-muted-foreground">{t('market_cap_label')}</p>
               <p className="text-2xl font-bold font-mono text-[#F7931A]">{formatNumber(metrics?.market_cap)}</p>
             </div>
             <div className="p-4 rounded-xl bg-[#3B82F6]/10 text-center">
-              <p className="text-sm text-muted-foreground">Realized Cap</p>
+              <p className="text-sm text-muted-foreground">{t('realized_cap')}</p>
               <p className="text-2xl font-bold font-mono text-[#3B82F6]">{formatNumber(metrics?.realized_cap)}</p>
             </div>
           </div>
@@ -339,19 +339,19 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-lg bg-secondary/30 text-center">
-                <p className="text-xs text-muted-foreground">Total Staked</p>
+                <p className="text-xs text-muted-foreground">{t('total_staked')}</p>
                 <p className="font-mono font-semibold">{formatNumber(data.staking.total_staked).replace('$', '')} {chainLabel}</p>
               </div>
               <div className="p-3 rounded-lg bg-secondary/30 text-center">
-                <p className="text-xs text-muted-foreground">Staking Ratio</p>
+                <p className="text-xs text-muted-foreground">{t('staking_ratio')}</p>
                 <p className="font-mono font-semibold text-[#10B981]">{data.staking.staking_ratio}%</p>
               </div>
               <div className="p-3 rounded-lg bg-secondary/30 text-center">
-                <p className="text-xs text-muted-foreground">Validators</p>
+                <p className="text-xs text-muted-foreground">{t('validators')}</p>
                 <p className="font-mono font-semibold">{data.staking.validators?.toLocaleString()}</p>
               </div>
               <div className="p-3 rounded-lg bg-secondary/30 text-center">
-                <p className="text-xs text-muted-foreground">Avg APY</p>
+                <p className="text-xs text-muted-foreground">{t('avg_apy')}</p>
                 <p className="font-mono font-semibold text-[#F7931A]">{data.staking.avg_apy}%</p>
               </div>
             </div>
@@ -381,13 +381,13 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Exchange Reserve</span>
+                <span className="text-muted-foreground">{t('exchange_reserves') || 'Резерв на биржах'}</span>
                 <span className="font-mono">{formatNumber(data.exchange_flows?.exchange_reserve).replace('$', '')} {chainLabel}</span>
               </div>
               <div className={`flex justify-between pt-2 border-t border-white/10`}>
-                <span>Net Flow</span>
+                <span>{t('net_flow') || 'Нетто-поток'}</span>
                 <Badge className={data.exchange_flows?.netflow_signal === 'ACCUMULATION' ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-[#EF4444]/20 text-[#EF4444]'}>
-                  {data.exchange_flows?.netflow_signal}
+                  {data.exchange_flows?.netflow_signal === 'ACCUMULATION' ? 'НАКОПЛЕНИЕ' : 'РАСПРЕДЕЛЕНИЕ'}
                 </Badge>
               </div>
             </div>
@@ -460,13 +460,13 @@ export const OnchainTab = ({ data: initialData, loading: initialLoading }) => {
           <CardContent>
             <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
               <div>
-                <p className="text-sm text-muted-foreground">Total Reserves</p>
+                <p className="text-sm text-muted-foreground">{t('total_reserves')}</p>
                 <p className="text-2xl font-bold font-mono text-[#F7931A]">
                   {data.miner_reserves?.btc_balance?.toLocaleString()} BTC
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">30d Change</p>
+                <p className="text-sm text-muted-foreground">{t('change_30d')}</p>
                 <p className={`font-mono ${data.miner_reserves?.change_30d >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
                   {data.miner_reserves?.change_30d >= 0 ? '+' : ''}{data.miner_reserves?.change_30d?.toLocaleString()} BTC
                 </p>
@@ -529,12 +529,12 @@ export const AltseasonTab = ({ data, loading }) => {
       {/* TOTAL2 / TOTAL3 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard 
-          title="TOTAL2 (All ex-BTC)" 
+          title={`TOTAL2 (${t('total2_desc')})`}
           value={formatNumber(data.total2)}
           change={data.total2_change_7d}
         />
         <MetricCard 
-          title="TOTAL3 (All ex-BTC/ETH)" 
+          title={`TOTAL3 (${t('total3_label')})`}
           value={formatNumber(data.total3)}
           change={data.total3_change_7d}
         />
@@ -598,7 +598,7 @@ export const AltseasonTab = ({ data, loading }) => {
       {/* Top 50 vs BTC */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Users} title={t('top50_vs_btc')} badge={`${data.outperforming_count}/20 outperforming`} />
+          <SectionHeader icon={Users} title={t('top50_vs_btc')} badge={`${data.outperforming_count}/20 ${t('outperforming')}`} />
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[300px]">
@@ -651,7 +651,7 @@ export const AltseasonTab = ({ data, loading }) => {
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
             <div>
-              <p className="text-sm text-muted-foreground">Total Value Locked</p>
+              <p className="text-sm text-muted-foreground">{t('total_value_locked')}</p>
               <p className="text-3xl font-bold font-mono text-[#F7931A]">{formatNumber(data.defi_tvl)}</p>
             </div>
             <ValueChange value={data.defi_tvl_change_7d} />

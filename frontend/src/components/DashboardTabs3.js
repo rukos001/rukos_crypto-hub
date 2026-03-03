@@ -28,6 +28,32 @@ export const RiskEngineTab = ({ data, loading }) => {
   if (loading) return <LoadingSkeleton />;
   if (!data) return <div className="text-muted-foreground">{t('no_data')}</div>;
 
+  // Translate risk level
+  const translateRiskLevel = (level) => {
+    const translations = {
+      'EXTREME': t('status_extreme'),
+      'HIGH': t('status_high'),
+      'MEDIUM': t('status_medium'),
+      'LOW': t('status_low'),
+      'CRITICAL': t('status_critical'),
+      'ELEVATED': t('status_elevated'),
+      'DANGEROUS': t('status_dangerous'),
+      'NORMAL': t('status_normal'),
+    };
+    return translations[level] || level;
+  };
+
+  // Translate alert type
+  const translateAlertType = (type) => {
+    const translations = {
+      'FUNDING_SPIKE': t('alert_funding_spike'),
+      'OI_PRICE_DIVERGENCE': t('alert_oi_divergence'),
+      'WHALE_MOVE': t('alert_whale_move'),
+      'LIQUIDATION': t('alert_liquidation'),
+    };
+    return translations[type] || type;
+  };
+
   const riskLevel = data.risk_score?.level;
   const riskColor = 
     riskLevel === 'EXTREME' ? '#EF4444' :
@@ -61,7 +87,7 @@ export const RiskEngineTab = ({ data, loading }) => {
             <p className="text-sm text-muted-foreground">/10</p>
           </div>
           <Badge className="text-xl px-6 py-3" style={{ backgroundColor: `${riskColor}30`, color: riskColor }}>
-            {riskLevel}
+            {translateRiskLevel(riskLevel)}
           </Badge>
         </div>
       </div>
@@ -78,14 +104,14 @@ export const RiskEngineTab = ({ data, loading }) => {
                 <div key={i} className={`p-4 rounded-xl ${alert.severity === 'HIGH' ? 'bg-[#EF4444]/10' : 'bg-[#F59E0B]/10'}`}>
                   <div className="flex items-center justify-between mb-2">
                     <Badge className={alert.severity === 'HIGH' ? 'bg-[#EF4444]/20 text-[#EF4444]' : 'bg-[#F59E0B]/20 text-[#F59E0B]'}>
-                      {alert.type}
+                      {translateAlertType(alert.type)}
                     </Badge>
                     <span className={`font-mono ${alert.severity === 'HIGH' ? 'text-[#EF4444]' : 'text-[#F59E0B]'}`}>
                       {alert.value}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">{alert.message}</p>
-                  <p className="text-xs text-[#F7931A] mt-2">Action: {alert.action}</p>
+                  <p className="text-xs text-[#F7931A] mt-2">{t('action')}: {alert.action}</p>
                 </div>
               ))}
             </div>
@@ -96,7 +122,7 @@ export const RiskEngineTab = ({ data, loading }) => {
       {/* Risk Factors Radar */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Shield} title="Risk Factors" />
+          <SectionHeader icon={Shield} title={t('risk_factors') || 'Факторы риска'} />
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -120,14 +146,14 @@ export const RiskEngineTab = ({ data, loading }) => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">BTC DVOL</span>
+              <span className="text-muted-foreground">{t('btc_dvol')}</span>
               <div className="text-right">
                 <span className="font-mono text-2xl font-bold text-[#F7931A]">{data.volatility?.dvol_btc}</span>
                 <Badge className="ml-2" variant="outline">{data.volatility?.status}</Badge>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">ETH DVOL</span>
+              <span className="text-muted-foreground">{t('eth_dvol')}</span>
               <span className="font-mono text-xl">{data.volatility?.dvol_eth}</span>
             </div>
           </CardContent>
@@ -179,21 +205,21 @@ export const RiskEngineTab = ({ data, loading }) => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">USDT Minted</span>
+              <span className="text-muted-foreground">{t('usdt_minted')}</span>
               <span className={`font-mono ${data.stablecoin_flows?.usdt_minted_7d >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
                 {formatNumber(data.stablecoin_flows?.usdt_minted_7d)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">USDC Minted</span>
+              <span className="text-muted-foreground">{t('usdc_minted')}</span>
               <span className={`font-mono ${data.stablecoin_flows?.usdc_minted_7d >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
                 {formatNumber(data.stablecoin_flows?.usdc_minted_7d)}
               </span>
             </div>
             <div className="pt-2 border-t border-white/10 flex justify-between">
-              <span className="font-semibold">Signal</span>
+              <span className="font-semibold">{t('signal')}</span>
               <Badge className={data.stablecoin_flows?.signal === 'BULLISH' ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-[#F59E0B]/20 text-[#F59E0B]'}>
-                {data.stablecoin_flows?.signal}
+                {data.stablecoin_flows?.signal === 'BULLISH' ? t('bullish').toUpperCase() : t('neutral').toUpperCase()}
               </Badge>
             </div>
           </CardContent>
@@ -203,16 +229,16 @@ export const RiskEngineTab = ({ data, loading }) => {
       {/* Exchange Reserves */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Wallet} title="Exchange Reserves" source="glassnode" sourceLabel="Glassnode" />
+          <SectionHeader icon={Wallet} title={t('exchange_reserves') || 'Резервы на биржах'} source="glassnode" sourceLabel="Glassnode" />
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30">
             <div>
-              <p className="text-sm text-muted-foreground">BTC on Exchanges</p>
+              <p className="text-sm text-muted-foreground">{t('btc_on_exchanges')}</p>
               <p className="text-2xl font-bold font-mono">{data.exchange_reserves?.btc_reserve?.toLocaleString()} BTC</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">30d Change</p>
+              <p className="text-sm text-muted-foreground">{t('change_30d')}</p>
               <p className={`font-mono ${data.exchange_reserves?.btc_change_30d_pct >= 0 ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
                 {data.exchange_reserves?.btc_change_30d_pct >= 0 ? '+' : ''}{data.exchange_reserves?.btc_change_30d_pct}%
               </p>
@@ -234,6 +260,16 @@ export const AISignalsTab = ({ data, loading }) => {
 
   const signal = data.composite_signal;
   const signalColor = signal?.direction === 'BULLISH' ? '#10B981' : signal?.direction === 'BEARISH' ? '#EF4444' : '#F59E0B';
+
+  // Translate signal direction
+  const translateDirection = (dir) => {
+    const translations = {
+      'BULLISH': t('bullish').toUpperCase(),
+      'BEARISH': t('bearish').toUpperCase(),
+      'NEUTRAL': t('neutral').toUpperCase(),
+    };
+    return translations[dir] || dir;
+  };
 
   const factorsData = Object.entries(signal?.factors || {}).map(([key, value]) => ({
     name: key.toUpperCase(),
@@ -257,9 +293,9 @@ export const AISignalsTab = ({ data, loading }) => {
               <InfoTooltip text={t('composite_signal_desc')} />
             </p>
             <p className="text-5xl font-bold font-mono" style={{ color: signalColor }}>
-              {signal?.direction}
+              {translateDirection(signal?.direction)}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">Strength: {signal?.strength?.toFixed(0)}%</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('strength')}: {signal?.strength?.toFixed(0)}%</p>
           </div>
           <Brain className="w-16 h-16" style={{ color: signalColor }} />
         </div>
@@ -268,7 +304,7 @@ export const AISignalsTab = ({ data, loading }) => {
       {/* Factor Breakdown */}
       <Card className="glass-card">
         <CardHeader className="pb-2">
-          <SectionHeader icon={Target} title="Signal Factors" />
+          <SectionHeader icon={Target} title={t('signal_factors') || 'Факторы сигнала'} />
         </CardHeader>
         <CardContent>
           <div className="h-[200px]">
@@ -297,7 +333,7 @@ export const AISignalsTab = ({ data, loading }) => {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">Short Squeeze</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('short_squeeze') || 'Сквиз шортов'}</p>
               <p className="text-4xl font-bold font-mono text-[#10B981]">
                 {data.squeeze_probability?.short_squeeze?.toFixed(0)}%
               </p>
@@ -312,7 +348,7 @@ export const AISignalsTab = ({ data, loading }) => {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">Long Squeeze</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('long_squeeze') || 'Сквиз лонгов'}</p>
               <p className="text-4xl font-bold font-mono text-[#EF4444]">
                 {data.squeeze_probability?.long_squeeze?.toFixed(0)}%
               </p>
@@ -330,7 +366,7 @@ export const AISignalsTab = ({ data, loading }) => {
         <CardContent>
           <div className="flex items-center justify-between p-4">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">Low</p>
+              <p className="text-sm text-muted-foreground">{t('low')}</p>
               <p className="text-2xl font-bold font-mono text-[#EF4444]">
                 ${data.weekly_range?.predicted_low?.toLocaleString()}
               </p>
@@ -338,11 +374,11 @@ export const AISignalsTab = ({ data, loading }) => {
             <div className="flex-1 mx-8">
               <div className="h-2 bg-gradient-to-r from-[#EF4444] via-[#F7931A] to-[#10B981] rounded-full" />
               <p className="text-center text-sm text-muted-foreground mt-2">
-                Range: {data.weekly_range?.range_pct}%
+                {t('range')}: {data.weekly_range?.range_pct}%
               </p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">High</p>
+              <p className="text-sm text-muted-foreground">{t('high')}</p>
               <p className="text-2xl font-bold font-mono text-[#10B981]">
                 ${data.weekly_range?.predicted_high?.toLocaleString()}
               </p>
@@ -387,19 +423,19 @@ export const AISignalsTab = ({ data, loading }) => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-3 rounded-lg bg-[#10B981]/10 text-center">
-              <p className="text-xs text-muted-foreground">Strong Support</p>
+              <p className="text-xs text-muted-foreground">{t('strong_support')}</p>
               <p className="font-mono font-bold text-[#10B981]">${data.key_levels?.strong_support?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#10B981]/5 text-center">
-              <p className="text-xs text-muted-foreground">Immediate Support</p>
+              <p className="text-xs text-muted-foreground">{t('immediate_support')}</p>
               <p className="font-mono font-bold text-[#10B981]">${data.key_levels?.immediate_support?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#EF4444]/5 text-center">
-              <p className="text-xs text-muted-foreground">Immediate Resistance</p>
+              <p className="text-xs text-muted-foreground">{t('immediate_resistance')}</p>
               <p className="font-mono font-bold text-[#EF4444]">${data.key_levels?.immediate_resistance?.toLocaleString()}</p>
             </div>
             <div className="p-3 rounded-lg bg-[#EF4444]/10 text-center">
-              <p className="text-xs text-muted-foreground">Strong Resistance</p>
+              <p className="text-xs text-muted-foreground">{t('strong_resistance')}</p>
               <p className="font-mono font-bold text-[#EF4444]">${data.key_levels?.strong_resistance?.toLocaleString()}</p>
             </div>
           </div>
