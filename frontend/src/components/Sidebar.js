@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { RukosSidebarLogo } from './RukosAnimatedLogo';
 import { Button } from './ui/button';
+import { LivePriceTicker } from './LivePriceTicker';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -222,6 +223,13 @@ export const Sidebar = ({ onOpenAI }) => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Live Price Ticker */}
+          {!isCollapsed && (
+            <div className="mt-3">
+              <LivePriceTicker />
             </div>
           )}
 

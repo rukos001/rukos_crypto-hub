@@ -1,13 +1,14 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, WebSocket, WebSocketDisconnect
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 import uuid
 from datetime import datetime, timezone, timedelta
 import jwt
@@ -52,6 +53,112 @@ def set_cached(key: str, data: Any, ttl_seconds: int = 60):
     """Set cached data with TTL"""
     cache[key] = data
     cache_expiry[key] = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
+
+# ==================== WEBSOCKET MANAGER ====================
+
+class ConnectionManager:
+    """Manages WebSocket connections for real-time updates"""
+    def __init__(self):
+        self.active_connections: Set[WebSocket] = set()
+        self._broadcast_task: Optional[asyncio.Task] = None
+    
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.add(websocket)
+        logger.info(f"WebSocket connected. Total: {len(self.active_connections)}")
+    
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.discard(websocket)
+        logger.info(f"WebSocket disconnected. Total: {len(self.active_connections)}")
+    
+    async def broadcast(self, message: dict):
+        """Send message to all connected clients"""
+        disconnected = set()
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except Exception:
+                disconnected.add(connection)
+        
+        # Clean up disconnected
+        for conn in disconnected:
+            self.active_connections.discard(conn)
+    
+    async def start_broadcast_loop(self):
+        """Background task to broadcast market data every 30 seconds"""
+        while True:
+            try:
+                if self.active_connections:
+                    # Fetch fresh market data
+                    data = await get_realtime_market_data()
+                    await self.broadcast({
+                        "type": "market_update",
+                        "data": data,
+                        "timestamp": datetime.now(timezone.utc).isoformat()
+                    })
+                await asyncio.sleep(30)  # Update every 30 seconds
+            except Exception as e:
+                logger.error(f"Broadcast error: {e}")
+                await asyncio.sleep(5)
+
+manager = ConnectionManager()
+
+async def get_realtime_market_data():
+    """Fetch real-time market data for WebSocket broadcast"""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # Fetch BTC, ETH, SOL prices
+            response = await client.get(
+                "https://api.coingecko.com/api/v3/simple/price",
+                params={
+                    "ids": "bitcoin,ethereum,solana",
+                    "vs_currencies": "usd",
+                    "include_24hr_change": "true"
+                }
+            )
+            
+            if response.status_code == 429:
+                # Rate limited - return cached or fallback data
+                cached = get_cached("realtime_market")
+                if cached:
+                    return cached
+                return None
+            
+            prices = response.json()
+            
+            # Fetch Fear & Greed
+            fg_response = await client.get("https://api.alternative.me/fng/?limit=1")
+            fg_data = fg_response.json().get("data", [{}])[0]
+            
+            result = {
+                "prices": {
+                    "btc": {
+                        "price": prices.get("bitcoin", {}).get("usd", 0),
+                        "change_24h": prices.get("bitcoin", {}).get("usd_24h_change", 0)
+                    },
+                    "eth": {
+                        "price": prices.get("ethereum", {}).get("usd", 0),
+                        "change_24h": prices.get("ethereum", {}).get("usd_24h_change", 0)
+                    },
+                    "sol": {
+                        "price": prices.get("solana", {}).get("usd", 0),
+                        "change_24h": prices.get("solana", {}).get("usd_24h_change", 0)
+                    }
+                },
+                "fear_greed": {
+                    "value": int(fg_data.get("value", 0)),
+                    "classification": fg_data.get("value_classification", "Unknown")
+                }
+            }
+            
+            # Cache the result
+            set_cached("realtime_market", result, ttl_seconds=60)
+            return result
+    except Exception as e:
+        logger.error(f"Error fetching realtime data: {e}")
+        # Return cached data on error
+        cached = get_cached("realtime_market")
+        return cached
 
 # ==================== MODELS ====================
 
@@ -1507,7 +1614,42 @@ async def seed_admin():
         # Ensure admin role is set
         if admin.get("role") != "admin":
             await db.users.update_one({"username": "admin"}, {"$set": {"role": "admin"}})
+    
+    # Start WebSocket broadcast loop
+    asyncio.create_task(manager.start_broadcast_loop())
+    logger.info("WebSocket broadcast loop started")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# ==================== WEBSOCKET ENDPOINT ====================
+
+@app.websocket("/api/ws/market")
+async def websocket_market(websocket: WebSocket):
+    """WebSocket endpoint for real-time market data"""
+    await manager.connect(websocket)
+    try:
+        # Send initial data on connect
+        initial_data = await get_realtime_market_data()
+        if initial_data:
+            await websocket.send_json({
+                "type": "initial",
+                "data": initial_data,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            })
+        
+        # Keep connection alive and listen for pings
+        while True:
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=60)
+                if data == "ping":
+                    await websocket.send_text("pong")
+            except asyncio.TimeoutError:
+                # Send keepalive
+                await websocket.send_json({"type": "keepalive"})
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        manager.disconnect(websocket)

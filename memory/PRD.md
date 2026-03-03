@@ -67,11 +67,11 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ## Backlog
 ### P1
 - CoinGlass API (real derivatives), SoSoValue (ETF flows)
-- WebSocket for live updates
 
 ### P2
 - AI Assistant (GPT-5.2), Telegram bot
 - Posts/Ideas/Chat enhancements
+- CoinGecko rate limiting fix (exponential backoff)
 
 ### P3
 - TradingView widgets, server.py refactoring
@@ -79,6 +79,16 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ---
 
 ## Completed Migrations
+
+### WebSocket Real-Time Updates (Mar 2026) ✅
+- Added WebSocket endpoint `/api/ws/market` for live market data
+- Created `useMarketWebSocket` React hook for auto-reconnection
+- Created `LivePriceTicker` component in sidebar showing:
+  - BTC, ETH, SOL prices with 24h change
+  - Fear & Greed index
+  - Connection status (Live/Offline)
+  - Auto-updates every 30 seconds
+- Note: Data depends on CoinGecko API (may show $0 during rate limiting)
 
 ### Knowledge Base Migration (Mar 2026) ✅
 - Moved 20 articles from hardcoded `get_default_knowledge()` to MongoDB collection `knowledge`
