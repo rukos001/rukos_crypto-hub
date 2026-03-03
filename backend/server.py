@@ -1463,20 +1463,691 @@ async def admin_delete_article(article_id: str, admin: dict = Depends(get_admin_
     return {"status": "deleted", "article_id": article_id}
 
 def get_default_knowledge():
-    """Default knowledge base articles"""
+    """Default knowledge base articles in Russian"""
     return [
-        {"id": "d1", "title": "What is DeFi?", "content": "Decentralized Finance (DeFi) refers to financial services built on blockchain technology that operate without traditional intermediaries like banks. Key concepts include:\n\n**Liquidity Pools** - Users deposit tokens into smart contracts to enable trading.\n\n**Yield Farming** - Earning rewards by providing liquidity to DeFi protocols.\n\n**Impermanent Loss** - Temporary loss when providing liquidity due to price divergence.\n\n**TVL (Total Value Locked)** - The total amount of assets deposited in DeFi protocols.", "category": "defi", "tags": ["basics", "liquidity", "yield"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "d2", "title": "AMM vs Order Book", "content": "**Automated Market Makers (AMMs)** use mathematical formulas (x*y=k) to determine prices, while **Order Books** match buy and sell orders directly.\n\nAMMs: Uniswap, Curve, Balancer\nOrder Books: dYdX, Serum\n\nAMMs offer simplicity but can suffer from impermanent loss. Order books offer better price discovery for large trades.", "category": "defi", "tags": ["amm", "trading", "dex"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "d3", "title": "DeFi Risk Management", "content": "Key risks in DeFi:\n\n1. **Smart Contract Risk** - Bugs or exploits in protocol code\n2. **Oracle Risk** - Price feed manipulation\n3. **Liquidation Risk** - Undercollateralized positions\n4. **Regulatory Risk** - Changing legal landscape\n\nBest practices: diversify across protocols, use audited contracts, monitor positions regularly.", "category": "defi", "tags": ["risk", "security"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "p1", "title": "Perpetual Futures Basics", "content": "Perpetual futures (perps) are derivative contracts with no expiration date. They track the underlying asset price through a **funding rate** mechanism.\n\n**Funding Rate** - Periodic payments between longs and shorts to keep the contract price close to spot.\n\n**Open Interest** - Total value of outstanding contracts.\n\n**Leverage** - Amplifies both gains and losses. Common: 1x-125x.", "category": "perp", "tags": ["basics", "futures", "leverage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "p2", "title": "Funding Rate Strategy", "content": "**Positive Funding** = Longs pay shorts (bullish sentiment)\n**Negative Funding** = Shorts pay longs (bearish sentiment)\n\nStrategies:\n- **Cash & Carry**: Hold spot + short perp to collect funding\n- **Funding Rate Arbitrage**: Exploit rate differences between exchanges\n- **Extreme readings** often precede reversals (>0.1% = crowded trade)", "category": "perp", "tags": ["funding", "strategy", "arbitrage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "p3", "title": "Liquidation Mechanics", "content": "Liquidation occurs when your margin balance falls below the maintenance margin.\n\n**Liquidation Price** = Entry Price * (1 - 1/Leverage) for longs\n\nTips:\n- Use isolated margin for risk containment\n- Set stop losses BEFORE liquidation price\n- Monitor funding rates for position cost\n- Never use max leverage", "category": "perp", "tags": ["liquidation", "risk", "leverage"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "o1", "title": "Options Fundamentals", "content": "Options give the right (not obligation) to buy/sell at a specific price.\n\n**Call** = Right to buy (bullish)\n**Put** = Right to sell (bearish)\n\n**Key Greeks:**\n- Delta: Price sensitivity to underlying\n- Gamma: Rate of delta change\n- Theta: Time decay\n- Vega: Sensitivity to volatility\n- IV (Implied Volatility): Market's expectation of future volatility", "category": "options", "tags": ["basics", "greeks", "calls", "puts"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "o2", "title": "Options Strategies for Crypto", "content": "Popular strategies:\n\n**Covered Call** - Hold spot + sell call = income generation\n**Protective Put** - Hold spot + buy put = downside protection\n**Straddle** - Buy call + put at same strike = profit from big moves\n**Iron Condor** - Sell OTM call + put, buy further OTM = range-bound profit\n\nDeribit is the primary crypto options exchange (~90% volume).", "category": "options", "tags": ["strategy", "deribit", "income"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "o3", "title": "Max Pain & Gamma Exposure", "content": "**Max Pain** - The price at which the most options expire worthless. Market makers often push price toward max pain near expiry.\n\n**Gamma Exposure (GEX)** - Measures how much dealers need to hedge. Positive GEX = price suppression (dealers sell rallies, buy dips). Negative GEX = amplified moves.\n\n**Gamma Flip** - Price level where GEX switches from positive to negative.", "category": "options", "tags": ["max-pain", "gamma", "market-makers"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "m1", "title": "Macro Indicators for Crypto", "content": "Key macro indicators:\n\n**DXY (Dollar Index)** - Strong dollar = bearish crypto. Inverse correlation.\n**US10Y (Treasury Yield)** - Rising yields = tighter conditions = risk-off\n**M2 Money Supply** - Expanding M2 historically correlates with BTC rallies (87-day lag)\n**Fed Funds Rate** - Lower rates = more risk appetite\n**CPI / PCE** - Inflation data drives Fed policy expectations", "category": "macro", "tags": ["dxy", "rates", "m2", "fed"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "m2", "title": "Global Liquidity & Bitcoin", "content": "Bitcoin closely tracks global M2 money supply with a ~87-day lag.\n\n**When M2 expands**: Capital flows into risk assets including crypto\n**When M2 contracts**: Liquidity drain leads to sell-offs\n\nWatch: Fed balance sheet, ECB TLTRO, BOJ yield curve control, PBOC RRR cuts.\n\nGlobal liquidity is the #1 macro driver of crypto prices.", "category": "macro", "tags": ["liquidity", "m2", "bitcoin", "correlation"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
-        {"id": "m3", "title": "Risk-On vs Risk-Off", "content": "**Risk-On** environment:\n- Stocks rising, VIX low\n- Dollar weakening, yields falling\n- Credit spreads tightening\n- Crypto and alts outperforming\n\n**Risk-Off** environment:\n- Flight to safety (bonds, gold, USD)\n- VIX spiking, equities falling\n- BTC dominance rising\n- Altcoins underperforming\n\nKey signal: watch SPX + DXY correlation with BTC.", "category": "macro", "tags": ["risk", "sentiment", "vix"], "author": "system", "created_at": "2026-01-01T00:00:00Z"},
+        # === DeFi ===
+        {
+            "id": "d1", 
+            "title": "Что такое DeFi?", 
+            "content": """**DeFi (Decentralized Finance)** — это децентрализованные финансы, построенные на блокчейне без посредников (банков).
+
+## Ключевые понятия
+
+**Пулы ликвидности** — пользователи вносят токены в смарт-контракты для обеспечения торговли.
+
+**Yield Farming (Фарминг)** — получение вознаграждений за предоставление ликвидности протоколам.
+
+**Непостоянные потери (Impermanent Loss)** — временные убытки при предоставлении ликвидности из-за изменения цен токенов.
+
+**TVL (Total Value Locked)** — общая стоимость активов, заблокированных в DeFi-протоколах. Показатель здоровья экосистемы.
+
+## Популярные протоколы
+- Uniswap, SushiSwap (DEX)
+- Aave, Compound (кредитование)
+- Curve (стейблкоины)
+- Lido (стейкинг)""",
+            "category": "defi", 
+            "tags": ["основы", "ликвидность", "доходность", "tvl"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "d2", 
+            "title": "AMM vs Книга ордеров", 
+            "content": """## AMM (Автоматический маркет-мейкер)
+
+Использует математические формулы (x*y=k) для определения цен.
+
+**Плюсы:**
+- Простота использования
+- Мгновенный обмен
+- Любой может стать поставщиком ликвидности
+
+**Минусы:**
+- Непостоянные потери
+- Проскальзывание на больших объёмах
+
+**Примеры:** Uniswap, Curve, Balancer
+
+## Книга ордеров (Order Book)
+
+Сопоставляет заявки покупателей и продавцов напрямую.
+
+**Плюсы:**
+- Лучшее обнаружение цен
+- Меньше проскальзывания на крупных сделках
+- Лимитные ордера
+
+**Минусы:**
+- Нужны маркет-мейкеры
+- Сложнее для новичков
+
+**Примеры:** dYdX, Hyperliquid""",
+            "category": "defi", 
+            "tags": ["amm", "торговля", "dex", "книга ордеров"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "d3", 
+            "title": "Управление рисками в DeFi", 
+            "content": """## Основные риски DeFi
+
+### 1. Риск смарт-контрактов
+Баги или эксплойты в коде протокола. Даже аудированные контракты могут быть взломаны.
+
+### 2. Риск оракулов
+Манипуляция ценовыми фидами может привести к ликвидациям или арбитражу.
+
+### 3. Риск ликвидации
+Недостаточное обеспечение позиций при резком движении цены.
+
+### 4. Регуляторный риск
+Изменения в законодательстве могут повлиять на протоколы.
+
+## Лучшие практики
+
+✅ Диверсифицируйте между протоколами
+✅ Используйте только аудированные контракты
+✅ Регулярно мониторьте позиции
+✅ Не вкладывайте больше, чем готовы потерять
+✅ Изучайте экономику токенов перед входом""",
+            "category": "defi", 
+            "tags": ["риск", "безопасность", "смарт-контракты", "оракулы"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Perpetual / Derivatives ===
+        {
+            "id": "p1", 
+            "title": "Основы бессрочных фьючерсов", 
+            "content": """## Что такое перпетуал (Perpetual)?
+
+**Бессрочные фьючерсы** — деривативные контракты без даты экспирации. Они отслеживают цену базового актива через механизм **ставки фандинга**.
+
+## Ключевые термины
+
+**Открытый интерес (OI)** — общая стоимость открытых контрактов. Рост OI = новые деньги входят в рынок.
+
+**Кредитное плечо** — усиливает прибыль И убытки. Диапазон: 1x-125x.
+- 10x плечо = движение цены на 10% = ±100% к позиции
+
+**Лонг** — ставка на рост цены
+**Шорт** — ставка на падение цены
+
+**Long/Short Ratio** — соотношение лонгов к шортам. Показывает настроение рынка.
+
+## Биржи
+- Binance Futures
+- Bybit  
+- dYdX
+- Hyperliquid""",
+            "category": "perp", 
+            "tags": ["основы", "фьючерсы", "плечо", "открытый интерес", "лонг", "шорт"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "p2", 
+            "title": "Стратегии ставки фандинга", 
+            "content": """## Что такое Funding Rate?
+
+**Ставка фандинга** — периодические платежи между лонгами и шортами для удержания цены контракта близко к споту.
+
+## Интерпретация
+
+**Положительный фандинг** = Лонги платят шортам
+- Рынок настроен бычий
+- Много лонгов
+
+**Отрицательный фандинг** = Шорты платят лонгам  
+- Рынок настроен медвежий
+- Много шортов
+
+## Торговые стратегии
+
+### Cash & Carry
+Держим спот + шорт перпетуал = собираем фандинг при нейтральной позиции.
+
+### Арбитраж фандинга
+Эксплуатируем разницу ставок между биржами.
+
+## Сигналы
+
+⚠️ Экстремальные значения (>0.1%) часто предшествуют развороту
+⚠️ Crowded trade = высокий риск ликвидаций
+
+**Contango** — фьючерс торгуется выше спота (положительный базис)
+**Backwardation** — фьючерс торгуется ниже спота (отрицательный базис)""",
+            "category": "perp", 
+            "tags": ["фандинг", "стратегия", "арбитраж", "контанго", "бэквардация"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "p3", 
+            "title": "Механика ликвидаций", 
+            "content": """## Когда происходит ликвидация?
+
+Ликвидация срабатывает, когда маржинальный баланс падает ниже поддерживающей маржи.
+
+## Расчёт цены ликвидации
+
+**Для лонга:**
+Цена ликвидации = Цена входа × (1 - 1/Плечо)
+
+**Пример:**
+- Вход: $100,000
+- Плечо: 10x
+- Ликвидация: $100,000 × (1 - 1/10) = $90,000
+
+## Типы маржи
+
+**Изолированная маржа** — риск ограничен одной позицией
+**Кросс-маржа** — весь баланс используется как обеспечение
+
+## Советы по управлению рисками
+
+✅ Используйте изолированную маржу для контроля риска
+✅ Ставьте стоп-лосс ДО цены ликвидации
+✅ Учитывайте стоимость фандинга
+✅ НИКОГДА не используйте максимальное плечо
+✅ Следите за ликвидационными кластерами на графике""",
+            "category": "perp", 
+            "tags": ["ликвидация", "риск", "плечо", "маржа", "стоп-лосс"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Options ===
+        {
+            "id": "o1", 
+            "title": "Основы опционов", 
+            "content": """## Что такое опцион?
+
+**Опцион** — право (не обязательство) купить или продать актив по определённой цене.
+
+## Типы опционов
+
+**Call (Колл)** — право КУПИТЬ актив (бычья позиция)
+**Put (Пут)** — право ПРОДАТЬ актив (медвежья позиция)
+
+## Греки опционов
+
+**Delta (Δ)** — чувствительность цены опциона к движению базового актива
+- Call: 0 to 1
+- Put: -1 to 0
+
+**Gamma (Γ)** — скорость изменения дельты. Высокая гамма = быстрое изменение дельты.
+
+**Theta (Θ)** — временной распад. Опционы теряют стоимость со временем.
+
+**Vega (ν)** — чувствительность к волатильности. 
+
+**IV (Implied Volatility)** — подразумеваемая волатильность. Ожидание рынка о будущей волатильности.
+
+**DVOL** — индекс волатильности для крипто (аналог VIX).""",
+            "category": "options", 
+            "tags": ["основы", "греки", "колл", "пут", "дельта", "гамма", "волатильность"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "o2", 
+            "title": "Опционные стратегии для крипто", 
+            "content": """## Популярные стратегии
+
+### Covered Call (Покрытый колл)
+**Структура:** Держим спот + продаём колл
+**Цель:** Генерация дохода
+**Риск:** Упущенная прибыль при сильном росте
+
+### Protective Put (Защитный пут)
+**Структура:** Держим спот + покупаем пут
+**Цель:** Страховка от падения
+**Риск:** Стоимость премии
+
+### Straddle (Стрэддл)
+**Структура:** Покупаем колл + пут на одном страйке
+**Цель:** Прибыль от большого движения в любую сторону
+**Риск:** Высокая стоимость, нужно сильное движение
+
+### Iron Condor
+**Структура:** Продаём OTM колл + пут, покупаем ещё дальше OTM
+**Цель:** Прибыль в боковике
+**Риск:** Убыток при сильном движении
+
+## Биржи
+- **Deribit** — ~90% объёма крипто-опционов
+- **OKX**
+- **Bybit Options**""",
+            "category": "options", 
+            "tags": ["стратегия", "deribit", "доход", "стрэддл", "хедж"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "o3", 
+            "title": "Max Pain и Гамма-экспозиция", 
+            "content": """## Max Pain (Максимальная боль)
+
+**Max Pain** — цена, при которой максимальное количество опционов истекает бесполезными. Маркет-мейкеры часто толкают цену к max pain перед экспирацией.
+
+**Как использовать:**
+- Следите за max pain перед крупными экспирациями
+- Цена часто "притягивается" к этому уровню
+
+## Gamma Exposure (GEX)
+
+**GEX** — показывает, сколько маркет-мейкерам нужно хеджировать.
+
+**Положительный GEX:**
+- Дилеры продают на росте, покупают на падении
+- Подавление волатильности
+- "Магнитный" эффект
+
+**Отрицательный GEX:**
+- Дилеры покупают на росте, продают на падении  
+- Усиление движений
+- Повышенная волатильность
+
+## Gamma Flip (Переворот гаммы)
+
+Ценовой уровень, где GEX переключается с положительного на отрицательный. 
+
+⚠️ Пробой gamma flip часто ведёт к ускоренному движению.""",
+            "category": "options", 
+            "tags": ["max-pain", "гамма", "маркет-мейкеры", "экспозиция", "волатильность"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Macro ===
+        {
+            "id": "m1", 
+            "title": "Макро-индикаторы для крипто", 
+            "content": """## Ключевые макро-индикаторы
+
+### DXY (Индекс доллара)
+Измеряет силу доллара против корзины валют.
+- **Сильный доллар** = медвежий для крипто (обратная корреляция)
+- **Слабый доллар** = бычий для крипто
+
+### US10Y (Доходность казначейских облигаций)
+- Рост доходности = ужесточение условий = risk-off
+- Падение доходности = смягчение = risk-on
+
+### M2 (Денежная масса)
+Расширение M2 исторически коррелирует с ростом BTC (с лагом ~87 дней).
+
+### Ставка ФРС
+- Низкие ставки = больше аппетита к риску
+- Высокие ставки = давление на рисковые активы
+
+### CPI / PCE (Инфляция)
+Данные по инфляции влияют на ожидания политики ФРС.
+
+## Корреляции
+📈 BTC vs Gold: ~0.3-0.5 (позитивная)
+📉 BTC vs DXY: ~-0.4 (негативная)
+📈 BTC vs SPX: ~0.5-0.7 в risk-on режиме""",
+            "category": "macro", 
+            "tags": ["dxy", "ставки", "m2", "фрс", "инфляция", "корреляция"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "m2", 
+            "title": "Глобальная ликвидность и Bitcoin", 
+            "content": """## Связь M2 и Bitcoin
+
+Bitcoin тесно следует за глобальной денежной массой M2 с лагом ~87 дней.
+
+### Когда M2 расширяется:
+✅ Капитал течёт в рисковые активы
+✅ Крипто растёт
+✅ Альткоины опережают BTC
+
+### Когда M2 сокращается:
+❌ Отток ликвидности
+❌ Распродажи рисковых активов
+❌ BTC доминация растёт
+
+## Что отслеживать
+
+**Баланс ФРС** — QE vs QT
+**ECB TLTRO** — ликвидность еврозоны
+**BOJ YCC** — контроль кривой доходности Японии
+**PBOC RRR** — норма резервирования Китая
+
+## Вывод
+
+Глобальная ликвидность — главный макро-драйвер цен крипто.
+
+> "Bitcoin — это просто леверидж на глобальную ликвидность"
+> — Макро-аналитики""",
+            "category": "macro", 
+            "tags": ["ликвидность", "m2", "биткоин", "корреляция", "qe", "qt"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "m3", 
+            "title": "Risk-On vs Risk-Off", 
+            "content": """## Режим Risk-On (Аппетит к риску)
+
+**Признаки:**
+- Акции растут, VIX низкий (<15)
+- Доллар слабеет
+- Доходности падают
+- Кредитные спреды сужаются
+- Крипто и альты опережают
+
+**Что делать:**
+✅ Увеличивать экспозицию в альтах
+✅ Использовать плечо умеренно
+✅ Следить за разворотными сигналами
+
+## Режим Risk-Off (Бегство от риска)
+
+**Признаки:**
+- Бегство в безопасные активы (облигации, золото, USD)
+- VIX растёт (>20)
+- Акции падают
+- BTC доминация растёт
+- Альткоины сильно падают
+
+**Что делать:**
+✅ Сокращать позиции в альтах
+✅ Увеличивать долю BTC и стейблов
+✅ Использовать хеджирование (путы)
+
+## Индекс страха и жадности
+
+**0-25:** Экстремальный страх (возможность покупки)
+**26-45:** Страх
+**46-55:** Нейтрально
+**56-75:** Жадность
+**76-100:** Экстремальная жадность (возможность продажи)
+
+📊 **Ключевой сигнал:** Следите за SPX + DXY + VIX для определения режима.""",
+            "category": "macro", 
+            "tags": ["риск", "настроение", "vix", "страх и жадность", "альтсезон"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Onchain ===
+        {
+            "id": "on1", 
+            "title": "Ончейн-метрики: SOPR", 
+            "content": """## SOPR (Spent Output Profit Ratio)
+
+**SOPR** показывает, в прибыли или убытке находятся монеты, которые перемещаются.
+
+### Интерпретация
+
+**SOPR > 1:** Монеты перемещаются в прибыли
+- Возможная фиксация прибыли
+- Бычий тренд если удерживается выше 1
+
+**SOPR = 1:** Точка безубыточности
+- Часто служит поддержкой в бычьем рынке
+
+**SOPR < 1:** Монеты перемещаются в убытке
+- Капитуляция
+- Возможность накопления
+
+### Сигналы
+
+📈 **Бычий:** SOPR отскакивает от 1 снизу
+📉 **Медвежий:** SOPR не может удержаться выше 1
+
+**aSOPR** — скорректированный SOPR (исключает монеты < 1 часа)""",
+            "category": "onchain", 
+            "tags": ["sopr", "ончейн", "прибыль", "убыток", "метрики"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "on2", 
+            "title": "Ончейн-метрики: NUPL", 
+            "content": """## NUPL (Net Unrealized Profit/Loss)
+
+**NUPL** показывает общую нереализованную прибыль/убыток сети.
+
+### Зоны NUPL
+
+**> 0.75: Эйфория** 🔴
+- Экстремальная жадность
+- Историческая вершина близко
+
+**0.5 - 0.75: Вера** 🟠
+- Сильный бычий тренд
+- Осторожность с новыми лонгами
+
+**0.25 - 0.5: Оптимизм** 🟡
+- Здоровый рост
+- Хорошее время для накопления
+
+**0 - 0.25: Надежда** 🟢
+- Ранний бычий рынок
+- Отличное время для покупки
+
+**-0.25 - 0: Тревога** 🔵
+- Коррекция
+- Возможность накопления
+
+**< -0.25: Капитуляция** ⚫
+- Экстремальный страх
+- Историческое дно близко
+
+### Вывод
+NUPL — один из лучших индикаторов циклов Bitcoin.""",
+            "category": "onchain", 
+            "tags": ["nupl", "ончейн", "циклы", "прибыль", "капитуляция"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+            "id": "on3", 
+            "title": "Ончейн-метрики: MVRV", 
+            "content": """## MVRV (Market Value to Realized Value)
+
+**MVRV** сравнивает рыночную капитализацию с реализованной.
+
+### Формула
+MVRV = Market Cap / Realized Cap
+
+**Realized Cap** — стоимость всех монет по цене последнего перемещения.
+
+### Интерпретация
+
+**MVRV > 3.5:** Сильно переоценён 🔴
+- Историческая вершина
+- Время фиксировать прибыль
+
+**MVRV 2-3.5:** Переоценён 🟠
+- Поздняя стадия бычьего рынка
+
+**MVRV 1-2:** Справедливая оценка 🟡
+- Нормальный диапазон
+
+**MVRV < 1:** Недооценён 🟢
+- Рыночная цена ниже реализованной
+- Отличное время для накопления
+
+### Z-Score
+
+**MVRV Z-Score** нормализует MVRV для лучшего сравнения между циклами.
+
+> Z > 7: Экстремальная переоценка
+> Z < 0: Экстремальная недооценка""",
+            "category": "onchain", 
+            "tags": ["mvrv", "ончейн", "оценка", "циклы", "капитализация"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === ETF ===
+        {
+            "id": "etf1", 
+            "title": "Bitcoin ETF: Основы", 
+            "content": """## Что такое Bitcoin ETF?
+
+**ETF (Exchange-Traded Fund)** — биржевой фонд, который торгуется как акция и отслеживает цену Bitcoin.
+
+### Типы ETF
+
+**Spot ETF** — фонд владеет реальными BTC
+- IBIT (BlackRock)
+- FBTC (Fidelity)
+- GBTC (Grayscale)
+
+**Futures ETF** — фонд владеет фьючерсами на BTC
+- BITO (ProShares)
+
+### Ключевые метрики
+
+**AUM (Assets Under Management)** — активы под управлением. Больше AUM = больше влияние на рынок.
+
+**Inflow/Outflow** — приток/отток средств
+- Положительный поток = покупательское давление
+- Отрицательный поток = давление продавцов
+
+**Premium/Discount** — премия/дисконт к NAV
+
+### Почему это важно?
+
+ETF представляют институциональный спрос на Bitcoin. Сильные притоки = бычий сигнал.""",
+            "category": "etf", 
+            "tags": ["etf", "aum", "приток", "отток", "институционалы"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Stablecoins ===
+        {
+            "id": "st1", 
+            "title": "Стейблкоины: Гид", 
+            "content": """## Что такое стейблкоины?
+
+**Стейблкоины** — криптовалюты, привязанные к стабильным активам (обычно $1 USD).
+
+### Типы стейблкоинов
+
+**Fiat-backed (обеспеченные фиатом):**
+- USDT (Tether) — крупнейший, ~$100B+
+- USDC (Circle) — регулируемый, прозрачный
+
+**Crypto-backed (криптообеспеченные):**
+- DAI (MakerDAO) — обеспечен ETH и другими криптоактивами
+
+**Algorithmic (алгоритмические):**
+- ⚠️ Высокий риск (UST коллапс)
+
+### Индикаторы рынка
+
+**Рост капитализации стейблов** = "сухой порох" для покупок
+**Minting (создание)** = приток капитала в крипто
+**Burning (сжигание)** = отток капитала
+
+### Анализ потоков
+
+📈 USDT minting на биржах = бычий сигнал
+📉 Отток стейблов с бирж = возможное накопление
+📊 Dominance стейблов растёт = risk-off""",
+            "category": "defi", 
+            "tags": ["стейблкоин", "usdt", "usdc", "dai", "ликвидность"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Trading ===
+        {
+            "id": "tr1", 
+            "title": "Уровни поддержки и сопротивления", 
+            "content": """## Поддержка (Support)
+
+**Поддержка** — ценовой уровень, где покупательский интерес достаточно силён, чтобы остановить падение.
+
+### Признаки сильной поддержки:
+- Множественные касания
+- Высокий объём на уровне
+- Кластер ликвидаций снизу
+- Психологические уровни ($100K, $50K)
+
+## Сопротивление (Resistance)
+
+**Сопротивление** — ценовой уровень, где давление продавцов останавливает рост.
+
+### Признаки сильного сопротивления:
+- Предыдущие максимумы
+- Скопление ордеров на продажу
+- Кластер ликвидаций сверху
+
+## Правила работы с уровнями
+
+✅ **Пробой** — закрытие свечи выше/ниже уровня
+✅ **Ретест** — возврат к пробитому уровню  
+✅ **Flip** — поддержка становится сопротивлением (и наоборот)
+
+### Ончейн уровни
+
+Realized Price, Short-Term Holder Cost Basis — важные ончейн уровни поддержки/сопротивления.""",
+            "category": "perp", 
+            "tags": ["поддержка", "сопротивление", "уровни", "технический анализ"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
+        
+        # === Dominance ===
+        {
+            "id": "alt1", 
+            "title": "Доминация BTC и альтсезон", 
+            "content": """## Доминация Bitcoin
+
+**BTC Dominance** — доля Bitcoin в общей капитализации крипторынка.
+
+### Интерпретация
+
+**Высокая доминация (>55%):**
+- Risk-off режим
+- Инвесторы уходят в "безопасность"
+- Альты отстают
+
+**Низкая доминация (<45%):**
+- Альтсезон
+- Капитал перетекает в альты
+- Высокий риск/высокая доходность
+
+## Альтсезон
+
+**Признаки альтсезона:**
+- BTC.D падает
+- ETH/BTC растёт
+- Топ-50 альтов опережают BTC
+- Высокий объём на альтах
+
+## TOTAL2 и TOTAL3
+
+**TOTAL2** — капитализация всего крипто КРОМЕ BTC
+**TOTAL3** — капитализация всего крипто КРОМЕ BTC и ETH
+
+📈 Рост TOTAL2/TOTAL3 при стабильном BTC = альтсезон
+📉 Падение TOTAL2 быстрее BTC = риск-офф
+
+### Стратегия
+
+В начале цикла: держать BTC
+В середине цикла: ротация в ETH и крупные альты
+В конце цикла: ротация обратно в BTC/стейблы""",
+            "category": "macro", 
+            "tags": ["доминация", "альтсезон", "total2", "total3", "ротация"], 
+            "author": "system", 
+            "created_at": "2026-01-01T00:00:00Z"
+        },
     ]
 
 @api_router.get("/")

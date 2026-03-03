@@ -9,17 +9,19 @@ import { Skeleton } from '../components/ui/skeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   BookOpen, Layers, BarChart3, Target, Globe2, 
-  ChevronDown, ChevronUp, Tag
+  ChevronDown, ChevronUp, Tag, Activity, TrendingUp
 } from 'lucide-react';
 // watermarks removed
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const CATEGORIES = [
-  { key: 'defi', label: 'DeFi', icon: Layers, color: '#3B82F6', desc_ru: 'Децентрализованные финансы: ликвидность, фарминг, протоколы', desc_en: 'Decentralized finance: liquidity, farming, protocols' },
+  { key: 'defi', label: 'DeFi', icon: Layers, color: '#3B82F6', desc_ru: 'Децентрализованные финансы: ликвидность, фарминг, стейблкоины', desc_en: 'Decentralized finance: liquidity, farming, stablecoins' },
   { key: 'perp', label: 'PERP', icon: BarChart3, color: '#F7931A', desc_ru: 'Бессрочные фьючерсы: фандинг, ОИ, ликвидации', desc_en: 'Perpetual futures: funding, OI, liquidations' },
   { key: 'options', label: 'OPTIONS', icon: Target, color: '#10B981', desc_ru: 'Опционы: греки, стратегии, гамма-экспозиция', desc_en: 'Options: greeks, strategies, gamma exposure' },
-  { key: 'macro', label: 'MACRO', icon: Globe2, color: '#F59E0B', desc_ru: 'Макроэкономика: DXY, ставки, M2, ликвидность', desc_en: 'Macroeconomics: DXY, rates, M2, liquidity' },
+  { key: 'macro', label: 'MACRO', icon: Globe2, color: '#F59E0B', desc_ru: 'Макроэкономика: DXY, ставки, M2, альтсезон', desc_en: 'Macroeconomics: DXY, rates, M2, altseason' },
+  { key: 'onchain', label: 'ONCHAIN', icon: Activity, color: '#8B5CF6', desc_ru: 'Ончейн-метрики: SOPR, NUPL, MVRV', desc_en: 'Onchain metrics: SOPR, NUPL, MVRV' },
+  { key: 'etf', label: 'ETF', icon: TrendingUp, color: '#EC4899', desc_ru: 'Bitcoin ETF: AUM, притоки, оттоки', desc_en: 'Bitcoin ETF: AUM, inflows, outflows' },
 ];
 
 const ArticleCard = ({ article, isExpanded, onToggle }) => {
