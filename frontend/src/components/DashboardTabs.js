@@ -182,9 +182,9 @@ const MarketCoreTab = ({ data, loading }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full ${regime === 'risk-on' ? 'bg-[#10B981]' : 'bg-[#EF4444]'} animate-pulse`} />
-            <span className="text-lg font-bold uppercase flex items-center" style={{ color: regimeColor }}>
+            <span className="text-lg font-bold uppercase flex items-center gap-1" style={{ color: regimeColor }}>
               {regime === 'risk-on' ? t('risk_on') : t('risk_off')}
-              <InfoTooltip text={t('market_regime_desc')} />
+              <TermLink term="risk-off" />
             </span>
           </div>
           <div className="text-right">

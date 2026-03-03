@@ -16,15 +16,15 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - All crypto terms throughout the dashboard now have clickable ? icons
 - Clicking redirects to the relevant knowledge base article
 - Auto-highlights and scrolls to the specific article
-- 80+ terms mapped to 19 articles across 6 categories:
+- 80+ terms mapped to **20 articles** across 6 categories:
   - DeFi (4 статьи): d1, d2, d3, st1 - TVL, liquidity, yield farming, AMM, stablecoins
   - Derivatives (4 статьи): p1, p2, p3, tr1 - perpetual, funding rate, OI, liquidation, support/resistance
   - Options (3 статьи): o1, o2, o3 - gamma, delta, max pain, IV, greeks, strategies
-  - Macro (4 статьи): m1, m2, m3, alt1 - DXY, M2, global liquidity, risk-on/off, fear & greed, altseason
+  - Macro (5 статей): m1, m2, m3, **m4**, alt1 - DXY, M2, global liquidity, **Risk-On/Off (отдельно)**, **Fear & Greed Index (отдельно)**, altseason
   - Onchain (3 статьи): on1, on2, on3 - SOPR, NUPL, MVRV, realized cap
   - ETF (1 статья): etf1 - AUM, inflows, outflows
-- All 19 articles written in Russian
-- **Testing completed**: 50/50 tests passed (backend: 32/32, frontend: 18/18)
+- All 20 articles written in Russian
+- **Bug fix (Mar 2026):** Разделены статьи Risk-On/Off (m3) и Индекс страха и жадности (m4) по запросу пользователя
 
 ### Full Russian Localization (Mar 2026)
 - All UI components translate dynamically via LanguageContext.js
