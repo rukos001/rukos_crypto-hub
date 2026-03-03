@@ -1,57 +1,70 @@
 # RUKOS_CRYPTO | HUB - Product Requirements Document
 
 ## Overview
-Professional crypto trading dashboard with branded design, admin panel, knowledge base, and AI assistant.
+Professional crypto trading dashboard with branded design, admin panel, knowledge base, predictions, and AI assistant.
 
 ## Architecture
 - **Frontend**: React + Tailwind + Shadcn/UI + Recharts
 - **Backend**: FastAPI + MongoDB (Motor) + JWT + role-based auth
 - **Data Service**: Centralized `data_service.py` for all real-time API calls
-- **Assets**: /public/hero-video.mp4 (landing video)
+- **External APIs**: CoinGecko, Alternative.me, DeFi Llama, Polymarket
 
 ## What's Implemented
 
-### Real-Time Data (Verified Mar 1, 2026)
-- **CoinGecko**: Real prices for BTC, ETH, SOL + 15 altcoins. Global market cap, dominance. 90s cache.
-- **Alternative.me**: Real Fear & Greed Index with 7-day history. 600s cache.
-- **DeFi Llama**: Real DeFi TVL ($94.8B), top protocols, stablecoin market caps ($305.7B), chain TVL. 120-300s cache.
-- **Centralized data_service.py**: Single source of truth, prevents duplicate API calls.
-- **Auto-refresh**: Frontend polls every 60 seconds.
-- **All data verified against real sources**: BTC $67K, Gold $5,278, DXY 97.6, SPX 6,879, NQ 24,960, US10Y 3.95%
-- **All 29 endpoints verified working** (24 public + 7 authenticated)
+### Predictions Tab (Mar 2026 - NEW)
+- **Polymarket API** integration (gamma-api.polymarket.com)
+- Top 10 events by volume with probability bars (Yes/No %)
+- Extreme mover card (event with highest 24h activity)
+- Volume, liquidity, spread, links to Polymarket
+- 60-second auto-refresh
+- API: GET /api/predictions
 
-### Simulated Data (Anchored to Real Prices)
-- Derivatives OI/funding: Realistic ranges (funding 0.01-0.1%, L/S 0.85-1.2)
-- ETF flows: Realistic AUM (IBIT $52B, GBTC $19B)
-- Traditional markets: DXY ~97.6, SPX ~6,880, Gold ~$5,278, US10Y ~3.95%
-- Onchain wallets: MicroStrategy 717,722 BTC (verified Feb 2026)
+### Portfolio System (Mar 2026 - REDESIGNED)
+- **"Мой портфель"** tab: Full CRUD (add/edit/delete positions)
+  - Groups: HOLD / ALTs / HI RISK
+  - Real-time PnL from CoinGecko prices
+  - Entry price, size, notes
+  - MongoDB: user_positions collection
+  - APIs: GET /portfolio/my, POST/PUT/DELETE /portfolio/positions
+- **"Портфель RUKOS_CRYPTO"** tab: Read-only team portfolio
+  - Low-risk portfolio managed by admin
+  - MongoDB: rukos_portfolio collection
+  - APIs: GET /portfolio/rukos, PUT /admin/portfolio/rukos (admin)
 
-### Branding & Design
-- Custom animated SVG logo: 3 golden wireframe cubes + "RUKOS_CRYPTO | HUB"
-- Video landing page, no watermarks, transparent collapse button
+### Real-Time Data
+- CoinGecko: BTC, ETH, SOL + 15 alts, global market data (90s cache)
+- Alternative.me: Fear & Greed Index (600s cache)
+- DeFi Llama: TVL, stablecoins, protocols (120-300s cache)
+- Polymarket: Prediction markets (60s cache)
+- All data verified accurate against real sources (Mar 1, 2026)
 
-### Features
-- JWT auth with admin/user roles (admin@rukos.crypto / 1661616irk)
+### Dashboard (9 tabs)
+1. Market Core - CoinGecko + Alternative.me
+2. Derivatives - Simulated OI/funding (realistic ranges)
+3. ETF Intelligence - Simulated flows (realistic AUM)
+4. Onchain - Real prices + wallets (MicroStrategy 717K BTC)
+5. Altseason - DeFi Llama TVL + CoinGecko dominance
+6. **Predictions - Polymarket (NEW)**
+7. Risk Engine - Fear & Greed influence
+8. AI Signals - Real price-based levels
+9. War Mode - Real price volatility alerts
+
+### Other Features
+- JWT auth with admin/user roles
 - Admin panel: users, portfolios, chat, stats
-- Portfolio page: HOLD/ALTs/HI RISK groups
 - Knowledge base: DeFi, PERP, OPTIONS, MACRO
-- Dashboard: 8 tabs with real + simulated data
-- RU/EN localization
+- Custom animated SVG logo (3 golden cubes)
+- Video landing page, RU/EN localization
 
 ## Testing
-- iteration_9: Backend 98/98, Frontend 68/68
-- All 29 API endpoints verified 200 status
-- Data accuracy verified against real sources
+- iteration_10: Backend 124/124, Frontend 42/42, 0 regressions
 
 ## Backlog
 ### P1
-- CoinGlass API (real derivatives data)
-- SoSoValue API (real ETF flows)
+- CoinGlass API (real derivatives), SoSoValue (ETF flows)
 - WebSocket for live updates
 ### P2
-- AI Assistant (GPT-5.2)
-- Telegram integration
-- Posts/Ideas/Chat
+- AI Assistant (GPT-5.2), Telegram bot
+- Posts/Ideas/Chat enhancements
 ### P3
-- TradingView widgets
-- DB migration, server.py refactoring
+- TradingView widgets, DB migration, server.py refactoring
