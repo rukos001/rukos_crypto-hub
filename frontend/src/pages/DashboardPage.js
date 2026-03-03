@@ -4,8 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { ScrollArea, ScrollBar } from '../components/ui/scroll-area';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu';
 import { RefreshCw, AlertOctagon, Globe, BarChart3, Activity, 
-  Wallet, Shield, Brain, Flame, Target } from 'lucide-react';
+  Wallet, Shield, Brain, Flame, Target, ChevronDown, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../context/LanguageContext';
 // watermarks removed
@@ -26,18 +30,26 @@ export const DashboardPage = () => {
   const [loading, setLoading] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const [warModeActive, setWarModeActive] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(null);
+
+  // Tab groups for better organization
+  const TAB_GROUPS = {
+    market: { labelKey: 'group_market', tabs: ['market', 'derivatives', 'etf'] },
+    analytics: { labelKey: 'group_analytics', tabs: ['onchain', 'altseason', 'predictions'] },
+    signals: { labelKey: 'group_signals', tabs: ['risk', 'ai', 'war'] },
+  };
 
   // Tab configuration with translation keys
   const TABS = [
-    { id: 'market', labelKey: 'tab_market', icon: Globe, endpoint: '/analytics/market-core' },
-    { id: 'derivatives', labelKey: 'tab_derivatives', icon: BarChart3, endpoint: '/analytics/derivatives' },
-    { id: 'etf', labelKey: 'tab_etf', icon: Activity, endpoint: '/analytics/etf-intelligence' },
-    { id: 'onchain', labelKey: 'tab_onchain', icon: Wallet, endpoint: '/analytics/onchain' },
-    { id: 'altseason', labelKey: 'tab_altseason', icon: Flame, endpoint: '/analytics/altseason' },
-    { id: 'predictions', labelKey: 'tab_predictions', icon: Target, endpoint: '/predictions' },
-    { id: 'risk', labelKey: 'tab_risk', icon: Shield, endpoint: '/analytics/risk-engine' },
-    { id: 'ai', labelKey: 'tab_ai', icon: Brain, endpoint: '/analytics/ai-signals' },
-    { id: 'war', labelKey: 'tab_war', icon: AlertOctagon, endpoint: '/analytics/war-mode' },
+    { id: 'market', labelKey: 'tab_market', icon: Globe, endpoint: '/analytics/market-core', group: 'market' },
+    { id: 'derivatives', labelKey: 'tab_derivatives', icon: BarChart3, endpoint: '/analytics/derivatives', group: 'market' },
+    { id: 'etf', labelKey: 'tab_etf', icon: Activity, endpoint: '/analytics/etf-intelligence', group: 'market' },
+    { id: 'onchain', labelKey: 'tab_onchain', icon: Wallet, endpoint: '/analytics/onchain', group: 'analytics' },
+    { id: 'altseason', labelKey: 'tab_altseason', icon: Flame, endpoint: '/analytics/altseason', group: 'analytics' },
+    { id: 'predictions', labelKey: 'tab_predictions', icon: Target, endpoint: '/predictions', group: 'analytics' },
+    { id: 'risk', labelKey: 'tab_risk', icon: Shield, endpoint: '/analytics/risk-engine', group: 'signals' },
+    { id: 'ai', labelKey: 'tab_ai', icon: Brain, endpoint: '/analytics/ai-signals', group: 'signals' },
+    { id: 'war', labelKey: 'tab_war', icon: AlertOctagon, endpoint: '/analytics/war-mode', group: 'signals' },
   ];
 
   // Fetch data for a specific tab
@@ -54,6 +66,7 @@ export const DashboardPage = () => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const response = await axios.get(`${API}${tab.endpoint}`, { headers });
       setData(prev => ({ ...prev, [tabId]: response.data }));
+      setLastUpdate(new Date());
       
       if (tabId === 'war') {
         setWarModeActive(response.data?.war_mode_active || false);
@@ -123,6 +136,20 @@ export const DashboardPage = () => {
     }
   };
 
+  // Format time ago
+  const formatTimeAgo = (date) => {
+    if (!date) return '';
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return t('just_now') || 'Только что';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} ${t('min_ago') || 'мин назад'}`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours} ${t('hours_ago') || 'ч назад'}`;
+  };
+
+  // Get active tab info
+  const activeTabInfo = TABS.find(t => t.id === activeTab);
+
   return (
     <div className="space-y-6 animate-fade-in relative" data-testid="dashboard-page">
       {/* Header */}
@@ -137,7 +164,15 @@ export const DashboardPage = () => {
               </Badge>
             )}
           </h1>
-          <p className="text-muted-foreground text-sm">{t('professional_analytics')}</p>
+          <p className="text-muted-foreground text-sm flex items-center gap-2">
+            {t('professional_analytics')}
+            {lastUpdate && (
+              <span className="text-xs text-white/30 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {formatTimeAgo(lastUpdate)}
+              </span>
+            )}
+          </p>
         </div>
         <Button 
           variant="outline" 
@@ -152,9 +187,50 @@ export const DashboardPage = () => {
         </Button>
       </div>
 
-      {/* Tabs */}
+      {/* Mobile Tab Selector */}
+      <div className="md:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-full justify-between border-white/10 bg-secondary/30">
+              <div className="flex items-center gap-2">
+                {activeTabInfo && <activeTabInfo.icon className="w-4 h-4 text-[#F7931A]" />}
+                <span>{t(activeTabInfo?.labelKey)}</span>
+              </div>
+              <ChevronDown className="w-4 h-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 bg-[#0a0a0a] border-white/10">
+            {Object.entries(TAB_GROUPS).map(([groupKey, group]) => (
+              <React.Fragment key={groupKey}>
+                <DropdownMenuLabel className="text-xs text-white/40">
+                  {t(group.labelKey) || groupKey.toUpperCase()}
+                </DropdownMenuLabel>
+                {group.tabs.map(tabId => {
+                  const tab = TABS.find(t => t.id === tabId);
+                  if (!tab) return null;
+                  const Icon = tab.icon;
+                  const isWar = tab.id === 'war';
+                  return (
+                    <DropdownMenuItem
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`cursor-pointer ${activeTab === tab.id ? 'bg-[#F7931A]/20 text-[#F7931A]' : ''}`}
+                    >
+                      <Icon className={`w-4 h-4 mr-2 ${isWar && warModeActive ? 'text-[#EF4444]' : ''}`} />
+                      {t(tab.labelKey)}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator className="bg-white/5" />
+              </React.Fragment>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Desktop Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="relative">
+        <div className="relative hidden md:block">
           <ScrollArea className="w-full whitespace-nowrap pb-3">
             <TabsList className="inline-flex h-auto p-1 bg-secondary/30 rounded-xl gap-1">
               {TABS.map(tab => {
@@ -174,7 +250,7 @@ export const DashboardPage = () => {
                     `}
                   >
                     <Icon className={`w-4 h-4 mr-2 ${isWar && warModeActive ? 'text-[#EF4444]' : ''}`} />
-                    <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+                    <span>{t(tab.labelKey)}</span>
                   </TabsTrigger>
                 );
               })}

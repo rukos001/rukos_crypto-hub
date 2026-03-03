@@ -15,7 +15,11 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - **Fear & Greed Index карточка** — увеличена, добавлена пульсация при экстремальных значениях, сигнал покупки/продажи
 - **РИСК-ОФФ баннер** — градиентный дизайн, прогресс-бар вместо рамки
 - **Поиск в базе знаний** — мгновенный поиск по всем статьям, тегам и контенту
-- **Переводы** — добавлены buy_signal, sell_signal, risk_score
+- **Pie Chart в портфеле** — круговая диаграмма распределения по группам (HOLD/ALTs/HI RISK)
+- **Skeleton loaders** — анимированные скелетоны при загрузке данных
+- **Мобильное меню** — dropdown с группировкой табов (Рынок/Аналитика/Сигналы)
+- **Timestamp обновления** — показывает "Только что" / "X мин назад" после обновления
+- **Переводы** — добавлены buy_signal, sell_signal, risk_score, группы табов
 
 ### Term Links to Knowledge Base (Mar 2026 - VERIFIED ✅)
 - Created `TermLink` component (`/app/frontend/src/components/shared/TermLink.js`)

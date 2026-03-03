@@ -5,15 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
+import { Skeleton } from '../components/ui/skeleton';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import {
-  TrendingUp, TrendingDown, Plus, Trash2, Edit2, Wallet, Lock, RefreshCw
+  TrendingUp, TrendingDown, Plus, Trash2, Edit2, Wallet, Lock, RefreshCw, PieChartIcon
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -27,7 +29,107 @@ const GROUP_COLORS = {
   HI_RISK: 'border-rose-500/30 bg-rose-500/5',
 };
 
+const PIE_COLORS = {
+  HOLD: '#10B981',
+  ALTs: '#3B82F6', 
+  HI_RISK: '#EF4444',
+};
+
 const GROUP_LABELS_EN = { HOLD: 'HOLD', ALTs: 'ALTs', HI_RISK: 'HI RISK' };
+
+// ── Portfolio Pie Chart ──
+const PortfolioPieChart = ({ data, t }) => {
+  if (!data || !data.groups) return null;
+  
+  const chartData = Object.entries(data.groups)
+    .filter(([_, group]) => group.positions?.length > 0)
+    .map(([name, group]) => ({
+      name: name,
+      value: group.positions.reduce((sum, p) => sum + (p.value_usd || 0), 0),
+      label: t(name.toLowerCase()) || name,
+    }));
+
+  if (chartData.length === 0) return null;
+
+  const total = chartData.reduce((sum, d) => sum + d.value, 0);
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const d = payload[0].payload;
+      const pct = ((d.value / total) * 100).toFixed(1);
+      return (
+        <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-2 text-sm">
+          <p className="font-medium">{d.label}</p>
+          <p className="text-white/60">${d.value.toLocaleString()}</p>
+          <p className="text-[#F7931A]">{pct}%</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <Card className="glass-card">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <PieChartIcon className="w-4 h-4 text-[#F7931A]" />
+          {t('allocation') || 'Распределение'}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-4">
+          <div className="w-32 h-32">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={30}
+                  outerRadius={55}
+                  paddingAngle={2}
+                  dataKey="value"
+                  stroke="#0a0a0a"
+                  strokeWidth={2}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[entry.name] || '#F7931A'} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex-1 space-y-2">
+            {chartData.map((d) => {
+              const pct = ((d.value / total) * 100).toFixed(1);
+              return (
+                <div key={d.name} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: PIE_COLORS[d.name] }} />
+                    <span className="text-white/70">{d.label}</span>
+                  </div>
+                  <span className="font-mono text-white/90">{pct}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ── Loading Skeleton ──
+const PortfolioSkeleton = () => (
+  <div className="space-y-4">
+    <Skeleton className="h-20 w-full" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Skeleton className="h-40 w-full" />
+      <Skeleton className="h-40 w-full" />
+    </div>
+  </div>
+);
 
 // ── Position Row ──
 const PositionRow = ({ pos, onDelete, onEdit, readOnly, t }) => {
@@ -245,7 +347,7 @@ export const PortfolioPage = () => {
     setDialogOpen(true);
   };
 
-  if (loading) return <div className="text-center py-20 text-white/40">{t('loading')}</div>;
+  if (loading) return <PortfolioSkeleton />;
 
   return (
     <div className="space-y-5 animate-fade-in" data-testid="portfolio-page">
@@ -277,9 +379,9 @@ export const PortfolioPage = () => {
 
         {/* MY PORTFOLIO */}
         <TabsContent value="my" className="mt-5 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <SummaryCard data={myData} label={t('my_portfolio_label')} t={t} />
-            <Button onClick={() => { setEditPos(null); setDialogOpen(true); }} className="bg-[#F7931A] hover:bg-[#FFAC40] text-black font-bold ml-4 shrink-0" data-testid="add-position-btn">
+            <Button onClick={() => { setEditPos(null); setDialogOpen(true); }} className="bg-[#F7931A] hover:bg-[#FFAC40] text-black font-bold shrink-0" data-testid="add-position-btn">
               <Plus className="w-4 h-4 mr-1" />
               {t('add')}
             </Button>
@@ -287,6 +389,10 @@ export const PortfolioPage = () => {
 
           {myData && myData.positions_count > 0 ? (
             <div className="space-y-4">
+              {/* Pie Chart */}
+              <PortfolioPieChart data={myData} t={t} />
+              
+              {/* Position Groups */}
               {['HOLD', 'ALTs', 'HI_RISK'].map(g => (
                 <GroupCard key={g} name={g} data={myData.groups[g]} readOnly={false} onDelete={handleDelete} onEdit={handleEdit} t={t} />
               ))}
@@ -322,6 +428,8 @@ export const PortfolioPage = () => {
           {rukosData && rukosData.positions_count > 0 ? (
             <>
               <SummaryCard data={rukosData} label="RUKOS_CRYPTO" t={t} />
+              {/* Pie Chart for RUKOS */}
+              <PortfolioPieChart data={rukosData} t={t} />
               <div className="space-y-4">
                 {['HOLD', 'ALTs', 'HI_RISK'].map(g => (
                   rukosData.groups[g] && rukosData.groups[g].positions?.length > 0 && (

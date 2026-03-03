@@ -624,12 +624,33 @@ const DerivativesTab = ({ data, loading }) => {
 
 // Loading skeleton
 const LoadingSkeleton = () => (
-  <div className="space-y-4">
-    <Skeleton className="h-20 w-full" />
+  <div className="space-y-4 animate-pulse">
+    {/* Market regime banner skeleton */}
+    <div className="h-20 w-full rounded-xl bg-gradient-to-r from-white/5 to-white/10" />
+    
+    {/* Metric cards skeleton */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="h-24 rounded-xl bg-white/5 p-4">
+          <div className="h-3 w-16 bg-white/10 rounded mb-3" />
+          <div className="h-6 w-24 bg-white/10 rounded mb-2" />
+          <div className="h-3 w-12 bg-white/10 rounded" />
+        </div>
+      ))}
     </div>
-    <Skeleton className="h-48 w-full" />
+    
+    {/* Large card skeleton */}
+    <div className="h-48 w-full rounded-xl bg-white/5 p-4">
+      <div className="h-4 w-32 bg-white/10 rounded mb-4" />
+      <div className="flex gap-8">
+        <div className="w-32 h-32 rounded-full bg-white/10" />
+        <div className="flex-1 space-y-3">
+          <div className="h-3 w-full bg-white/10 rounded" />
+          <div className="h-3 w-3/4 bg-white/10 rounded" />
+          <div className="h-3 w-1/2 bg-white/10 rounded" />
+        </div>
+      </div>
+    </div>
   </div>
 );
 

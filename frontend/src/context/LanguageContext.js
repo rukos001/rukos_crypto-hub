@@ -27,6 +27,16 @@ const translations = {
     tab_portfolio: 'Портфель',
     tab_war: 'Режим войны',
     
+    // Tab groups
+    group_market: 'Рынок',
+    group_analytics: 'Аналитика',
+    group_signals: 'Сигналы',
+    
+    // Time
+    just_now: 'Только что',
+    min_ago: 'мин назад',
+    hours_ago: 'ч назад',
+    
     // Sidebar
     portfolio: 'Портфель',
     portfolio_my: 'Мой портфель',
@@ -174,6 +184,10 @@ const translations = {
     total_value: 'Стоимость портфеля',
     unrealized_pnl: 'Нереализ. прибыль/убыток',
     positions: 'Позиции',
+    allocation: 'Распределение',
+    hold: 'HOLD',
+    alts: 'ALTs',
+    hi_risk: 'HI RISK',
     risk_metrics: 'Риск метрики',
     avg_leverage: 'Средний левередж',
     risk_per_trade: 'Риск на сделку',
