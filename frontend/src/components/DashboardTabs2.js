@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { 
   SectionHeader, MetricCard, CustomTooltip, LoadingSkeleton,
-  formatNumber, ValueChange 
+  formatNumber, ValueChange, translateStatus 
 } from './DashboardTabs';
 import { useLanguage } from '../context/LanguageContext';
 import { InfoTooltip, SourceLink } from './InfoComponents';
@@ -77,7 +77,7 @@ export const ETFIntelligenceTab = ({ data, loading }) => {
             </div>
           </div>
           <Badge className={data.etf_absorption?.signal ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-[#F59E0B]/20 text-[#F59E0B]'}>
-            {data.etf_absorption?.status} ({data.etf_absorption?.ratio}x)
+            {translateStatus(data.etf_absorption?.status)} ({data.etf_absorption?.ratio}x)
           </Badge>
         </div>
       </div>

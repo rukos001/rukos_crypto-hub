@@ -201,6 +201,23 @@ export const WarModeTab = ({ data, loading }) => {
     return translations[typeKey] || typeKey;
   };
 
+  // Translate recommendation/message
+  const translateMessage = (msg) => {
+    if (!msg) return msg;
+    const translations = {
+      'Normal operations': 'Нормальная работа',
+      'Monitor closely': 'Внимательно наблюдать',
+      'Consider reducing exposure': 'Рассмотрите сокращение экспозиции',
+      'Extreme funding rate detected': 'Обнаружена экстремальная ставка фандинга',
+      'Large whale transaction detected': 'Обнаружена крупная транзакция кита',
+      'Rapid OI change in last hour': 'Быстрое изменение OI за последний час',
+      'Consider counter-trading the crowd': 'Рассмотрите торговлю против толпы',
+      'Monitor exchange flows': 'Отслеживайте потоки на биржах',
+      'Watch for liquidation cascade': 'Следите за каскадом ликвидаций',
+    };
+    return translations[msg] || msg;
+  };
+
   const stressColor = 
     data.stress_level === 'CRITICAL' ? '#EF4444' :
     data.stress_level === 'HIGH' ? '#F59E0B' :
@@ -245,7 +262,7 @@ export const WarModeTab = ({ data, loading }) => {
           </div>
         </div>
         <Progress value={data.stress_score} className="mt-4 h-3" />
-        <p className="text-sm mt-4" style={{ color: stressColor }}>{data.recommendation}</p>
+        <p className="text-sm mt-4" style={{ color: stressColor }}>{translateMessage(data.recommendation)}</p>
       </div>
 
       {/* Active Alerts */}
@@ -279,9 +296,9 @@ export const WarModeTab = ({ data, loading }) => {
                       {alert.value}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{alert.message}</p>
+                  <p className="text-sm text-muted-foreground">{translateMessage(alert.message)}</p>
                   <p className="text-xs text-[#F7931A] mt-2 flex items-center gap-1">
-                    <Target className="w-3 h-3" /> {alert.action}
+                    <Target className="w-3 h-3" /> {translateMessage(alert.action)}
                   </p>
                 </div>
               ))}

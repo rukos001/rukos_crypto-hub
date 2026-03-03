@@ -85,7 +85,9 @@ const translateStatus = (status) => {
     'WEAK': 'СЛАБЫЙ',
     // Absorption
     'ABSORBING': 'ПОГЛОЩЕНИЕ',
+    'NOT ABSORBING': 'НЕ ПОГЛОЩАЕТ',
     'NOT_ABSORBING': 'НЕ ПОГЛОЩАЕТ',
+    'PROFIT_TAKING': 'ФИКСАЦИЯ ПРИБЫЛИ',
   };
   return translations[status.toUpperCase()] || status;
 };

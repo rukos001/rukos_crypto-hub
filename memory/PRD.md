@@ -11,7 +11,22 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 
 ## What's Implemented
 
-### Predictions Tab (Mar 2026 - NEW)
+### Full Russian Localization (Mar 2026 - COMPLETED)
+- All UI components now translate dynamically via LanguageContext.js
+- Added `translateStatus()` function for API response statuses:
+  - SOPR: НЕЙТРАЛЬНО, В ПРИБЫЛИ, В УБЫТКЕ, ФИКСАЦИЯ ПРИБЫЛИ
+  - NUPL: ВЕРА, КАПИТУЛЯЦИЯ, ЭЙФОРИЯ, ОПТИМИЗМ, etc.
+  - MVRV: ПЕРЕОЦЕНЁН, НЕДООЦЕНЁН, СПРАВЕДЛИВО
+  - Funding: НОРМАЛЬНЫЙ, БЭКВАРДАЦИЯ, КОНТАНГО, БАЛАНС
+  - Risk: КРИТИЧЕСКИЙ, ВЫСОКИЙ, СРЕДНИЙ, НОРМАЛЬНЫЙ, ПОВЫШЕН
+- Added `translateDirection()` for AI signals: БЫЧИЙ, МЕДВЕЖИЙ, НЕЙТРАЛЬНЫЙ
+- Added `translateAlertType()` for alerts: СКАЧОК OI, ДВИЖЕНИЕ КИТОВ, СКАЧОК ФАНДИНГА
+- Added `translateMessage()` for backend messages in War Mode
+- ETF tab: "ПОГЛОЩЕНИЕ", "НЕ ПОГЛОЩАЕТ" instead of English statuses
+- Portfolio: ДЕРЖАТЬ, АЛЬТЫ, ВЫСОКИЙ РИСК, Прибыль/Убыток
+- Predictions: Да/Нет, Объём, Ликвидность, Источник, etc.
+
+### Predictions Tab (Mar 2026)
 - **Polymarket API** integration (gamma-api.polymarket.com)
 - Top 10 events by volume with probability bars (Yes/No %)
 - Extreme mover card (event with highest 24h activity)
@@ -19,7 +34,7 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - 60-second auto-refresh
 - API: GET /api/predictions
 
-### Portfolio System (Mar 2026 - REDESIGNED)
+### Portfolio System (Mar 2026)
 - **"Мой портфель"** tab: Full CRUD (add/edit/delete positions)
   - Groups: HOLD / ALTs / HI RISK
   - Real-time PnL from CoinGecko prices
@@ -44,7 +59,7 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 3. ETF Intelligence - Simulated flows (realistic AUM)
 4. Onchain - Real prices + wallets (MicroStrategy 717K BTC)
 5. Altseason - DeFi Llama TVL + CoinGecko dominance
-6. **Predictions - Polymarket (NEW)**
+6. **Predictions - Polymarket**
 7. Risk Engine - Fear & Greed influence
 8. AI Signals - Real price-based levels
 9. War Mode - Real price volatility alerts
@@ -57,7 +72,8 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 - Video landing page, RU/EN localization
 
 ## Testing
-- iteration_10: Backend 124/124, Frontend 42/42, 0 regressions
+- iteration_11: Russian localization verified - 87.5% pass rate
+- All major UI components fully translated
 
 ## Backlog
 ### P1
