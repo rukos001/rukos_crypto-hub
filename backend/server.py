@@ -1027,7 +1027,333 @@ async def admin_list_portfolios(admin: dict = Depends(get_admin_user)):
         })
     return result
 
-# ==================== KNOWLEDGE BASE ====================
+# ==================== POLYMARKET PREDICTIONS ====================
+
+POLYMARKET_API = "https://gamma-api.polymarket.com"
+
+@api_router.get("/predictions")
+async def get_predictions():
+    """Top 10 Polymarket events + extreme probability change"""
+    cache_key = "predictions"
+    cached = get_cached(cache_key, ttl_seconds=60)
+    if cached:
+        return cached
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                f"{POLYMARKET_API}/events",
+                params={
+                    "active": "true",
+                    "closed": "false",
+                    "limit": 30,
+                    "order": "volume",
+                    "ascending": "false",
+                }
+            )
+            resp.raise_for_status()
+            events_raw = resp.json()
+
+        events = []
+        extreme_event = None
+        max_change = 0
+
+        for ev in events_raw:
+            markets = ev.get("markets", [])
+            if not markets:
+                continue
+
+            m = markets[0]
+            outcome_prices = m.get("outcomePrices", "")
+            outcomes = m.get("outcomes", "")
+
+            try:
+                if isinstance(outcome_prices, str) and outcome_prices:
+                    import json as _json
+                    prices = _json.loads(outcome_prices)
+                elif isinstance(outcome_prices, list):
+                    prices = outcome_prices
+                else:
+                    continue
+                yes_prob = round(float(prices[0]) * 100, 1) if prices else 0
+                no_prob = round(float(prices[1]) * 100, 1) if len(prices) > 1 else round(100 - yes_prob, 1)
+            except Exception:
+                continue
+
+            if isinstance(outcomes, str) and outcomes:
+                try:
+                    outcomes = _json.loads(outcomes)
+                except Exception:
+                    outcomes = ["Yes", "No"]
+
+            volume = float(m.get("volume", 0) or 0)
+            liquidity = float(m.get("liquidity", 0) or 0)
+            best_bid = float(m.get("bestBid", 0) or 0)
+            best_ask = float(m.get("bestAsk", 0) or 0)
+            spread = round((best_ask - best_bid) * 100, 2) if best_ask and best_bid else 0
+            vol_24h = float(m.get("volume24hr", 0) or 0)
+
+            event_data = {
+                "id": ev.get("id", ""),
+                "title": ev.get("title", m.get("question", "")),
+                "slug": ev.get("slug", ""),
+                "image": ev.get("image", m.get("image", "")),
+                "yes_probability": yes_prob,
+                "no_probability": no_prob,
+                "outcomes": outcomes[:2] if isinstance(outcomes, list) else ["Yes", "No"],
+                "volume": volume,
+                "volume_24h": vol_24h,
+                "liquidity": liquidity,
+                "spread": spread,
+                "end_date": m.get("endDate", ev.get("endDate", "")),
+                "category": ev.get("category", ""),
+            }
+
+            events.append(event_data)
+
+            activity_score = vol_24h / volume if volume > 0 else 0
+            if activity_score > max_change and vol_24h > 10000:
+                max_change = activity_score
+                extreme_event = {**event_data, "activity_score": round(activity_score * 100, 1)}
+
+        events.sort(key=lambda x: x["volume"], reverse=True)
+        top_events = events[:10]
+
+        top_ids = {e["id"] for e in top_events}
+        if extreme_event and extreme_event["id"] in top_ids:
+            for ev in sorted(events, key=lambda x: (x["volume_24h"] / x["volume"]) if x["volume"] > 0 else 0, reverse=True):
+                if ev["id"] not in top_ids and ev.get("volume_24h", 0) > 10000:
+                    extreme_event = {**ev, "activity_score": round((ev["volume_24h"] / ev["volume"]) * 100, 1) if ev["volume"] > 0 else 0}
+                    break
+
+        data = {
+            "top_events": top_events,
+            "extreme_mover": extreme_event,
+            "total_volume": sum(e["volume"] for e in events),
+            "active_markets": len(events),
+            "source": "Polymarket",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+        set_cached(cache_key, data, ttl_seconds=60)
+        set_cached("predictions_fallback", data, ttl_seconds=3600)
+        return data
+
+    except Exception as e:
+        logger.error(f"Polymarket API error: {e}")
+        prev = get_cached("predictions_fallback", ttl_seconds=3600)
+        if prev:
+            return prev
+        return {
+            "top_events": [], "extreme_mover": None,
+            "total_volume": 0, "active_markets": 0,
+            "source": "Polymarket (unavailable)",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+
+# ==================== USER PORTFOLIO CRUD ====================
+
+class UserPositionCreate(BaseModel):
+    asset: str
+    size: float
+    entry_price: float
+    group: str = "HOLD"
+    notes: str = ""
+
+class UserPositionUpdate(BaseModel):
+    size: Optional[float] = None
+    entry_price: Optional[float] = None
+    group: Optional[str] = None
+    notes: Optional[str] = None
+
+@api_router.get("/portfolio/my")
+async def get_my_portfolio(current_user: dict = Depends(get_current_user)):
+    """Get user's custom portfolio with real prices"""
+    user_id = current_user["user_id"]
+    positions = await db.user_positions.find({"user_id": user_id}, {"_id": 0}).to_list(200)
+
+    prices_data = await ds.get_prices()
+    coins = prices_data.get("coins", {})
+
+    groups = {"HOLD": [], "ALTs": [], "HI_RISK": []}
+    totals = {"total_value": 0, "total_invested": 0, "total_pnl": 0}
+
+    for pos in positions:
+        symbol = pos["asset"].upper()
+        real = coins.get(symbol, {})
+        current_price = real.get("price", pos.get("entry_price", 0))
+        change_24h = real.get("change_24h", 0)
+
+        value = pos["size"] * current_price
+        invested = pos["size"] * pos["entry_price"]
+        pnl = value - invested
+
+        enriched = {
+            "id": pos["id"],
+            "asset": symbol,
+            "size": pos["size"],
+            "entry_price": pos["entry_price"],
+            "current_price": current_price,
+            "change_24h": change_24h,
+            "value_usd": value,
+            "invested_usd": invested,
+            "pnl_usd": pnl,
+            "pnl_pct": round(((current_price - pos["entry_price"]) / pos["entry_price"] * 100), 2) if pos["entry_price"] else 0,
+            "group": pos.get("group", "HOLD"),
+            "notes": pos.get("notes", ""),
+            "image": real.get("image", ""),
+        }
+
+        g = pos.get("group", "HOLD")
+        if g not in groups:
+            g = "HOLD"
+        groups[g].append(enriched)
+        totals["total_value"] += value
+        totals["total_invested"] += invested
+        totals["total_pnl"] += pnl
+
+    totals["total_pnl_pct"] = round((totals["total_pnl"] / totals["total_invested"] * 100), 2) if totals["total_invested"] > 0 else 0
+
+    group_summaries = {}
+    for g_name, g_positions in groups.items():
+        g_val = sum(p["value_usd"] for p in g_positions)
+        g_pnl = sum(p["pnl_usd"] for p in g_positions)
+        g_inv = sum(p["invested_usd"] for p in g_positions)
+        group_summaries[g_name] = {
+            "positions": g_positions,
+            "total_value": g_val,
+            "total_pnl": g_pnl,
+            "total_pnl_pct": round((g_pnl / g_inv * 100), 2) if g_inv > 0 else 0,
+            "count": len(g_positions),
+        }
+
+    return {
+        "groups": group_summaries,
+        **totals,
+        "positions_count": len(positions),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+@api_router.post("/portfolio/positions")
+async def create_position(pos: UserPositionCreate, current_user: dict = Depends(get_current_user)):
+    """Add position to user portfolio"""
+    if pos.group not in ["HOLD", "ALTs", "HI_RISK"]:
+        raise HTTPException(status_code=400, detail="Group must be HOLD, ALTs, or HI_RISK")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["user_id"],
+        "asset": pos.asset.upper(),
+        "size": pos.size,
+        "entry_price": pos.entry_price,
+        "group": pos.group,
+        "notes": pos.notes,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.user_positions.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+@api_router.put("/portfolio/positions/{position_id}")
+async def update_position(position_id: str, body: UserPositionUpdate, current_user: dict = Depends(get_current_user)):
+    """Update a position"""
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    if "group" in updates and updates["group"] not in ["HOLD", "ALTs", "HI_RISK"]:
+        raise HTTPException(status_code=400, detail="Invalid group")
+    result = await db.user_positions.update_one(
+        {"id": position_id, "user_id": current_user["user_id"]}, {"$set": updates}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Position not found")
+    return {"status": "updated", "id": position_id}
+
+@api_router.delete("/portfolio/positions/{position_id}")
+async def delete_position(position_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a position"""
+    result = await db.user_positions.delete_one({"id": position_id, "user_id": current_user["user_id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Position not found")
+    return {"status": "deleted", "id": position_id}
+
+
+# ==================== RUKOS_CRYPTO TEAM PORTFOLIO ====================
+
+@api_router.get("/portfolio/rukos")
+async def get_rukos_portfolio():
+    """RUKOS_CRYPTO team low-risk portfolio (read-only for subscribers)"""
+    portfolio = await db.rukos_portfolio.find_one({"type": "rukos_team"}, {"_id": 0})
+    if not portfolio or not portfolio.get("groups"):
+        return {
+            "groups": {},
+            "total_value": 0, "total_pnl": 0, "total_pnl_pct": 0,
+            "positions_count": 0,
+            "description": "Low-risk portfolio от команды RUKOS_CRYPTO. Пока не настроен администратором.",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+    prices_data = await ds.get_prices()
+    coins = prices_data.get("coins", {})
+    total_value = 0
+    total_pnl = 0
+    total_invested = 0
+
+    for g_name, group in portfolio["groups"].items():
+        g_val = g_pnl = g_inv = 0
+        for pos in group.get("positions", []):
+            sym = pos["asset"].upper()
+            real = coins.get(sym, {})
+            current = real.get("price", pos.get("entry", pos.get("entry_price", 0)))
+            entry = pos.get("entry", pos.get("entry_price", 0))
+            size = pos.get("size", 0)
+            pos["current"] = current
+            pos["value_usd"] = size * current
+            pos["pnl_usd"] = size * (current - entry)
+            pos["pnl_pct"] = round(((current - entry) / entry * 100), 2) if entry else 0
+            pos["change_24h"] = real.get("change_24h", 0)
+            g_val += pos["value_usd"]
+            g_pnl += pos["pnl_usd"]
+            g_inv += size * entry
+        group["total_value"] = g_val
+        group["total_pnl"] = g_pnl
+        group["total_pnl_pct"] = round((g_pnl / g_inv * 100), 2) if g_inv > 0 else 0
+        total_value += g_val
+        total_pnl += g_pnl
+        total_invested += g_inv
+
+    return {
+        "groups": portfolio["groups"],
+        "total_value": total_value, "total_pnl": total_pnl,
+        "total_pnl_pct": round((total_pnl / total_invested * 100), 2) if total_invested > 0 else 0,
+        "positions_count": sum(len(g.get("positions", [])) for g in portfolio["groups"].values()),
+        "description": portfolio.get("description", "Low-risk portfolio от команды RUKOS_CRYPTO"),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+@api_router.put("/admin/portfolio/rukos")
+async def admin_update_rukos_portfolio(body: AdminPortfolioUpdate, admin: dict = Depends(get_admin_user)):
+    """Admin: update RUKOS_CRYPTO team portfolio"""
+    group = body.group
+    if group not in ["HOLD", "ALTs", "HI_RISK"]:
+        raise HTTPException(status_code=400, detail="Invalid group")
+    positions = [p.model_dump() for p in body.positions]
+    portfolio = await db.rukos_portfolio.find_one({"type": "rukos_team"}, {"_id": 0})
+    if not portfolio:
+        portfolio = {
+            "type": "rukos_team",
+            "description": "Low-risk portfolio от команды RUKOS_CRYPTO",
+            "groups": {
+                "HOLD": {"description": "Основные позиции", "positions": []},
+                "ALTs": {"description": "Альткоины", "positions": []},
+                "HI_RISK": {"description": "Высокий риск", "positions": []},
+            }
+        }
+    portfolio["groups"][group]["positions"] = positions
+    if body.description:
+        portfolio["groups"][group]["description"] = body.description
+    await db.rukos_portfolio.update_one({"type": "rukos_team"}, {"$set": portfolio}, upsert=True)
+    return {"status": "updated", "group": group, "positions_count": len(positions)}
 
 class KnowledgeArticle(BaseModel):
     title: str

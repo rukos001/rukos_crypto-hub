@@ -1,0 +1,76 @@
+{
+  "summary": "Iteration 10 - New features tested: 1) Predictions Tab (Polymarket API) with top 10 events and extreme mover card. 2) Portfolio Page redesign with two tabs (My Portfolio CRUD + RUKOS_CRYPTO read-only). All 124 backend tests passed (including 26 new tests for predictions/portfolio). All 38 frontend tests passed (5 predictions + 11 portfolio + 12 core-flows + 14 dashboard-features = 42 in new specs, some existing).",
+  "mode": "generate",
+  "baseline_commit": "8d919b7b3ec1edfa5e21dd683e92ea67192be463",
+  "head_commit": "f7dcd76dd163776a06a24e459315056c07e7c020",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "regression_results": {
+    "total_specs": 42,
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0
+  },
+  "backend_test_results": {
+    "total": 124,
+    "passed": 124,
+    "failed": 0,
+    "test_files": [
+      "/app/backend/tests/test_predictions_portfolio.py (26 tests - NEW)",
+      "/app/backend/tests/test_real_data.py (39 tests)",
+      "/app/backend/tests/test_admin_portfolio.py",
+      "/app/backend/tests/test_knowledge_api.py",
+      "/app/backend/tests/test_analytics.py"
+    ]
+  },
+  "specs_created": [
+    "/app/tests/e2e/predictions-tab.spec.ts",
+    "/app/tests/e2e/portfolio-page.spec.ts",
+    "/app/backend/tests/test_predictions_portfolio.py"
+  ],
+  "specs_updated": [
+    "/app/tests/fixtures/helpers.ts"
+  ],
+  "quarantined_tests": [],
+  "test_report_links": [
+    "/app/tests/e2e/predictions-tab.spec.ts",
+    "/app/tests/e2e/portfolio-page.spec.ts",
+    "/app/tests/e2e/core-flows.spec.ts",
+    "/app/tests/e2e/dashboard-features.spec.ts",
+    "/app/backend/tests/test_predictions_portfolio.py",
+    "/app/test_reports/pytest/iteration10_results.xml"
+  ],
+  "action_items": [],
+  "updated_files": [
+    "/app/tests/fixtures/helpers.ts",
+    "/app/tests/e2e/predictions-tab.spec.ts",
+    "/app/tests/e2e/portfolio-page.spec.ts",
+    "/app/backend/tests/test_predictions_portfolio.py"
+  ],
+  "success_rate": {
+    "backend": "100% (124/124 tests passed)",
+    "frontend": "100% (42/42 tests passed - 5 predictions, 11 portfolio, 12 core-flows, 14 dashboard-features)"
+  },
+  "seed_data_creation": "Used existing test positions: BTC 1.5 @ $62K (HOLD), ETH 20 @ $1800 (HOLD), SOL 100 @ $75 (ALTs)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Two new features verified: 1) Predictions Tab at position 6 in dashboard tabs (between Altseason and Risk Engine), fetches real Polymarket data with top_events array and extreme_mover. 2) Portfolio page has two tabs with data-testid='tab-my-portfolio' and data-testid='tab-rukos-portfolio'. My portfolio supports CRUD operations via /api/portfolio/positions. RUKOS_CRYPTO portfolio is empty (not configured by admin). Login helper updated to use input[type] selectors instead of placeholder regex.",
+  "features_tested": {
+    "predictions_api": "PASS - GET /api/predictions returns top_events, extreme_mover, total_volume, active_markets, source=Polymarket",
+    "predictions_tab_ui": "PASS - Predictions tab visible in dashboard, shows events with probability bars, links to polymarket.com",
+    "portfolio_my_api": "PASS - GET /api/portfolio/my returns user positions with groups HOLD/ALTs/HI_RISK and real CoinGecko prices",
+    "portfolio_crud": "PASS - POST/PUT/DELETE /api/portfolio/positions works with auth",
+    "portfolio_two_tabs": "PASS - PortfolioPage shows 'Мой портфель' and 'Портфель RUKOS_CRYPTO' tabs",
+    "portfolio_add_dialog": "PASS - Add position dialog has asset, size, entry_price, group, notes fields",
+    "portfolio_pnl_calculation": "PASS - PnL calculated correctly from (current_price - entry_price) * size",
+    "rukos_portfolio_empty": "PASS - Shows empty state message when not configured by admin",
+    "existing_positions": "PASS - BTC 1.5 @ $62K, ETH 20 @ $1800, SOL 100 @ $75 verified"
+  }
+}

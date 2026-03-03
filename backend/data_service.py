@@ -264,9 +264,9 @@ async def get_chain_tvl() -> dict:
 def _fallback_prices() -> dict:
     return {
         "coins": {
-            "BTC": {"symbol": "BTC", "name": "Bitcoin", "price": 97000, "change_24h": 0, "change_7d": 0, "market_cap": 1900000000000, "volume_24h": 40000000000, "high_24h": 98000, "low_24h": 96000, "image": "", "ath": 109000, "ath_change_percentage": -11},
-            "ETH": {"symbol": "ETH", "name": "Ethereum", "price": 3400, "change_24h": 0, "change_7d": 0, "market_cap": 410000000000, "volume_24h": 18000000000, "high_24h": 3450, "low_24h": 3350, "image": "", "ath": 4878, "ath_change_percentage": -30},
-            "SOL": {"symbol": "SOL", "name": "Solana", "price": 190, "change_24h": 0, "change_7d": 0, "market_cap": 85000000000, "volume_24h": 3500000000, "high_24h": 195, "low_24h": 185, "image": "", "ath": 260, "ath_change_percentage": -27},
+            "BTC": {"symbol": "BTC", "name": "Bitcoin", "price": 67000, "change_24h": 0, "change_7d": 0, "market_cap": 1340000000000, "volume_24h": 35000000000, "high_24h": 68000, "low_24h": 66000, "image": "", "ath": 109000, "ath_change_percentage": -38},
+            "ETH": {"symbol": "ETH", "name": "Ethereum", "price": 2010, "change_24h": 0, "change_7d": 0, "market_cap": 242000000000, "volume_24h": 15000000000, "high_24h": 2050, "low_24h": 1970, "image": "", "ath": 4878, "ath_change_percentage": -59},
+            "SOL": {"symbol": "SOL", "name": "Solana", "price": 86, "change_24h": 0, "change_7d": 0, "market_cap": 42000000000, "volume_24h": 3500000000, "high_24h": 88, "low_24h": 84, "image": "", "ath": 260, "ath_change_percentage": -67},
         },
         "global": {
             "total_market_cap": 3500000000000,

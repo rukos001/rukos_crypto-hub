@@ -21,6 +21,7 @@ const translations = {
     tab_etf: 'ETF Intelligence',
     tab_onchain: 'Onchain',
     tab_altseason: 'Altseason',
+    tab_predictions: 'Predictions',
     tab_risk: 'Risk Engine',
     tab_ai: 'AI Сигналы',
     tab_portfolio: 'Портфель',
@@ -28,6 +29,8 @@ const translations = {
     
     // Sidebar
     portfolio: 'Портфель',
+    portfolio_my: 'Мой портфель',
+    portfolio_rukos: 'Портфель RUKOS_CRYPTO',
     admin_panel: 'Админ-панель',
     
     // Market Core
@@ -218,6 +221,7 @@ const translations = {
     tab_etf: 'ETF Intelligence',
     tab_onchain: 'Onchain',
     tab_altseason: 'Altseason',
+    tab_predictions: 'Predictions',
     tab_risk: 'Risk Engine',
     tab_ai: 'AI Signals',
     tab_portfolio: 'Portfolio',
@@ -225,6 +229,8 @@ const translations = {
     
     // Sidebar
     portfolio: 'Portfolio',
+    portfolio_my: 'My Portfolio',
+    portfolio_rukos: 'RUKOS_CRYPTO Portfolio',
     admin_panel: 'Admin Panel',
     
     // Market Core

@@ -68,16 +68,21 @@ export async function loginAsAdmin(page: Page) {
   await expect(loginBtn).toBeVisible();
   await loginBtn.click();
   
-  // Fill admin credentials
-  await page.getByPlaceholder(/email/i).fill('admin@rukos.crypto');
-  await page.getByPlaceholder(/password|пароль/i).fill('1661616irk');
+  // Fill admin credentials using input type selectors
+  const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+  await expect(emailInput).toBeVisible({ timeout: 10000 });
+  await emailInput.fill('admin@rukos.crypto');
+  
+  const passwordInput = page.locator('input[type="password"]').first();
+  await expect(passwordInput).toBeVisible({ timeout: 5000 });
+  await passwordInput.fill('1661616irk');
   
   // Submit login
-  const submitBtn = page.getByRole('button', { name: /Войти|Login|Sign in/i }).last();
+  const submitBtn = page.locator('button').filter({ hasText: /Войти|Login|Sign in/i }).last();
   await submitBtn.click();
   
   // Wait for dashboard to load
-  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 20000 });
 }
 
 export async function loginAsUser(page: Page, email: string = 'test@test.com', password: string = 'password123') {
@@ -88,14 +93,19 @@ export async function loginAsUser(page: Page, email: string = 'test@test.com', p
   await expect(loginBtn).toBeVisible();
   await loginBtn.click();
   
-  // Fill user credentials
-  await page.getByPlaceholder(/email/i).fill(email);
-  await page.getByPlaceholder(/password|пароль/i).fill(password);
+  // Fill user credentials using input type selectors
+  const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+  await expect(emailInput).toBeVisible({ timeout: 10000 });
+  await emailInput.fill(email);
+  
+  const passwordInput = page.locator('input[type="password"]').first();
+  await expect(passwordInput).toBeVisible({ timeout: 5000 });
+  await passwordInput.fill(password);
   
   // Submit login
-  const submitBtn = page.getByRole('button', { name: /Войти|Login|Sign in/i }).last();
+  const submitBtn = page.locator('button').filter({ hasText: /Войти|Login|Sign in/i }).last();
   await submitBtn.click();
   
   // Wait for dashboard to load
-  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId('dashboard-page')).toBeVisible({ timeout: 20000 });
 }

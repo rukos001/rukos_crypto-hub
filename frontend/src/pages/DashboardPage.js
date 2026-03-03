@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { ScrollArea, ScrollBar } from '../components/ui/scroll-area';
 import { RefreshCw, AlertOctagon, Globe, BarChart3, Activity, 
-  Wallet, Shield, Brain, Flame } from 'lucide-react';
+  Wallet, Shield, Brain, Flame, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../context/LanguageContext';
 // watermarks removed
@@ -15,6 +15,7 @@ import { MarketCoreTab, DerivativesTab } from '../components/DashboardTabs';
 import { ETFIntelligenceTab, OnchainTab, AltseasonTab } from '../components/DashboardTabs2';
 import { RiskEngineTab, AISignalsTab } from '../components/DashboardTabs3';
 import { WarModeTab } from '../components/DashboardTabs4';
+import PredictionsTab from '../components/dashboard/PredictionsTab';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -33,6 +34,7 @@ export const DashboardPage = () => {
     { id: 'etf', labelKey: 'tab_etf', icon: Activity, endpoint: '/analytics/etf-intelligence' },
     { id: 'onchain', labelKey: 'tab_onchain', icon: Wallet, endpoint: '/analytics/onchain' },
     { id: 'altseason', labelKey: 'tab_altseason', icon: Flame, endpoint: '/analytics/altseason' },
+    { id: 'predictions', labelKey: 'tab_predictions', icon: Target, endpoint: '/predictions' },
     { id: 'risk', labelKey: 'tab_risk', icon: Shield, endpoint: '/analytics/risk-engine' },
     { id: 'ai', labelKey: 'tab_ai', icon: Brain, endpoint: '/analytics/ai-signals' },
     { id: 'war', labelKey: 'tab_war', icon: AlertOctagon, endpoint: '/analytics/war-mode' },
@@ -108,6 +110,8 @@ export const DashboardPage = () => {
         return <OnchainTab data={tabData} loading={isLoading} />;
       case 'altseason':
         return <AltseasonTab data={tabData} loading={isLoading} />;
+      case 'predictions':
+        return <PredictionsTab />;
       case 'risk':
         return <RiskEngineTab data={tabData} loading={isLoading} />;
       case 'ai':
