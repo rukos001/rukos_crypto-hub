@@ -68,8 +68,22 @@ Professional crypto trading dashboard with branded design, admin panel, knowledg
 ### P1
 - CoinGlass API (real derivatives), SoSoValue (ETF flows)
 - WebSocket for live updates
+
 ### P2
 - AI Assistant (GPT-5.2), Telegram bot
 - Posts/Ideas/Chat enhancements
+
 ### P3
-- TradingView widgets, DB migration, server.py refactoring
+- TradingView widgets, server.py refactoring
+
+---
+
+## Completed Migrations
+
+### Knowledge Base Migration (Mar 2026) ✅
+- Moved 20 articles from hardcoded `get_default_knowledge()` to MongoDB collection `knowledge`
+- Created migration script: `/app/backend/migrate_knowledge.py`
+- Reduced server.py from 2280 to 1513 lines (-767 lines)
+- Categories: DeFi (4), Perp (4), Options (3), Macro (5), Onchain (3), ETF (1)
+- API endpoint `/api/knowledge` now reads from MongoDB
+- Admin CRUD endpoints available for article management
